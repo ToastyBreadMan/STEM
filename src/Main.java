@@ -28,7 +28,7 @@ public class Main extends Application {
 		setUpEditor();
 		
 		window.setScene(menu);
-		window.setTitle("Definitely NOT JFlap");
+		window.setTitle("Definitely NOT JFlap hello git");
 		window.show();
 	}
 	
