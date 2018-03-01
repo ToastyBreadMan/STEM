@@ -17,12 +17,14 @@ public class AlertBox {
 		popup.setMinWidth(250);
 		
 		Label label = new Label("Help menu here");
+		label.setStyle("-fx-text-fill: #839496");
 		
 		Button closeButton = new Button("Close");
 		closeButton.setOnAction(e-> popup.close());
 		
 		VBox layout = new VBox(10);
 		layout.getChildren().addAll(label, closeButton);
+		layout.setStyle("-fx-background-color: #002b36");
 		layout.setAlignment(Pos.CENTER);
 		
 		Scene scene = new Scene(layout);
