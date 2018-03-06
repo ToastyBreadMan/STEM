@@ -10,9 +10,10 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 	Stage window;
-	Scene menu, editor;
+	Scene menu;
 	CloseButton closebutton;
 	HelpMenu help;
+	Editor editor;
 	
 	/* Launch the app */
 	public static void main(String[] args) {
@@ -49,9 +50,8 @@ public class Main extends Application {
 		/* Contents of page. */
 		Label label = new Label("Welcome to umm... JFLAP?");
 		label.setStyle("-fx-text-fill: #839496");
-		Button tmButton = new Button("Start");
-		tmButton.requestFocus();
-		//tmButton.setOnAction(e-> window.setScene(editor));
+		Button editorButton = new Button("Start");
+		editorButton.requestFocus();
 		Button helpButton = new Button("Help");
 		closebutton = new CloseButton();
 		closebutton.setCloseButton(window);
@@ -62,7 +62,7 @@ public class Main extends Application {
 		menuLayout.setStyle("-fx-background-color: #002b36");
 		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
 		buttonLayout.setPadding(new Insets(0, 0, 0, 50));
-		buttonLayout.getChildren().addAll(label, tmButton, helpButton, closebutton.getCloseButton());
+		buttonLayout.getChildren().addAll(label, editorButton, helpButton, closebutton.getCloseButton());
 		buttonLayout.setStyle("-fx-background-color: #002b36");
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);
@@ -71,17 +71,8 @@ public class Main extends Application {
 		help = new HelpMenu(window, menu);
 		helpButton.setOnAction(e-> help.setMenu(window));
 		
-	}
-	
-	private void setUpEditor(){
-		closebutton.setCloseButton(window);
+		editor = new Editor(window, menu);
+		editorButton.setOnAction(e-> editor.setMenu(window));
 		
-		Button editorBackButton = new Button("Back");
-		editorBackButton.setOnAction(e->window.setScene(menu));
-		
-		VBox editorLayout = new VBox(30);
-		editorLayout.getChildren().addAll(editorBackButton, closebutton.getCloseButton());
-		editorLayout.setStyle("-fx-background-color: #002b36");
-		editor = new Scene(editorLayout, 500, 500);
 	}
 }
