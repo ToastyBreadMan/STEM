@@ -13,14 +13,14 @@ public class HelpMenu {
 		closebutton.setCloseButton(window);
 		
 		Label label = new Label("Hello world");
-		label.setStyle("-fx-text-fill: #839496");
+//		label.setStyle("-fx-text-fill: #839496");
 		
 		Button backButton = new Button("Back");
 		backButton.setOnAction(e->window.setScene(prev));
 		
 		VBox layout = new VBox(20);
 		layout.getChildren().addAll(label, backButton, closebutton.getCloseButton());
-		layout.setStyle("-fx-background-color: #002b36");
+//		layout.setStyle("-fx-background-color: #002b36");
 		menu = new Scene(layout, 300, 300);
 	}
 	

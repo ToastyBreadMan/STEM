@@ -49,7 +49,7 @@ public class Main extends Application {
 		
 		/* Contents of page. */
 		Label label = new Label("Welcome to umm... JFLAP?");
-		label.setStyle("-fx-text-fill: #839496");
+//		label.setStyle("-fx-text-fill: #839496");
 		Button editorButton = new Button("Start");
 		editorButton.requestFocus();
 		Button helpButton = new Button("Help");
@@ -59,11 +59,11 @@ public class Main extends Application {
 		/* Set layout. */
 		BorderPane menuLayout = new BorderPane(); 				//outer Borderpane to hold menubar
 		menuLayout.setTop(menuBar);
-		menuLayout.setStyle("-fx-background-color: #002b36");
+		//menuLayout.setStyle("-fx-background-color: #002b36");
 		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
 		buttonLayout.setPadding(new Insets(0, 0, 0, 50));
 		buttonLayout.getChildren().addAll(label, editorButton, helpButton, closebutton.getCloseButton());
-		buttonLayout.setStyle("-fx-background-color: #002b36");
+		//buttonLayout.setStyle("-fx-background-color: #002b36");
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);
 		
