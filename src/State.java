@@ -2,8 +2,8 @@ import java.util.*;
 
 class State {
 	private String name;
-	private int x;
-	private int y;
+	private double x;
+	private double y;
 	private boolean start;
 	private boolean accept;
 	private ArrayList<Transition> paths;
@@ -16,19 +16,19 @@ class State {
 		this.name = name;
 	}
 	
-	public int getX(){
+	public double getX(){
 		return x;
 	}
 	
-	public void setX(int x){
+	public void setX(double x){
 		this.x = x;
 	}
 	
-	public int getY(){
+	public double getY(){
 		return y;
 	}
 	
-	public void setY(int y){
+	public void setY(double y){
 		this.y = y;
 	}
 	

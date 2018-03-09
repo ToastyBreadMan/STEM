@@ -50,8 +50,8 @@ public class Main extends Application {
 		/* Contents of page. */
 		Label label = new Label("Welcome to umm... JFLAP?");
 //		label.setStyle("-fx-text-fill: #839496");
-		Button editorButton = new Button("Start");
-		editorButton.requestFocus();
+		Button newMachineButton = new Button("New Machine");
+		newMachineButton.requestFocus();
 		Button helpButton = new Button("Help");
 		closebutton = new CloseButton();
 		closebutton.setCloseButton(window);
@@ -62,7 +62,7 @@ public class Main extends Application {
 		//menuLayout.setStyle("-fx-background-color: #002b36");
 		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
 		buttonLayout.setPadding(new Insets(0, 0, 0, 50));
-		buttonLayout.getChildren().addAll(label, editorButton, helpButton, closebutton.getCloseButton());
+		buttonLayout.getChildren().addAll(label, newMachineButton, helpButton, closebutton.getCloseButton());
 		//buttonLayout.setStyle("-fx-background-color: #002b36");
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);
@@ -72,7 +72,10 @@ public class Main extends Application {
 		helpButton.setOnAction(e-> help.setMenu(window));
 		
 		editor = new Editor(window, menu);
-		editorButton.setOnAction(e-> editor.setMenu(window));
+		newMachineButton.setOnAction(e-> {
+			editor.setMenu(window);
+			editor.newMachine(window, menu);
+		});
 		
 	}
 }

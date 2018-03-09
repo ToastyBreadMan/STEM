@@ -15,6 +15,5 @@ public class CloseButton {
 	
 	public void setCloseButton(Stage window){
 		button.setOnAction(e->window.close());
-		button.setAlignment(Pos.BOTTOM_RIGHT);
 	}
 }
