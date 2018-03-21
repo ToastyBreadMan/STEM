@@ -1,4 +1,7 @@
 import java.util.*;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
 
 class State {
 	private String name;
@@ -6,6 +9,8 @@ class State {
 	private double y;
 	private boolean start;
 	private boolean accept;
+	private Circle circle;
+	private EventHandler<MouseEvent> clickListener;
 	private ArrayList<Transition> paths;
 	
 	public String getName() {
@@ -46,6 +51,22 @@ class State {
 	
 	public void setAccept(boolean accept) {
 		this.accept = accept;
+	}
+	
+	public Circle getCircle(){
+		return circle;
+	}
+	
+	public void setCircle(Circle circle){
+		this.circle = circle;
+	}
+	
+	public void setClickListener(EventHandler<MouseEvent> clickListener){
+		this.clickListener = clickListener;
+	}
+	
+	public EventHandler<MouseEvent> getClickListener(){
+		return clickListener;
 	}
 	
 	public ArrayList<Transition> getPaths() {

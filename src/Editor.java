@@ -30,7 +30,6 @@ public class Editor {
 		BorderPane pane = new BorderPane();
 		
 		editorSpace = new Pane();
-		//editorSpace.getChildren().addAll();
 		
 		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
@@ -66,49 +65,6 @@ public class Editor {
 		return bar;
 	}
 	
-	/* Add state upon clicking. */
-	private void addStateSelected(ToggleButton button, Stage window, Machine machine){
-		window.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, new EventHandler<javafx.scene.input.MouseEvent>() {
-			int val = 0;
-			int savedVal;
-			ArrayList<Integer> deletedValues;
-			@Override
-			public void handle(javafx.scene.input.MouseEvent event) {
-				if (button.isSelected()) {
-					State newState = new State();
-					newState.setX(event.getX());
-					newState.setY(event.getY());
-					newState.setStart(false);
-					newState.setAccept(false);
-					
-					/*
-					if (deletedValues.isEmpty()) {
-						newState.setName(Integer.toString(val));
-						val++;
-						System.out.println(val);
-					}
-					else {
-						savedVal = deletedValues.get(0);
-						deletedValues.remove(0);
-						newState.setName(Integer.toString(savedVal));
-						System.out.println(savedVal);
-					}
-					*/
-
-					newState.setName(Integer.toString(val));
-					System.out.println(val);
-					val++;
-
-					Circle circle = new Circle();
-					circle.setCenterX(event.getX());
-					circle.setCenterY(event.getY() - bar.getHeight()); //toolbar messes this up
-					circle.setRadius(20);
-					editorSpace.getChildren().add(circle);
-				}
-			}
-		});
-	}
-	
 	public void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
 		
@@ -118,7 +74,7 @@ public class Editor {
 		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 			int val = 0;
 			int savedVal;
-			ArrayList<Integer> deletedValues;
+			ArrayList<Integer> deletedValues = new ArrayList<Integer>();
 			@Override
 			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
 				if(currentHandler != null) {
@@ -136,29 +92,46 @@ public class Editor {
 								newState.setStart(false);
 								newState.setAccept(false);
 								
-								/*
+								//check for deleted values
 								if (deletedValues.isEmpty()) {
 									newState.setName(Integer.toString(val));
-									val++;
 									System.out.println(val);
+									val++;
 								}
 								else {
 									savedVal = deletedValues.get(0);
 									deletedValues.remove(0);
-									newState.setName(Integer.toString(savedVal));
 									System.out.println(savedVal);
+									newState.setName(Integer.toString(savedVal));
 								}
-								*/
-								//System.out.println(deletedValues.isEmpty());
 								
+								/* FIXME Keep this only for a backup.
 								newState.setName(Integer.toString(val));
 								System.out.println(val);
 								val++;
+								*/
 								
 								Circle circle = new Circle();
 								circle.setCenterX(event.getX());
 								circle.setCenterY(event.getY() - bar.getHeight()); //toolbar messes this up
 								circle.setRadius(20);
+								newState.setCircle(circle);
+								
+								EventHandler<MouseEvent> circleHandler = new EventHandler<MouseEvent>() {
+									@Override
+									public void handle(MouseEvent event) {
+										/* FIXME Debugging prints. */
+										System.out.println("This is " + newState.getName() + ":");
+										System.out.println("\t X: " + newState.getX());
+										System.out.println("\t Y: " + newState.getY());
+										System.out.println("\t Start: " + newState.isStart());
+										System.out.println("\t Accept: " + newState.isAccept());
+										
+										deletedValues = deleteState(group, newState, deletedValues);
+									}
+								};
+								circle.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
+								newState.setClickListener(circleHandler);
 								editorSpace.getChildren().add(circle);
 							}
 						};
@@ -168,7 +141,8 @@ public class Editor {
 						currentHandler = new EventHandler<MouseEvent>() {
 							@Override
 							public void handle(MouseEvent event) {
-								System.out.println("Delete");
+								//System.out.println("Delete");
+								
 							}
 						};
 						window.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
@@ -195,5 +169,25 @@ public class Editor {
 			window.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 		}
 		currentHandler = null;
+	}
+	
+	/* Function to check state of toggle and delete. */
+	public ArrayList<Integer> deleteState(ToggleGroup group, State state, ArrayList<Integer> deletedValues){
+		if(group.getSelectedToggle() == null){
+			//do nothing
+		}
+		else if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(0)){
+			//do nothing
+		}
+		else if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(1)){
+			state.getCircle().removeEventHandler(MouseEvent.MOUSE_CLICKED, state.getClickListener());
+			editorSpace.getChildren().remove(state.getCircle());
+			deletedValues.add(Integer.parseInt(state.getName()));
+			state = null;
+		}
+		else{
+			System.out.println("Error?");
+		}
+		return deletedValues;
 	}
 }
