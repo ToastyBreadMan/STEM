@@ -3,4 +3,4 @@ This is a modification (i.e. entire rewrite using the concept of JFLAP) using on
 
 ## Contributors:
 Dakota Sanders [dsande30@vols.utk.edu] </br>
-Matthew Matto [hgd145@vols.utk.edu] </br>
+Matt Matto [hgd145@vols.utk.edu] </br>
