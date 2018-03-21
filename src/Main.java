@@ -71,10 +71,11 @@ public class Main extends Application {
 		help = new HelpMenu(window, menu);
 		helpButton.setOnAction(e-> help.setMenu(window));
 		
-		editor = new Editor(window, menu);
 		newMachineButton.setOnAction(e-> {
+			editor = new Editor(window, menu);
 			editor.setMenu(window);
 			editor.newMachine(window, menu);
+			editor = null;
 		});
 		
 	}
