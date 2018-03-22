@@ -1,6 +1,7 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -15,7 +16,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,11 +60,42 @@ public class Editor {
 		ToggleButton deleteState = new ToggleButton("Delete State");
 		deleteState.setStyle("-fx-font-size: 10px;");
 		deleteState.setToggleGroup(buttonGroup);
+
+		// open the tester dialog
+		Button testButton = new Button("Test Machine");
+		testButton.setStyle("-fx-font-size: 10px");
+		testButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Label newWindowLabel = new Label("Send Nudes");
+
+				StackPane secondaryLayout = new StackPane();
+				secondaryLayout.getChildren().add(newWindowLabel);
+
+				Scene secondScene = new Scene(secondaryLayout, 230, 100);
+
+				// new Window (Stage)
+				Stage newWindow = new Stage();
+				newWindow.setTitle("Test Machine");
+				newWindow.setScene(secondScene);
+
+				// specifies the modality for the new stage
+				newWindow.initModality(Modality.APPLICATION_MODAL);
+
+				// Specifies the parent of the new stage
+				//newWindow.initOwner()
+
+				//newWindow.setX(primaryStage.getX() + 200);
+				//newWindow.setY(primaryStage.getY() + 100);
+
+				newWindow.show();
+			}
+		});
 		
 		Button backButton = new Button("Back");
 		backButton.setOnAction(e->deleteEditor(window, prev));
 		backButton.setStyle("-fx-font-size: 10px;");
-		bar.getItems().addAll(addState, deleteState, backButton);
+		bar.getItems().addAll(addState, deleteState, testButton, backButton);
 		bar.setStyle("-fx-background-color: #dae4e3");
 		return bar;
 	}
