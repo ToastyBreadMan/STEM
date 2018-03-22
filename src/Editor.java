@@ -18,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Editor {
 	private Scene editor;
@@ -74,6 +75,7 @@ public class Editor {
 		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 			int val = 0;
 			int savedVal;
+			int minIndex;
 			ArrayList<Integer> deletedValues = new ArrayList<Integer>();
 			@Override
 			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
@@ -99,8 +101,9 @@ public class Editor {
 									val++;
 								}
 								else {
-									savedVal = deletedValues.get(0);
-									deletedValues.remove(0);
+									minIndex = deletedValues.indexOf(Collections.min(deletedValues));
+									savedVal = deletedValues.get(minIndex);
+									deletedValues.remove(minIndex);
 									System.out.println(savedVal);
 									newState.setName(Integer.toString(savedVal));
 								}
