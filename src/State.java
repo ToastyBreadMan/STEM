@@ -1,10 +1,13 @@
 import java.util.*;
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 
 class State {
 	private String name;
+	private Text label;
 	private double x;
 	private double y;
 	private boolean start;
@@ -19,6 +22,14 @@ class State {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public Text getLabel() {
+		return label;
+	}
+	
+	public void setLabel(Text label) {
+		this.label = label;
 	}
 	
 	public double getX(){

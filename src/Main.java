@@ -9,11 +9,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	Stage window;
-	Scene menu;
-	CloseButton closebutton;
-	HelpMenu help;
-	Editor editor;
+	private Stage window;
+	private Scene menu;
+	private CloseButton closebutton;
+	private HelpMenu help;
+	private Editor editor;
 	
 	/* Launch the app */
 	public static void main(String[] args) {
