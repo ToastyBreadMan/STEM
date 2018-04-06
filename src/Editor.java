@@ -97,11 +97,13 @@ class Editor {
 						currentHandler = new EventHandler<MouseEvent>() {
 							@Override
 							public void handle(MouseEvent event) {
-								if (!(event.getTarget() instanceof Circle) && !(event.getTarget() instanceof Text)) {
+								double minDist= calcDist(event, currentMachine);
+								if (!(event.getTarget() instanceof Circle) && !(event.getTarget() instanceof Text)
+										&& (minDist / 2) >= 20 && event.getY() - bar.getHeight() > 20) {
 									
 									State newState = new State();
 									newState.setX(event.getX());
-									newState.setY(event.getY());
+									newState.setY(event.getY() - bar.getHeight());
 									newState.setStart(false);
 									newState.setAccept(false);
 									
@@ -148,8 +150,8 @@ class Editor {
 									label.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
 									circle.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
 									newState.setClickListener(circleHandler);
+									currentMachine.addState(newState);
 									editorSpace.getChildren().addAll(newState.getCircle(), label);
-									//editorSpace.getChildren().add(circlePane);
 								}
 							}
 						};
@@ -191,21 +193,34 @@ class Editor {
 	
 	/* Function to check state of toggle and delete. */
 	ArrayList<Integer> deleteState(ToggleGroup group, State state, ArrayList<Integer> deletedValues){
-		if(group.getSelectedToggle() == null){
-			//do nothing
-		}
-		else if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(0)){
-			//do nothing
-		}
-		else if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(1)){
+		if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(1)){
 			state.getCircle().getParent().removeEventHandler(MouseEvent.MOUSE_CLICKED, state.getClickListener());
 			editorSpace.getChildren().removeAll(state.getCircle(), state.getLabel());
+			currentMachine.deleteState(state);
 			deletedValues.add(Integer.parseInt(state.getName()));
 			state = null;
 		}
-		else{
-			System.out.println("Error?");
-		}
+
 		return deletedValues;
+	}
+	
+	double calcDist(MouseEvent event, Machine currentMachine){
+		double min = Double.MAX_VALUE;
+		if(!(currentMachine.getStates().isEmpty())) {
+			State minState = null;
+			for (State state : currentMachine.getStates()) {
+				double dist = distForm(event.getX(), state.getCircle().getCenterX(),
+						event.getY() - bar.getHeight(), state.getCircle().getCenterY());
+				if(min > dist){
+					min = dist;
+					minState = state;
+				}
+			}
+		}
+		return min;
+	}
+
+	double distForm(double x1, double x2, double y1, double y2){
+		return Math.hypot(x2-x1, y2-y1);
 	}
 }

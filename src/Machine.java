@@ -3,8 +3,8 @@ import java.util.ArrayList;
 class Machine {
 	private State startState;
 	private State acceptState;
-	private ArrayList<State> states;
-	private ArrayList<Transition> transitions;
+	private ArrayList<State> states = new ArrayList<State>();
+	private ArrayList<Transition> transitions = new ArrayList<Transition>();
 	
 	public State getStartState() {
 		return startState;
@@ -28,6 +28,14 @@ class Machine {
 	
 	public void setStates(ArrayList<State> states) {
 		this.states = states;
+	}
+	
+	public void addState(State state){
+		states.add(state);
+	}
+	
+	public void deleteState(State state){
+		states.remove(state);
 	}
 	
 	public ArrayList<Transition> getTransitions() {
