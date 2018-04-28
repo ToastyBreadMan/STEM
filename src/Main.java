@@ -48,9 +48,10 @@ public class Main extends Application {
 		menuBar.setStyle("-fx-background-color: #dae4e3");
 		
 		/* Contents of page. */
-		Label label = new Label("Welcome to umm... JFLAP?");
-//		label.setStyle("-fx-text-fill: #839496");
+		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
 		Button newMachineButton = new Button("New Machine");
+		Label label1 = new Label("To begin, create a new machine.");
+		
 		newMachineButton.requestFocus();
 		Button helpButton = new Button("Help");
 		closebutton = new CloseButton();
@@ -61,8 +62,8 @@ public class Main extends Application {
 		menuLayout.setTop(menuBar);
 		//menuLayout.setStyle("-fx-background-color: #002b36");
 		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
-		buttonLayout.setPadding(new Insets(0, 0, 0, 50));
-		buttonLayout.getChildren().addAll(label, newMachineButton, helpButton, closebutton.getCloseButton());
+		buttonLayout.setPadding(new Insets(0, 0, 0, 20));
+		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, helpButton, closebutton.getCloseButton());
 		//buttonLayout.setStyle("-fx-background-color: #002b36");
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);

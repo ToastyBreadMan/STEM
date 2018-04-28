@@ -1,4 +1,7 @@
+import javafx.scene.shape.Line;
+
 class Transition {
+	private Line line;
 	private State toState;
 	private State fromState;
 	private char readChar;
@@ -6,6 +9,14 @@ class Transition {
 	private Direction moveChar;
 	private enum Direction{
 		LEFT, RIGHT, STAY
+	}
+	
+	public Line getLine(){
+		return line;
+	}
+	
+	public void setLine(Line line){
+		this.line = line;
 	}
 	
 	public State getToState() {
