@@ -99,9 +99,12 @@ class Editor {
 			ArrayList<Integer> deletedValues = new ArrayList<Integer>();
 			
 			/*
-				Handler to change cursor on drag.
-				Note: This can't be a lambda function no matter how much Intellij wants it to be.
+			-------------------------
+			Begin handler creation
+			-------------------------
 			 */
+			
+			/* Handler to change cursor on drag. */
 			EventHandler<MouseEvent> MoveEvent = new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
@@ -109,13 +112,89 @@ class Editor {
 				}
 			};
 			
-			/* FIXME this is going to replace the mess below.. hopefully. */
+			/* This handler is used very soon to add states. */
 			EventHandler<MouseEvent> addStateHandler = new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
-				
+					
+					/* First, ensure click isn't too close to edge or other circle. */
+					double minDist= calcDist(event, currentMachine);
+					if (!(event.getTarget() instanceof Circle) && !(event.getTarget() instanceof Text)
+						&& (minDist / 2) >= 20 && event.getY() - bar.getHeight() > 20) {
+						
+						/* Create state. */
+						State newState = new State();
+						newState.setX(event.getX());
+						newState.setY(event.getY() - bar.getHeight());
+						newState.setStart(false);
+						newState.setAccept(false);
+						
+						/* Check for next number to be made. */
+						if (deletedValues.isEmpty()) {
+							newState.setName(Integer.toString(val));
+							System.out.println(val);
+							val++;
+						} else {
+							minIndex = deletedValues.indexOf(Collections.min(deletedValues));
+							savedVal = deletedValues.get(minIndex);
+							deletedValues.remove(minIndex);
+							System.out.println(savedVal);
+							newState.setName(Integer.toString(savedVal));
+						}
+						
+						/* add circle and name centered on click */
+						Circle circle = new Circle();
+						circle.setFill(Color.LIGHTGOLDENRODYELLOW);
+						circle.setStrokeWidth(3);
+						circle.setStroke(Color.BLACK);
+						circle.setId(newState.getName());
+						Text label = new Text(newState.getName());
+						label.setId(newState.getName());
+						circle.setCenterX(event.getX());
+						circle.setCenterY(event.getY() - (bar.getHeight())); /* toolbar messes this up */
+						circle.setRadius(20);
+						label.setX(circle.getCenterX() - (label.getLayoutBounds().getWidth() / 2));
+						label.setY(circle.getCenterY() + (label.getLayoutBounds().getHeight() / 4));
+						newState.setCircle(circle);
+						newState.setLabel(label);
+						
+						/* Create handler for drag events. */
+						EventHandler<MouseEvent> dragHandler = new EventHandler<MouseEvent>() {
+							@Override
+							public void handle(MouseEvent event) {
+								addTransition(event);
+							}
+						};
+						
+						/* Create handler for deleting states. */
+						EventHandler<MouseEvent> circleHandler = new EventHandler<MouseEvent>() {
+							@Override
+							public void handle(MouseEvent event) {
+								if(group.getSelectedToggle() == group.getToggles().get(1)){
+									deletedValues = deleteState(group, newState, deletedValues, this);
+								}
+							}
+						};
+						
+						/* Assign handlers to label and circle. */
+						label.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
+						circle.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
+						label.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
+						circle.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
+
+						newState.setClickListener(circleHandler);
+						currentMachine.addState(newState);
+						editorSpace.getChildren().addAll(newState.getCircle(), label);
+					}
+					
 				}
-			}
+			};
+			
+			/*
+			-------------------------
+			End handler creation
+			-------------------------
+			 */
 			
 			/* This is the toggle group listener. */
 			@Override
@@ -133,76 +212,8 @@ class Editor {
 						/* This needs to be a filter so it can run before other event stuff. */
 						editor.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
 						
-						currentHandler = new EventHandler<MouseEvent>() {
-							@Override
-							public void handle(MouseEvent event) {
-								double minDist= calcDist(event, currentMachine);
-								if (!(event.getTarget() instanceof Circle) && !(event.getTarget() instanceof Text)
-										&& (minDist / 2) >= 20 && event.getY() - bar.getHeight() > 20) {
-									
-									State newState = new State();
-									newState.setX(event.getX());
-									newState.setY(event.getY() - bar.getHeight());
-									newState.setStart(false);
-									newState.setAccept(false);
-									
-									/* check for deleted values */
-								
-									if (deletedValues.isEmpty()) {
-										newState.setName(Integer.toString(val));
-										System.out.println(val);
-										val++;
-									} else {
-										minIndex = deletedValues.indexOf(Collections.min(deletedValues));
-										savedVal = deletedValues.get(minIndex);
-										deletedValues.remove(minIndex);
-										System.out.println(savedVal);
-										newState.setName(Integer.toString(savedVal));
-									}
-									
-									/* add circle and name centered on click */
-									Circle circle = new Circle();
-									circle.setFill(Color.LIGHTGOLDENRODYELLOW);
-									circle.setStrokeWidth(3);
-									circle.setStroke(Color.BLACK);
-									circle.setId(newState.getName());
-									Text label = new Text(newState.getName());
-									label.setId(newState.getName());
-									circle.setCenterX(event.getX());
-									circle.setCenterY(event.getY() - (bar.getHeight())); /* toolbar messes this up */
-								
-									circle.setRadius(20);
-									label.setX(circle.getCenterX() - (label.getLayoutBounds().getWidth() / 2));
-									label.setY(circle.getCenterY() + (label.getLayoutBounds().getHeight() / 4));
-									newState.setCircle(circle);
-									newState.setLabel(label);
-									
-									EventHandler<MouseEvent> dragHandler = new EventHandler<MouseEvent>() {
-										@Override
-										public void handle(MouseEvent event) {
-											addTransition(event);
-										}
-									};
-									
-									EventHandler<MouseEvent> circleHandler = new EventHandler<MouseEvent>() {
-										@Override
-										public void handle(MouseEvent event) {
-											if(group.getSelectedToggle() == group.getToggles().get(1)){
-												deletedValues = deleteState(group, newState, deletedValues, this);
-											}
-										}
-									};
-									label.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
-									circle.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
-									label.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
-									circle.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
-									
-									newState.setClickListener(circleHandler);
-									currentMachine.addState(newState);
-									editorSpace.getChildren().addAll(newState.getCircle(), label);
-								}
-							}
-						};
+						/* Assign handler made earlier. */
+						currentHandler = addStateHandler;
 						window.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 					}
 					else{
@@ -216,6 +227,7 @@ class Editor {
 		});
 	}
 	
+	/* Sets cursor to image of state for clarity. */
 	private void setCursor(MouseEvent event){
 		if(event.getY() > bar.getHeight() + 20) {
 			Circle circle = new Circle(20, null);
@@ -234,6 +246,8 @@ class Editor {
 		}
 	}
 	
+	/* Hopefully erases all editor data. */
+	/* FIXME: If someone can verify this works, I would be grateful. */
 	private void deleteEditor(Stage window, Scene prev){
 		System.out.println("If you see this you should be saving your machine");
 		window.setScene(prev);
@@ -360,6 +374,7 @@ class Editor {
 		}
 	}
 	
+	/* Calculates distance to closest state. */
 	private double calcDist(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		if(!(currentMachine.getStates().isEmpty())) {
@@ -376,6 +391,7 @@ class Editor {
 		return min;
 	}
 	
+	/* calculates closest state to click. */
 	private Pair calcCloseState(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		State minState = null;
