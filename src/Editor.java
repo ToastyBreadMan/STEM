@@ -2,35 +2,20 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.Pair;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -41,8 +26,8 @@ class Editor {
 	private Machine currentMachine;
 	private EventHandler<MouseEvent> currentHandler;
 	private Input inputWindow;
-	//private ArrayList<Integer> deletedValues;
 	
+	/* Set up window. */
 	Editor(Stage window, Scene prev){
 		BorderPane pane = new BorderPane();
 		
@@ -53,7 +38,7 @@ class Editor {
 		editor = new Scene(pane, 500, 500);
 	}
 	
-	
+	/* Basic window settings. */
 	void setMenu(Stage window){
 		window.setTitle("Editor");
 		window.setMinWidth(500);
@@ -62,42 +47,46 @@ class Editor {
 	}
 	
 	/* This sets up the menu bar, but does NOT set the button actions */
-	ToolBar initMenuBar(Stage window, Scene prev){
+	private ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
 		
+		/* Add state. */
 		ToggleGroup buttonGroup = new ToggleGroup();
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.setStyle("-fx-font-size: 10px;");
 		addState.setToggleGroup(buttonGroup);
 		
+		/* Delete State. */
 		ToggleButton deleteState = new ToggleButton("Delete State");
 		deleteState.setStyle("-fx-font-size: 10px;");
 		deleteState.setToggleGroup(buttonGroup);
 		
+		/* Add Transition. */
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.setStyle("-fx-font-size: 10px;");
 		addTransition.setToggleGroup(buttonGroup);
 
-		/* Open the tester dialog. */
+		/* Open the tester dialog window. */
 		Button testButton = new Button("Test Machine");
 		testButton.setStyle("-fx-font-size: 10px");
 		testButton.setOnAction(e-> getInput(window, prev));
 		
+		/* Create back button. */
 		Button backButton = new Button("Back");
 		backButton.setOnAction(e->deleteEditor(window, prev));
 		backButton.setStyle("-fx-font-size: 10px;");
+		
 		bar.getItems().addAll(addState, deleteState, addTransition, testButton, backButton);
 		bar.setStyle("-fx-background-color: #dae4e3");
 		return bar;
 	}
 	
-	/*
-	FIXME
-	If someone can clean up this next function, please do so.
+	/*  This section can be tricky.
+		How this works is listening for changes in the toggle group.
+		Basically, whenever a button in the menu is changed,
+		the program will switch to a new handler to handle a mouse click.
+		If nothing is selected, then no handler will be assigned.
 	 */
-	
-	
-	/* Called whenever a new machine is setup */
 	void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
 		ToggleGroup group = ((ToggleButton) bar.getItems().get(0)).getToggleGroup();
@@ -109,7 +98,10 @@ class Editor {
 			int minIndex;
 			ArrayList<Integer> deletedValues = new ArrayList<Integer>();
 			
-			/* Handler to change cursor on drag. */
+			/*
+				Handler to change cursor on drag.
+				Note: This can't be a lambda function no matter how much Intellij wants it to be.
+			 */
 			EventHandler<MouseEvent> MoveEvent = new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
@@ -117,12 +109,26 @@ class Editor {
 				}
 			};
 			
+			/* FIXME this is going to replace the mess below.. hopefully. */
+			EventHandler<MouseEvent> addStateHandler = new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent event) {
+				
+				}
+			}
+			
+			/* This is the toggle group listener. */
 			@Override
 			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+				
+				/* First things first, clear the handler if the toggle changes. */
 				if(currentHandler != null) {
 					window.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 				}
+				
+				/* If something is selected, we need to get specific. */
 				if(newValue != null){
+					/* If we are adding states. */
 					if(newValue == bar.getItems().get(0)) {
 						/* This needs to be a filter so it can run before other event stuff. */
 						editor.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
@@ -153,7 +159,6 @@ class Editor {
 										System.out.println(savedVal);
 										newState.setName(Integer.toString(savedVal));
 									}
-									
 									
 									/* add circle and name centered on click */
 									Circle circle = new Circle();
@@ -211,7 +216,7 @@ class Editor {
 		});
 	}
 	
-	void setCursor(MouseEvent event){
+	private void setCursor(MouseEvent event){
 		if(event.getY() > bar.getHeight() + 20) {
 			Circle circle = new Circle(20, null);
 			circle.setStroke(Color.BLACK);
@@ -229,7 +234,7 @@ class Editor {
 		}
 	}
 	
-	void deleteEditor(Stage window, Scene prev){
+	private void deleteEditor(Stage window, Scene prev){
 		System.out.println("If you see this you should be saving your machine");
 		window.setScene(prev);
 		/* garbage collection to the rescue */
@@ -244,7 +249,7 @@ class Editor {
 	}
 	
 	/* Function to check state of toggle and delete. */
-	ArrayList<Integer> deleteState(ToggleGroup group, State state, ArrayList<Integer> deletedValues,
+	private ArrayList<Integer> deleteState(ToggleGroup group, State state, ArrayList<Integer> deletedValues,
 								   EventHandler<MouseEvent> eventHandler){
 		if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(1)){
 			state.getCircle().removeEventHandler(MouseEvent.MOUSE_CLICKED, eventHandler);
@@ -260,7 +265,7 @@ class Editor {
 		return deletedValues;
 	}
 	
-	void addTransition(MouseEvent event) {
+	private void addTransition(MouseEvent event) {
 		State currentTarget = null;
 		BooleanProperty drag = new SimpleBooleanProperty();
 		BooleanProperty valid = new SimpleBooleanProperty();
@@ -355,7 +360,7 @@ class Editor {
 		}
 	}
 	
-	double calcDist(MouseEvent event, Machine currentMachine){
+	private double calcDist(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		if(!(currentMachine.getStates().isEmpty())) {
 			State minState = null;
@@ -371,7 +376,7 @@ class Editor {
 		return min;
 	}
 	
-	Pair calcCloseState(MouseEvent event, Machine currentMachine){
+	private Pair calcCloseState(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		State minState = null;
 		Pair returnVal = null;
@@ -391,11 +396,11 @@ class Editor {
 		return returnVal;
 	}
 
-	double distForm(double x1, double x2, double y1, double y2){
+	private double distForm(double x1, double x2, double y1, double y2){
 		return Math.hypot(x2-x1, y2-y1);
 	}
 	
-	void getInput(Stage window, Scene prev){
+	private void getInput(Stage window, Scene prev){
 		inputWindow = new Input(window);
 		inputWindow.launch();
 	}

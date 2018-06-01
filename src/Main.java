@@ -1,17 +1,19 @@
+/*
+	Upon runtime, generates a window and a menu.
+	FIXME: LINE 84
+ */
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 	private Stage window;
 	private Scene menu;
-	private CloseButton closebutton;
 	private HelpMenu help;
 	private Editor editor;
 	
@@ -21,7 +23,7 @@ public class Main extends Application {
 	}
 	
 	@Override
-	public void start(Stage primaryStage) throws Exception{
+	public void start(Stage primaryStage){
 		window = primaryStage;
 		window.setMinWidth(200);
 		window.setMinHeight(200);
@@ -54,17 +56,19 @@ public class Main extends Application {
 		
 		newMachineButton.requestFocus();
 		Button helpButton = new Button("Help");
-		closebutton = new CloseButton();
-		closebutton.setCloseButton(window);
+		Button closeButton = new Button("Close");
+		(closeButton).setOnAction(e-> window.close());
 		
-		/* Set layout. */
-		BorderPane menuLayout = new BorderPane(); 				//outer Borderpane to hold menubar
+		/* Set Border Pane for window. */
+		BorderPane menuLayout = new BorderPane();
 		menuLayout.setTop(menuBar);
-		//menuLayout.setStyle("-fx-background-color: #002b36");
-		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
+		
+		/* Create Vertical Box to hold Labels, Buttons. */
+		VBox buttonLayout = new VBox(20);
 		buttonLayout.setPadding(new Insets(0, 0, 0, 20));
-		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, helpButton, closebutton.getCloseButton());
-		//buttonLayout.setStyle("-fx-background-color: #002b36");
+		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, helpButton, closeButton);
+		
+		/* Populate center of Border Pane with VBox. */
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);
 		
@@ -72,11 +76,12 @@ public class Main extends Application {
 		help = new HelpMenu(window, menu);
 		helpButton.setOnAction(e-> help.setMenu(window));
 		
+		/* Create new machine on button press. */
 		newMachineButton.setOnAction(e-> {
 			editor = new Editor(window, menu);
 			editor.setMenu(window);
 			editor.newMachine(window, menu);
-			editor = null;
+			//editor = null; /* FIXME why did I do this? */
 		});
 		
 	}
