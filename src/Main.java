@@ -48,22 +48,34 @@ public class Main extends Application {
 		menuBar.setStyle("-fx-background-color: #dae4e3");
 		
 		/* Contents of page. */
+		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
+		buttonLayout.setPadding(new Insets(0, 20, 20, 20));
+
 		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
-		Button newMachineButton = new Button("New Machine");
 		Label label1 = new Label("To begin, create a new machine.");
-		
+
+		Button newMachineButton = new Button("New Machine");
+		newMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
+		newMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
 		newMachineButton.requestFocus();
+
+		Button loadMachineButton = new Button("New Machine");
+		loadMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
+		loadMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
+
 		Button helpButton = new Button("Help");
-		closebutton = new CloseButton();
-		closebutton.setCloseButton(window);
+		helpButton.prefWidthProperty().bind(buttonLayout.widthProperty());
+		helpButton.prefHeightProperty().bind(buttonLayout.heightProperty());
+
+		//closebutton = new CloseButton();
+		//closebutton.setCloseButton(window);
 		
 		/* Set layout. */
 		BorderPane menuLayout = new BorderPane(); 				//outer Borderpane to hold menubar
 		menuLayout.setTop(menuBar);
 		//menuLayout.setStyle("-fx-background-color: #002b36");
-		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
-		buttonLayout.setPadding(new Insets(0, 0, 0, 20));
-		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, helpButton, closebutton.getCloseButton());
+
+		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, loadMachineButton, helpButton); //, closebutton.getCloseButton());
 		//buttonLayout.setStyle("-fx-background-color: #002b36");
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 300);
