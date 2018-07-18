@@ -1,5 +1,7 @@
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -45,12 +47,16 @@ class Editor {
 	
 	Editor(Stage window, Scene prev){
 		BorderPane pane = new BorderPane();
-		
+
 		editorSpace = new Pane();
 		
 		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
+
 		editor = new Scene(pane, 500, 500);
+
+		pane.prefHeightProperty().bind(editor.heightProperty());
+		pane.prefWidthProperty().bind(editor.widthProperty());
 	}
 	
 	
@@ -67,27 +73,46 @@ class Editor {
 		
 		ToggleGroup buttonGroup = new ToggleGroup();
 		ToggleButton addState = new ToggleButton("Add State");
-		addState.setStyle("-fx-font-size: 10px;");
+		ObjectProperty<Font> addStateTrack = new SimpleObjectProperty<>(Font.getDefault());
+		addState.fontProperty().bind(addStateTrack);
 		addState.setToggleGroup(buttonGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete State");
-		deleteState.setStyle("-fx-font-size: 10px;");
+		ObjectProperty<Font> deleteStateTrack = new SimpleObjectProperty<>(Font.getDefault());
+		deleteState.fontProperty().bind(deleteStateTrack);
 		deleteState.setToggleGroup(buttonGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
-		addTransition.setStyle("-fx-font-size: 10px;");
+		ObjectProperty<Font> addTransitionTrack = new SimpleObjectProperty<>(Font.getDefault());
+		addTransition.fontProperty().bind(addTransitionTrack);
 		addTransition.setToggleGroup(buttonGroup);
 
 		/* Open the tester dialog. */
 		Button testButton = new Button("Test Machine");
-		testButton.setStyle("-fx-font-size: 10px");
+		ObjectProperty<Font> testButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
+		testButton.fontProperty().bind(testButtonTrack);
 		testButton.setOnAction(e-> getInput(window, prev));
 		
 		Button backButton = new Button("Back");
+		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
+		backButton.fontProperty().bind(backButtonTrack);
 		backButton.setOnAction(e->deleteEditor(window, prev));
-		backButton.setStyle("-fx-font-size: 10px;");
+
 		bar.getItems().addAll(addState, deleteState, addTransition, testButton, backButton);
 		bar.setStyle("-fx-background-color: #dae4e3");
+
+		bar.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldWidth, Number newWidth) {
+				addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+				deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+				addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+				testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+				backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			}
+		});
+
+
 		return bar;
 	}
 	
@@ -232,6 +257,12 @@ class Editor {
 	void deleteEditor(Stage window, Scene prev){
 		System.out.println("If you see this you should be saving your machine");
 		window.setScene(prev);
+
+		window.setMinWidth(300);
+		window.setMinHeight(400);
+		window.setHeight(400);
+		window.setWidth(300);
+
 		/* garbage collection to the rescue */
 		editor = null;
 		bar = null;

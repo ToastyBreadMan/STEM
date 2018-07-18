@@ -57,9 +57,9 @@ public class Main extends Application {
 		buttonLayout.setPadding(new Insets(0, 20, 20, 20));
 
 		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
-		ObjectProperty<Font> label0track = new SimpleObjectProperty<Font>(Font.getDefault());
+		ObjectProperty<Font> label0track = new SimpleObjectProperty<>(Font.getDefault());
 		Label label1 = new Label("To begin, create a new machine.");
-		ObjectProperty<Font> label1track = new SimpleObjectProperty<Font>(Font.getDefault());
+		ObjectProperty<Font> label1track = new SimpleObjectProperty<>(Font.getDefault());
 
 		label0.fontProperty().bind(label0track);
 		label1.fontProperty().bind(label1track);
@@ -67,20 +67,20 @@ public class Main extends Application {
 		Button newMachineButton = new Button("New Machine");
 		newMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		newMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> newMachineLabelTrack = new SimpleObjectProperty<Font>(Font.getDefault());
+		ObjectProperty<Font> newMachineLabelTrack = new SimpleObjectProperty<>(Font.getDefault());
 		newMachineButton.fontProperty().bind(newMachineLabelTrack);
 		newMachineButton.requestFocus();
 
 		Button loadMachineButton = new Button("Load Machine");
 		loadMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		loadMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> loadMachineLabelTrack = new SimpleObjectProperty<Font>(Font.getDefault());
+		ObjectProperty<Font> loadMachineLabelTrack = new SimpleObjectProperty<>(Font.getDefault());
 		loadMachineButton.fontProperty().bind(loadMachineLabelTrack);
 
 		Button helpButton = new Button("Help");
 		helpButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		helpButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> helpButtonTrack= new SimpleObjectProperty<Font>(Font.getDefault());
+		ObjectProperty<Font> helpButtonTrack= new SimpleObjectProperty<>(Font.getDefault());
 		helpButton.fontProperty().bind(helpButtonTrack);
 
 		//closebutton = new CloseButton();
@@ -107,7 +107,7 @@ public class Main extends Application {
 		});
 
 		menuLayout.setCenter(buttonLayout);
-		menu = new Scene(menuLayout, 400, 300);
+		menu = new Scene(menuLayout, 300, 400);
 		
 		/* After menu is set up, create other scenes. */
 		help = new HelpMenu(window, menu);
