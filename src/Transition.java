@@ -6,8 +6,8 @@ class Transition {
 	private State fromState;
 	private char readChar;
 	private char writeChar;
-	private Direction moveChar;
-	private enum Direction{
+	private Direction moveDirection;
+	public enum Direction{
 		LEFT, RIGHT, STAY
 	}
 	
@@ -51,11 +51,11 @@ class Transition {
 		this.writeChar = writeChar;
 	}
 	
-	public Direction getMoveChar(){
-		return moveChar;
+	public Direction getMoveDirection(){
+		return moveDirection;
 	}
 	
-	public void setMoveChar(Direction moveChar){
-		this.moveChar = moveChar;
+	public void setMoveDirection(Direction moveDirection){
+		this.moveDirection = moveDirection;
 	}
 }
