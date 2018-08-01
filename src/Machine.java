@@ -5,7 +5,11 @@ class Machine {
 	private State acceptState;
 	private ArrayList<State> states = new ArrayList<State>();
 	private ArrayList<Transition> transitions = new ArrayList<Transition>();
-	private Tape tape;
+	public Tape tape;
+
+	Machine(){
+		tape = new Tape();
+	}
 
 	public State getStartState() {
 		return startState;
@@ -46,6 +50,4 @@ class Machine {
 	public void setTransitions(ArrayList<Transition> transitions) {
 		this.transitions = transitions;
 	}
-
-	public Tape getTape() { return tape; }
 }

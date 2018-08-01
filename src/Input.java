@@ -10,6 +10,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class Input {
 
 	private Stage popUp;
@@ -18,7 +21,8 @@ public class Input {
 	private Button leftButton;
 	private Button closeButton;
 
-	
+	private Button testButton;
+
 	Input(Stage window){
 		/* Constructor */
 		/* NOTE: I've included prev here,
@@ -71,6 +75,12 @@ public class Input {
 		buttonLayout.setStyle("-fx-background-color: #dae4e3");
 		layout.setTop(buttonLayout);
 
+		// This button is used as a shitty test for the Tester class
+		testButton = new Button("Test Machine");
+		testButton.setOnAction(e -> shittyTest());
+
+		layout.setCenter(testButton);
+
 		popUp.setTitle("Test Machine");
 		popUp.show();
 	}
@@ -78,5 +88,57 @@ public class Input {
 	void launch(){
 		/* Launch new window here. */
 
+	}
+
+	private boolean shittyTest(){
+		Tester t = new Tester();
+		Machine m = new Machine();
+		Tape tape = m.tape;
+		ArrayList<State> states = new ArrayList<State>();
+		ArrayList<Transition> transitions = new ArrayList<Transition>();
+
+		ArrayList<Character> tmp = new ArrayList<Character>();
+		String s = "Send Nudes";
+		for(int i = 0; i < s.length(); i++)
+			tmp.add(s.charAt(i));
+
+		tape.initTape(tmp);
+
+		for(int i = 0; i < 11; i++){
+			State st = new State();
+			st.setName(Integer.toString(i));
+			st.setPaths(new ArrayList<Transition>());
+			states.add(st);
+		}
+
+		for(int i = 0; i < 10; i++){
+			Transition tr = new Transition();
+			tr.setFromState(states.get(i));
+			tr.setToState(states.get(i+1));
+			tr.setWriteChar('-');
+			tr.setMoveDirection(Transition.Direction.RIGHT);
+			transitions.add(tr);
+			states.get(i).getPaths().add(tr);
+		}
+
+		states.get(0).setStart(true);
+		states.get(9).setAccept(true);
+
+		m.setStates(states);
+		m.setTransitions(transitions);
+		m.setStartState(states.get(0));
+		m.setAcceptState(states.get(9));
+
+		System.out.printf("\nTape Before Running Machine\n|");
+		for(Character c : tape.getTapeAsArray()){
+			System.out.printf("%c|", c.charValue());
+		}
+		System.out.printf("\n\n");
+
+		try{
+			return t.runMachine(m, 0, 0);
+		} catch (Exception e){
+			return false;
+		}
 	}
 }
