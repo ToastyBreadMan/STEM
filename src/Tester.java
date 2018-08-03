@@ -1,4 +1,7 @@
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Tester {
 
@@ -26,6 +29,11 @@ public class Tester {
             Character curChar = tape.currentTapeVal();
             Transition curTransition = null;
 
+            // Set the color of the selected State
+            if(currentState.getCircle() != null){
+                currentState.getCircle().setFill(Color.GREENYELLOW);
+            }
+
             // Find the transition where the current tape char is
             // equal to the first transition's readChar
             for(Transition t : currentState.getPaths()){
@@ -48,10 +56,21 @@ public class Tester {
 
             // If no transition is found still, exit the Machine
             if(curTransition == null){
+
+                TimeUnit.MILLISECONDS.sleep(waitTime);
+                if(currentState.getCircle() != null) {
+                    currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+                }
+
                 if(currentState.isAccept())
                     return true;
                 else
                     return false;
+            }
+
+            // Set color of the selected Transition
+            if(curTransition.getLine() != null){
+                curTransition.getLine().setFill(Color.YELLOWGREEN);
             }
 
             // If the writeChar is the null character do not write anything
@@ -82,6 +101,17 @@ public class Tester {
                 System.out.printf("%c|", c.charValue());
             }
             System.out.printf("\n");
+
+            TimeUnit.MILLISECONDS.sleep(waitTime);
+
+            // Reset Colors
+            if(currentState.getCircle() != null) {
+                currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+            }
+
+            if(curTransition.getLine() != null){
+                curTransition.getLine().setFill(Color.BLACK);
+            }
 
             // TODO: prompt user if loop goes over X iterations
         }
