@@ -2,37 +2,25 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.*;
-import javafx.scene.Cursor;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.Pair;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -44,8 +32,10 @@ class Editor {
 	private EventHandler<MouseEvent> currentHandler;
 	private Input inputWindow;
 	private ToggleGroup toggleGroup;
-	//private ArrayList<Integer> deletedValues;
-	
+	private int circleRadius;
+	private ArrayList<Integer> deletedValues = new ArrayList<>();
+	private int stateNextVal = 0;
+
 	Editor(Stage window, Scene prev){
 		BorderPane pane = new BorderPane();
 
@@ -58,8 +48,13 @@ class Editor {
 
 		pane.prefHeightProperty().bind(editor.heightProperty());
 		pane.prefWidthProperty().bind(editor.widthProperty());
+
+		circleRadius = 20;
 	}
-	
+
+	void setCircleRadius(int size){
+		circleRadius = size;
+	}
 	
 	void setMenu(Stage window){
 		window.setTitle("Editor");
@@ -129,34 +124,122 @@ class Editor {
 	void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
 
+
 		EventHandler<MouseEvent> MoveEvent = event -> setCursor(event);
 
 		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
+			//   _   _
+			//  | \ | | ___  _ __   ___
+			//  |  \| |/ _ \| '_ \ / _ \
+			//  | |\  | (_) | | | |  __/
+			//  |_| \_|\___/|_| |_|\___|
+			//
 			if(new_toggle == null){
 				System.out.println("No toggle selected");
-				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+
+				editorSpace.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+				if(currentHandler != null)
+					editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
+
 			}
+			//      _       _     _   ____  _        _
+			//     / \   __| | __| | / ___|| |_ __ _| |_ ___
+			//    / _ \ / _` |/ _` | \___ \| __/ _` | __/ _ \
+			//   / ___ \ (_| | (_| |  ___) | |_ (_| | |_  __/
+			//  /_/   \_\__,_|\__,_| |____/ \__\__,_|\__\___|
+			//
 			else if (new_toggle.getUserData() == "Add State"){
 				System.out.println(new_toggle.getUserData());
-				editor.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+
+				// Add Event filter for changing the cursor and remove any other click handler
+				editorSpace.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+				if(currentHandler != null)
+					editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
+
+				// Define our new click handler
+				currentHandler = event -> {
+
+				    // If click is left click and not too close to another circle
+					double minDist = calcDist(event, currentMachine);
+					if (event.getButton() == MouseButton.PRIMARY
+							&& !(event.getTarget() instanceof Circle)
+							&& !(event.getTarget() instanceof Text)
+							&& (minDist / 3) >= circleRadius
+							&& event.getY() > circleRadius) {
+
+						// Figure out what the name of the state should be;
+						String name;
+						if (deletedValues.isEmpty()) {
+							name = Integer.toString(stateNextVal);
+							System.out.println(stateNextVal);
+							stateNextVal++;
+						} else {
+							int minIndex = deletedValues.indexOf(Collections.min(deletedValues));
+							int savedVal = deletedValues.get(minIndex);
+							deletedValues.remove(minIndex);
+							System.out.println(savedVal);
+							name = Integer.toString(savedVal);
+						}
+
+						Circle c = new Circle();
+						c.setFill(Color.LIGHTGOLDENRODYELLOW);
+						c.setStrokeWidth(2);
+						c.setStroke(Color.BLACK);
+						c.setId(name);
+						c.setCenterX(event.getX());
+						c.setCenterY(event.getY()); /* toolbar messes this up */
+						c.setRadius(circleRadius);
+
+						Text t = new Text(name);
+						t.setId(name);
+						t.setX(c.getCenterX() - (t.getLayoutBounds().getWidth() / 2));
+						t.setY(c.getCenterY() + (t.getLayoutBounds().getHeight() / 4));
+
+						State s = new State(name, event.getX(), event.getY(), t, c);
+
+						currentMachine.addState(s);
+						editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
+					}
+				};
+
+				// Add the new event handler to the editorSpace
+				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
+			//   ____       _      _         ____  _        _
+			//  |  _ \  ___| | ___| |_ ___  / ___|| |_ __ _| |_ ___
+			//  | | | |/ _ \ |/ _ \ __/ _ \ \___ \| __/ _` | __/ _ \
+			//  | |_| |  __/ |  __/ |_  __/  ___) | |_ (_| | |_  __/
+			//  |____/ \___|_|\___|\__\___| |____/ \__\__,_|\__\___|
+			//
+
 			else if (new_toggle.getUserData() == "Delete State"){
 				System.out.println(new_toggle.getUserData());
-				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+
+				editorSpace.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+				if(currentHandler != null)
+					editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
+
 			}
+			//      _       _     _   _____                    _ _   _
+			//     / \   __| | __| | |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
+			//    / _ \ / _` |/ _` |   | || '__/ _` | '_ \/ __| | __| |/ _ \| '_ \
+			//   / ___ \ (_| | (_| |   | || | | (_| | | | \__ \ | |_| | (_) | | | |
+			//  /_/   \_\__,_|\__,_|   |_||_|  \__,_|_| |_|___/_|\__|_|\___/|_| |_|
+			//
 			else if (new_toggle.getUserData() == "Add Transition"){
 				System.out.println(new_toggle.getUserData());
-				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+
+				editorSpace.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+				if(currentHandler != null)
+					editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
+
 			}
 		});
-
-
-
 	}
 	
 	void setCursor(MouseEvent event){
-		if(event.getY() > bar.getHeight() + 20) {
-			Circle circle = new Circle(20, null);
+		if(event.getY() > circleRadius) {
+			Circle circle = new Circle(circleRadius, null);
 			circle.setStroke(Color.BLACK);
 			
 			SnapshotParameters sp = new SnapshotParameters();
@@ -310,7 +393,7 @@ class Editor {
 			State minState = null;
 			for (State state : currentMachine.getStates()) {
 				double dist = distForm(event.getX(), state.getCircle().getCenterX(),
-						event.getY() - bar.getHeight(), state.getCircle().getCenterY());
+						event.getY() , state.getCircle().getCenterY());
 				if(min > dist){
 					min = dist;
 					minState = state;

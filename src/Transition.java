@@ -10,7 +10,26 @@ class Transition {
 	public enum Direction{
 		LEFT, RIGHT, STAY
 	}
-	
+
+	public Transition(){ }
+
+	public Transition(State toState, State fromState, char readChar, char writeChar, Direction moveDirection){
+		this.toState = toState;
+		this.fromState = fromState;
+		this.readChar = readChar;
+		this.writeChar = writeChar;
+		this.moveDirection = moveDirection;
+	}
+
+	public Transition(State toState, State fromState, char readChar, char writeChar, Direction moveDirection, Line line){
+		this.toState = toState;
+		this.fromState = fromState;
+		this.readChar = readChar;
+		this.writeChar = writeChar;
+		this.moveDirection = moveDirection;
+		this.line = line;
+	}
+
 	public Line getLine(){
 		return line;
 	}

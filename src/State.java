@@ -16,7 +16,23 @@ class State {
 	private Circle circle;
 	private EventHandler<MouseEvent> clickListener;
 	private ArrayList<Transition> paths;
-	
+
+	public State(){ }
+
+	public State(String name, double x, double y){
+		this.name = name;
+		this.x = x;
+		this.y = y;
+	}
+
+	public State(String name, double x, double y, Text label, Circle circle){
+		this.name = name;
+		this.x = x;
+		this.y = y;
+		this.label = label;
+		this.circle = circle;
+	}
+
 	public String getName() {
 		return name;
 	}
