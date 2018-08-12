@@ -43,6 +43,7 @@ class Editor {
 	private Machine currentMachine;
 	private EventHandler<MouseEvent> currentHandler;
 	private Input inputWindow;
+	private ToggleGroup toggleGroup;
 	//private ArrayList<Integer> deletedValues;
 	
 	Editor(Stage window, Scene prev){
@@ -70,22 +71,25 @@ class Editor {
 	/* This sets up the menu bar, but does NOT set the button actions */
 	ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
-		
-		ToggleGroup buttonGroup = new ToggleGroup();
+		toggleGroup = new ToggleGroup();
+
 		ToggleButton addState = new ToggleButton("Add State");
 		ObjectProperty<Font> addStateTrack = new SimpleObjectProperty<>(Font.getDefault());
 		addState.fontProperty().bind(addStateTrack);
-		addState.setToggleGroup(buttonGroup);
+		addState.setUserData("Add State");
+		addState.setToggleGroup(toggleGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete State");
 		ObjectProperty<Font> deleteStateTrack = new SimpleObjectProperty<>(Font.getDefault());
 		deleteState.fontProperty().bind(deleteStateTrack);
-		deleteState.setToggleGroup(buttonGroup);
+		deleteState.setUserData("Delete State");
+		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		ObjectProperty<Font> addTransitionTrack = new SimpleObjectProperty<>(Font.getDefault());
 		addTransition.fontProperty().bind(addTransitionTrack);
-		addTransition.setToggleGroup(buttonGroup);
+		addTransition.setUserData("Add Transition");
+		addTransition.setToggleGroup(toggleGroup);
 
 		/* Open the tester dialog. */
 		Button testButton = new Button("Test Machine");
@@ -101,17 +105,13 @@ class Editor {
 		bar.getItems().addAll(addState, deleteState, addTransition, testButton, backButton);
 		bar.setStyle("-fx-background-color: #dae4e3");
 
-		bar.widthProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldWidth, Number newWidth) {
-				addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-				deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-				addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-				testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-				backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			}
+		bar.widthProperty().addListener((observable, oldWidth, newWidth) -> {
+			addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 		});
-
 
 		return bar;
 	}
@@ -119,121 +119,39 @@ class Editor {
 	/*
 	FIXME
 	If someone can clean up this next function, please do so.
+
+
+	I gotchu fam
 	 */
 	
 	
 	/* Called whenever a new machine is setup */
 	void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
-		ToggleGroup group = ((ToggleButton) bar.getItems().get(0)).getToggleGroup();
-		
-		/* Add listener for toggle button selections. */
-		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-			int val = 0;
-			int savedVal;
-			int minIndex;
-			ArrayList<Integer> deletedValues = new ArrayList<Integer>();
-			
-			/* Handler to change cursor on drag. */
-			EventHandler<MouseEvent> MoveEvent = new EventHandler<MouseEvent>() {
-				@Override
-				public void handle(MouseEvent event) {
-					setCursor(event);
-				}
-			};
-			
-			@Override
-			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-				if(currentHandler != null) {
-					window.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
-				}
-				if(newValue != null){
-					if(newValue == bar.getItems().get(0)) {
-						/* This needs to be a filter so it can run before other event stuff. */
-						editor.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
-						
-						currentHandler = new EventHandler<MouseEvent>() {
-							@Override
-							public void handle(MouseEvent event) {
-								double minDist= calcDist(event, currentMachine);
-								if (!(event.getTarget() instanceof Circle) && !(event.getTarget() instanceof Text)
-										&& (minDist / 2) >= 20 && event.getY() - bar.getHeight() > 20) {
-									
-									State newState = new State();
-									newState.setX(event.getX());
-									newState.setY(event.getY() - bar.getHeight());
-									newState.setStart(false);
-									newState.setAccept(false);
-									
-									/* check for deleted values */
-								
-									if (deletedValues.isEmpty()) {
-										newState.setName(Integer.toString(val));
-										System.out.println(val);
-										val++;
-									} else {
-										minIndex = deletedValues.indexOf(Collections.min(deletedValues));
-										savedVal = deletedValues.get(minIndex);
-										deletedValues.remove(minIndex);
-										System.out.println(savedVal);
-										newState.setName(Integer.toString(savedVal));
-									}
-									
-									
-									/* add circle and name centered on click */
-									Circle circle = new Circle();
-									circle.setFill(Color.LIGHTGOLDENRODYELLOW);
-									circle.setStrokeWidth(3);
-									circle.setStroke(Color.BLACK);
-									circle.setId(newState.getName());
-									Text label = new Text(newState.getName());
-									label.setId(newState.getName());
-									circle.setCenterX(event.getX());
-									circle.setCenterY(event.getY() - (bar.getHeight())); /* toolbar messes this up */
-								
-									circle.setRadius(20);
-									label.setX(circle.getCenterX() - (label.getLayoutBounds().getWidth() / 2));
-									label.setY(circle.getCenterY() + (label.getLayoutBounds().getHeight() / 4));
-									newState.setCircle(circle);
-									newState.setLabel(label);
-									
-									EventHandler<MouseEvent> dragHandler = new EventHandler<MouseEvent>() {
-										@Override
-										public void handle(MouseEvent event) {
-											addTransition(event);
-										}
-									};
-									
-									EventHandler<MouseEvent> circleHandler = new EventHandler<MouseEvent>() {
-										@Override
-										public void handle(MouseEvent event) {
-											if(group.getSelectedToggle() == group.getToggles().get(1)){
-												deletedValues = deleteState(group, newState, deletedValues, this);
-											}
-										}
-									};
-									label.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
-									circle.addEventFilter(MouseEvent.DRAG_DETECTED, dragHandler);
-									label.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
-									circle.addEventHandler(MouseEvent.MOUSE_CLICKED, circleHandler);
-									
-									newState.setClickListener(circleHandler);
-									currentMachine.addState(newState);
-									editorSpace.getChildren().addAll(newState.getCircle(), label);
-								}
-							}
-						};
-						window.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
-					}
-					else{
-						editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
-						if(currentHandler != null) {
-							window.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
-						}
-					}
-				}
+
+		EventHandler<MouseEvent> MoveEvent = event -> setCursor(event);
+
+		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
+			if(new_toggle == null){
+				System.out.println("No toggle selected");
+				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+			}
+			else if (new_toggle.getUserData() == "Add State"){
+				System.out.println(new_toggle.getUserData());
+				editor.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+			}
+			else if (new_toggle.getUserData() == "Delete State"){
+				System.out.println(new_toggle.getUserData());
+				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+			}
+			else if (new_toggle.getUserData() == "Add Transition"){
+				System.out.println(new_toggle.getUserData());
+				editor.removeEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
 			}
 		});
+
+
+
 	}
 	
 	void setCursor(MouseEvent event){
