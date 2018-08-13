@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 public class Tester {
 
     public boolean runMachine(Machine m, int tapeLoc, int waitTime) throws Exception{
-        boolean loop = true;
         State currentState;
         ArrayList<State> states = m.getStates();
         Tape tape = m.tape;
@@ -25,7 +24,7 @@ public class Tester {
         }
 
         // Main body
-        while(loop) {
+        while(true) {
             Character curChar = tape.currentTapeVal();
             Transition curTransition = null;
 
@@ -37,7 +36,7 @@ public class Tester {
             // Find the transition where the current tape char is
             // equal to the first transition's readChar
             for(Transition t : currentState.getPaths()){
-                if(t.getReadChar() == curChar.charValue() && t.getFromState() == currentState){
+                if(t.getReadChar() == curChar && t.getFromState() == currentState){
                     curTransition = t;
                     break;
                 }
@@ -47,7 +46,7 @@ public class Tester {
             // with no read char. I.E. catchall transition
             if(curTransition == null){
                 for(Transition t : currentState.getPaths()){
-                    if(t.getReadChar() == '\u0000' && t.getFromState() == currentState){
+                    if(t.getFromState() == currentState && t.getReadChar() == '~'){
                         curTransition = t;
                         break;
                     }
@@ -62,10 +61,7 @@ public class Tester {
                     currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
                 }
 
-                if(currentState.isAccept())
-                    return true;
-                else
-                    return false;
+                return currentState.isAccept();
             }
 
             // Set color of the selected Transition
@@ -74,7 +70,7 @@ public class Tester {
             }
 
             // If the writeChar is the null character do not write anything
-            if(curTransition.getWriteChar() != '\u0000'){
+            if(curTransition.getWriteChar() != '~'){
                 try{
                     tape.setTape(curTransition.getWriteChar());
                 } catch (Exception e){
@@ -96,11 +92,11 @@ public class Tester {
 
             currentState = curTransition.getToState();
 
-            System.out.printf("|");
+            System.out.print("|");
             for(Character c : tape.getTapeAsArray()){
-                System.out.printf("%c|", c.charValue());
+                System.out.printf("%c|", c);
             }
-            System.out.printf("\n");
+            System.out.print("\n");
 
             TimeUnit.MILLISECONDS.sleep(waitTime);
 
@@ -115,7 +111,5 @@ public class Tester {
 
             // TODO: prompt user if loop goes over X iterations
         }
-
-        return false;
     }
 }

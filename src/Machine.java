@@ -2,13 +2,19 @@ import java.util.ArrayList;
 
 class Machine {
 	private State startState;
-	private State acceptState;
-	private ArrayList<State> states = new ArrayList<State>();
-	private ArrayList<Transition> transitions = new ArrayList<Transition>();
+	private ArrayList<State> states = new ArrayList<>();
+	private ArrayList<Transition> transitions = new ArrayList<>();
 	public Tape tape;
 
 	Machine(){
-		tape = new Tape();
+		this.tape = new Tape();
+	}
+
+	Machine(ArrayList<State> states, ArrayList<Transition> transitions, State startState){
+		this.states = states;
+		this.transitions = transitions;
+		this.startState = startState;
+		this.tape = new Tape();
 	}
 
 	public State getStartState() {
@@ -17,14 +23,6 @@ class Machine {
 	
 	public void setStartState(State startState) {
 		this.startState = startState;
-	}
-	
-	public State getAcceptState() {
-		return acceptState;
-	}
-	
-	public void setAcceptState(State acceptState) {
-		this.acceptState = acceptState;
 	}
 	
 	public ArrayList<State> getStates() {
@@ -49,5 +47,42 @@ class Machine {
 	
 	public void setTransitions(ArrayList<Transition> transitions) {
 		this.transitions = transitions;
+	}
+
+	public String toString(){
+		StringBuilder ret = new StringBuilder();
+		ret.append(String.format("// Save File for JFLAP-ISH\n// Version %.2f\n\n", 1.0));
+		ret.append("// State Format: name x y start accept\n");
+		ret.append("STATES:\n");
+
+		for (State s : states){
+			ret.append(String.format("\t%s %f %f %s %s\n",
+					s.getName(), s.getX(), s.getY(),
+					Boolean.toString(s.isStart()), Boolean.toString(s.isAccept())));
+		}
+		ret.append("\n");
+
+		ret.append("// Transition format: fromStateId toStateId readCHar writeChar moveDirection\n");
+		ret.append("// The Character '~' is the catchall character\n");
+		ret.append("TRANSITION:\n");
+
+		for (Transition t : transitions){
+			ret.append(String.format("\t%d %d %c %c %s\n",
+					Integer.parseInt(t.getFromState().getName()),
+					Integer.parseInt(t.getToState().getName()),
+					t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString()));
+		}
+		ret.append("\n");
+
+		ret.append("// Tape format: tapeChar(0) tapeChar(1) ... tapeChar(n)\n");
+		ret.append("TAPE:\n");
+
+		ret.append("\t");
+		for (Character c : tape.getTapeAsArray()){
+			ret.append(String.format("%c ", c));
+		}
+		ret.append("\n");
+
+		return ret.toString();
 	}
 }

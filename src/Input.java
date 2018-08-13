@@ -94,10 +94,10 @@ public class Input {
 		Tester t = new Tester();
 		Machine m = new Machine();
 		Tape tape = m.tape;
-		ArrayList<State> states = new ArrayList<State>();
-		ArrayList<Transition> transitions = new ArrayList<Transition>();
+		ArrayList<State> states = new ArrayList<>();
+		ArrayList<Transition> transitions = new ArrayList<>();
 
-		ArrayList<Character> tmp = new ArrayList<Character>();
+		ArrayList<Character> tmp = new ArrayList<>();
 		String s = "Send Nudes";
 		for(int i = 0; i < s.length(); i++)
 			tmp.add(s.charAt(i));
@@ -107,7 +107,7 @@ public class Input {
 		for(int i = 0; i < 11; i++){
 			State st = new State();
 			st.setName(Integer.toString(i));
-			st.setPaths(new ArrayList<Transition>());
+			st.setPaths(new ArrayList<>());
 			states.add(st);
 		}
 
@@ -115,6 +115,7 @@ public class Input {
 			Transition tr = new Transition();
 			tr.setFromState(states.get(i));
 			tr.setToState(states.get(i+1));
+			tr.setReadChar('~');
 			tr.setWriteChar('-');
 			tr.setMoveDirection(Transition.Direction.RIGHT);
 			transitions.add(tr);
@@ -127,13 +128,14 @@ public class Input {
 		m.setStates(states);
 		m.setTransitions(transitions);
 		m.setStartState(states.get(0));
-		m.setAcceptState(states.get(9));
 
-		System.out.printf("\nTape Before Running Machine\n|");
+		System.out.print(m.toString());
+
+		System.out.print("\nTape Before Running Machine\n|");
 		for(Character c : tape.getTapeAsArray()){
-			System.out.printf("%c|", c.charValue());
+			System.out.printf("%c|", c);
 		}
-		System.out.printf("\n\n");
+		System.out.print("\n\n");
 
 		try{
 			return t.runMachine(m, 0, 0);

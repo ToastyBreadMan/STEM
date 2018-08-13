@@ -1,13 +1,9 @@
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -15,7 +11,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -64,7 +59,7 @@ class Editor {
 	}
 	
 	/* This sets up the menu bar, but does NOT set the button actions */
-	ToolBar initMenuBar(Stage window, Scene prev){
+	private ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
 
@@ -86,6 +81,13 @@ class Editor {
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
+		// END TOGGLE BUTTONS
+
+		Separator separator = new Separator();
+		separator.setOrientation(Orientation.VERTICAL);
+
+		// Begin NON-Toggle buttons
+
 		/* Open the tester dialog. */
 		Button testButton = new Button("Test Machine");
 		ObjectProperty<Font> testButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
@@ -97,8 +99,19 @@ class Editor {
 		backButton.fontProperty().bind(backButtonTrack);
 		backButton.setOnAction(e->deleteEditor(window, prev));
 
-		bar.getItems().addAll(addState, deleteState, addTransition, testButton, backButton);
+		// Add toggle buttons
+		bar.getItems().addAll(addState, deleteState, addTransition);
+
+		// Add separator
+		bar.getItems().add(separator);
+
+		// Add non-toggle buttons
+		bar.getItems().addAll(testButton, backButton);
+
 		bar.setStyle("-fx-background-color: #dae4e3");
+
+		// Cursor when over the bar will always be default cursor
+		bar.addEventFilter(MouseEvent.MOUSE_MOVED, event -> editor.setCursor(Cursor.DEFAULT));
 
 		bar.widthProperty().addListener((observable, oldWidth, newWidth) -> {
 			addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
@@ -125,7 +138,7 @@ class Editor {
 		currentMachine = new Machine();
 
 
-		EventHandler<MouseEvent> MoveEvent = event -> setCursor(event);
+		EventHandler<MouseEvent> MoveEvent = this::setCursor;
 
 		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
 			//   _   _
@@ -191,7 +204,11 @@ class Editor {
 						t.setX(c.getCenterX() - (t.getLayoutBounds().getWidth() / 2));
 						t.setY(c.getCenterY() + (t.getLayoutBounds().getHeight() / 4));
 
+						// Set Create State and add it to the Node's user data
+						// so it is easy to find if clicked on
 						State s = new State(name, event.getX(), event.getY(), t, c);
+						c.setUserData(s);
+						t.setUserData(s);
 
 						currentMachine.addState(s);
 						editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
@@ -219,31 +236,29 @@ class Editor {
 							&& (event.getTarget() instanceof Circle
 							|| event.getTarget() instanceof Text)){
 
-						Node Target;
+						Object Target;
 						State targetState;
 						ArrayList<Transition> deleteTransitions = new ArrayList<>();
 
-						if(event.getTarget() instanceof Circle)
-							Target = (Circle) event.getTarget();
+						Target = ((Node) event.getTarget()).getUserData();
+
+						if(Target instanceof State)
+							targetState = (State) Target;
 						else
-							Target = (Text) event.getTarget();
+							return;
 
-						targetState = findState(Target.getId());
+						for(Transition t : currentMachine.getTransitions()){
+							if(t.getToState() == targetState) {
+								editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
+								t.getFromState().getPaths().remove(t);
 
-						if(targetState != null){
-							for(Transition t : currentMachine.getTransitions()){
-								if(t.getToState() == targetState) {
-									editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
-									t.getFromState().getPaths().remove(t);
-
-									deleteTransitions.add(t);
-								}
+								deleteTransitions.add(t);
 							}
-							currentMachine.getTransitions().removeAll(deleteTransitions);
-							deleteTransitions.clear();
-
-							deleteState(targetState);
 						}
+						currentMachine.getTransitions().removeAll(deleteTransitions);
+						deleteTransitions.clear();
+
+						deleteState(targetState);
 					}
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
@@ -273,7 +288,7 @@ class Editor {
 	}
 
 	// Function to delete state
-	void deleteState(State state){
+	private void deleteState(State state){
 		editorSpace.getChildren().removeAll(state.getCircle(), state.getLabel());
 
 		currentMachine.getTransitions().removeAll(state.getPaths());
@@ -290,7 +305,7 @@ class Editor {
 		state = null;
 	}
 
-	void setCursor(MouseEvent event){
+	private void setCursor(MouseEvent event){
 		if(event.getY() > circleRadius) {
 			Circle circle = new Circle(circleRadius, null);
 			circle.setStroke(Color.BLACK);
@@ -308,9 +323,13 @@ class Editor {
 		}
 	}
 	
-	void deleteEditor(Stage window, Scene prev){
+	private void deleteEditor(Stage window, Scene prev){
 		System.out.println("If you see this you should be saving your machine");
 		window.setScene(prev);
+
+		//TODO: Save machine before this
+
+		deletedValues.clear();
 
 		window.setMinWidth(300);
 		window.setMinHeight(400);
@@ -329,102 +348,11 @@ class Editor {
 	}
 	
 
-	void addTransition(MouseEvent event) {
-		State currentTarget = null;
-		BooleanProperty drag = new SimpleBooleanProperty();
-		BooleanProperty valid = new SimpleBooleanProperty();
-		valid.set(true);
-		
-		Line line = new Line();
-		line.setMouseTransparent(true);
-		Transition transition = new Transition();
-		transition.setLine(line);
-		ArrayList<Transition> transitions = currentMachine.getTransitions();
-		
-		if (event.getTarget() instanceof Circle || event.getTarget() instanceof Text) {
-			ArrayList<State> states = currentMachine.getStates();
-			for(State state : states){
-				//System.out.println(state.getName());
-				if(state.getName().equals(((Node)event.getTarget()).getId())){
-					//System.out.println("Found " + state);
-					currentTarget = state;
-				}
-			}
-			transition.setFromState(currentTarget);
-			
-			Node tar = null;
-			if(event.getTarget() instanceof Circle){
-				tar = (Node)event.getTarget();
-			}
-			else if(event.getTarget() instanceof Text){
-				tar = (Node)event.getTarget();
-			}
-			
-			if(tar != null && currentTarget != null) {
-				tar.startFullDrag();
-				
-				double centX = currentTarget.getCircle().getCenterX();
-				double centY = currentTarget.getCircle().getCenterY();
-				
-				tar.setOnDragDetected(new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent event) {
-						double startX = event.getX();
-						double startY = event.getY() - bar.getHeight();
-						
-						line.setStartX(centX);
-						line.setStartY(centY);
-						line.setEndX(startX);
-						line.setEndY(startY);
-						editorSpace.getChildren().add(line);
-						drag.set(true);
-					}
-				});
-					/* FIXME problem if already has a line & single click to add one. */
-					
-					/*  TODO:
-						JFLAP handles this by showing a grey line on drag centered
-						in the middle of the circle.
-						Upon drop, the line falls behind the state.
-					 */
-				
-				editorSpace.setOnMouseDragged(e -> {
-					if (drag.get()) {
-						line.setEndX(e.getX());
-						line.setEndY(e.getY());
-						line.toBack();
-					}
-				});
-				
-				//tar.setOnMouseReleased(e -> {
-				tar.setOnMouseReleased(e -> {
-					drag.set(false);
-					/* Ugh more distance formula... */
-					Pair closeStatePair = calcCloseState(e, currentMachine);
-					if(((double)closeStatePair.getKey()) < 20){
-						line.setEndX(((State) closeStatePair.getValue()).getX());
-						line.setEndY(((State) closeStatePair.getValue()).getY());
-						transition.setLine(line);
-						//System.out.println();
-						transition.setToState((State)closeStatePair.getValue());
-						System.out.println("From: " + transition.getFromState().getName());
-						System.out.println("To: " + transition.getToState().getName());
-						transitions.add(transition);
-					}
-					else{
-						valid.set(false);
-						System.out.println("Invalid");
-						line.setVisible(false);
-						editorSpace.getChildren().remove(line);
-						//line = null;
-						//transition = null;
-					}
-				});
-			}
-		}
+	void addTransition() {
+
 	}
 	
-	double calcDist(MouseEvent event, Machine currentMachine){
+	private double calcDist(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		if(!(currentMachine.getStates().isEmpty())) {
 			State minState = null;
@@ -440,7 +368,7 @@ class Editor {
 		return min;
 	}
 	
-	Pair calcCloseState(MouseEvent event, Machine currentMachine){
+	private Pair calcCloseState(MouseEvent event, Machine currentMachine){
 		double min = Double.MAX_VALUE;
 		State minState = null;
 		Pair returnVal = null;
@@ -460,11 +388,11 @@ class Editor {
 		return returnVal;
 	}
 
-	double distForm(double x1, double x2, double y1, double y2){
+	private double distForm(double x1, double x2, double y1, double y2){
 		return Math.hypot(x2-x1, y2-y1);
 	}
 	
-	void getInput(Stage window, Scene prev){
+	private void getInput(Stage window, Scene prev){
 		inputWindow = new Input(window);
 		inputWindow.launch();
 	}
