@@ -181,14 +181,10 @@ class Editor {
 							name = Integer.toString(savedVal);
 						}
 
-						Circle c = new Circle();
-						c.setFill(Color.LIGHTGOLDENRODYELLOW);
+						Circle c = new Circle(event.getX(), event.getY(), circleRadius, Color.LIGHTGOLDENRODYELLOW);
+						c.setId(name);
 						c.setStrokeWidth(2);
 						c.setStroke(Color.BLACK);
-						c.setId(name);
-						c.setCenterX(event.getX());
-						c.setCenterY(event.getY()); /* toolbar messes this up */
-						c.setRadius(circleRadius);
 
 						Text t = new Text(name);
 						t.setId(name);
@@ -211,7 +207,6 @@ class Editor {
 			//  | |_| |  __/ |  __/ |_  __/  ___) | |_ (_| | |_  __/
 			//  |____/ \___|_|\___|\__\___| |____/ \__\__,_|\__\___|
 			//
-
 			else if (new_toggle.getUserData() == "Delete State"){
 				System.out.println(new_toggle.getUserData());
 
@@ -219,6 +214,39 @@ class Editor {
 				if(currentHandler != null)
 					editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 
+				currentHandler = event -> {
+					if(event.getButton() == MouseButton.PRIMARY
+							&& (event.getTarget() instanceof Circle
+							|| event.getTarget() instanceof Text)){
+
+						Node Target;
+						State targetState;
+						ArrayList<Transition> deleteTransitions = new ArrayList<>();
+
+						if(event.getTarget() instanceof Circle)
+							Target = (Circle) event.getTarget();
+						else
+							Target = (Text) event.getTarget();
+
+						targetState = findState(Target.getId());
+
+						if(targetState != null){
+							for(Transition t : currentMachine.getTransitions()){
+								if(t.getToState() == targetState) {
+									editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
+									t.getFromState().getPaths().remove(t);
+
+									deleteTransitions.add(t);
+								}
+							}
+							currentMachine.getTransitions().removeAll(deleteTransitions);
+							deleteTransitions.clear();
+
+							deleteState(targetState);
+						}
+					}
+				};
+				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
 			//      _       _     _   _____                    _ _   _
 			//     / \   __| | __| | |_   _| __ __ _ _ __  ___(_) |_(_) ___  _ __
@@ -236,7 +264,32 @@ class Editor {
 			}
 		});
 	}
-	
+
+	State findState(String id){
+		for(State s : currentMachine.getStates())
+			if(s.getName().equals(id))
+				return s;
+		return null;
+	}
+
+	// Function to delete state
+	void deleteState(State state){
+		editorSpace.getChildren().removeAll(state.getCircle(), state.getLabel());
+
+		currentMachine.getTransitions().removeAll(state.getPaths());
+
+		for(Transition t : state.getPaths())
+			editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
+		state.getPaths().clear();
+
+		state.setCircle(null);
+		state.setLabel(null);
+
+		currentMachine.deleteState(state);
+		deletedValues.add(Integer.parseInt(state.getName()));
+		state = null;
+	}
+
 	void setCursor(MouseEvent event){
 		if(event.getY() > circleRadius) {
 			Circle circle = new Circle(circleRadius, null);
@@ -275,23 +328,7 @@ class Editor {
 		currentHandler = null;
 	}
 	
-	/* Function to check state of toggle and delete. */
-	ArrayList<Integer> deleteState(ToggleGroup group, State state, ArrayList<Integer> deletedValues,
-								   EventHandler<MouseEvent> eventHandler){
-		if(group.getSelectedToggle() == (ToggleButton) bar.getItems().get(1)){
-			state.getCircle().removeEventHandler(MouseEvent.MOUSE_CLICKED, eventHandler);
-			state.getLabel().removeEventHandler(MouseEvent.MOUSE_CLICKED, eventHandler);
-			editorSpace.getChildren().removeAll(state.getCircle(), state.getLabel());
-			state.setCircle(null);
-			state.setLabel(null);
-			currentMachine.deleteState(state);
-			deletedValues.add(Integer.parseInt(state.getName()));
-			state = null;
-		}
 
-		return deletedValues;
-	}
-	
 	void addTransition(MouseEvent event) {
 		State currentTarget = null;
 		BooleanProperty drag = new SimpleBooleanProperty();

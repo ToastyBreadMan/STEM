@@ -37,7 +37,7 @@ public class Tester {
             // Find the transition where the current tape char is
             // equal to the first transition's readChar
             for(Transition t : currentState.getPaths()){
-                if(t.getReadChar() == curChar.charValue()){
+                if(t.getReadChar() == curChar.charValue() && t.getFromState() == currentState){
                     curTransition = t;
                     break;
                 }
@@ -47,7 +47,7 @@ public class Tester {
             // with no read char. I.E. catchall transition
             if(curTransition == null){
                 for(Transition t : currentState.getPaths()){
-                    if(t.getReadChar() == '\u0000'){
+                    if(t.getReadChar() == '\u0000' && t.getFromState() == currentState){
                         curTransition = t;
                         break;
                     }

@@ -14,15 +14,17 @@ class State {
 	private boolean start;
 	private boolean accept;
 	private Circle circle;
-	private EventHandler<MouseEvent> clickListener;
 	private ArrayList<Transition> paths;
 
-	public State(){ }
+	public State(){
+		paths = new ArrayList<>();
+	}
 
 	public State(String name, double x, double y){
 		this.name = name;
 		this.x = x;
 		this.y = y;
+		paths = new ArrayList<>();
 	}
 
 	public State(String name, double x, double y, Text label, Circle circle){
@@ -31,6 +33,7 @@ class State {
 		this.y = y;
 		this.label = label;
 		this.circle = circle;
+		paths = new ArrayList<>();
 	}
 
 	public String getName() {
@@ -87,14 +90,6 @@ class State {
 	
 	public void setCircle(Circle circle){
 		this.circle = circle;
-	}
-	
-	public void setClickListener(EventHandler<MouseEvent> clickListener){
-		this.clickListener = clickListener;
-	}
-	
-	public EventHandler<MouseEvent> getClickListener(){
-		return clickListener;
 	}
 	
 	public ArrayList<Transition> getPaths() {

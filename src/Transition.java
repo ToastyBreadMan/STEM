@@ -1,7 +1,10 @@
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 
 class Transition {
 	private Line line;
+
+	private Text label;
 	private State toState;
 	private State fromState;
 	private char readChar;
@@ -37,7 +40,15 @@ class Transition {
 	public void setLine(Line line){
 		this.line = line;
 	}
-	
+
+	public Text getLabel() {
+		return label;
+	}
+
+	public void setLabel(Text label) {
+		this.label = label;
+	}
+
 	public State getToState() {
 		return toState;
 	}
