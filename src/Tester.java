@@ -35,7 +35,7 @@ public class Tester {
 
             // Find the transition where the current tape char is
             // equal to the first transition's readChar
-            for(Transition t : currentState.getPaths()){
+            for(Transition t : currentState.getTransition()){
                 if(t.getReadChar() == curChar && t.getFromState() == currentState){
                     curTransition = t;
                     break;
@@ -45,7 +45,7 @@ public class Tester {
             // If no Transition is found, search for a transition
             // with no read char. I.E. catchall transition
             if(curTransition == null){
-                for(Transition t : currentState.getPaths()){
+                for(Transition t : currentState.getTransition()){
                     if(t.getFromState() == currentState && t.getReadChar() == '~'){
                         curTransition = t;
                         break;
@@ -65,9 +65,11 @@ public class Tester {
             }
 
             // Set color of the selected Transition
+            /*
             if(curTransition.getLine() != null){
                 curTransition.getLine().setFill(Color.YELLOWGREEN);
             }
+            */
 
             // If the writeChar is the null character do not write anything
             if(curTransition.getWriteChar() != '~'){
@@ -105,9 +107,11 @@ public class Tester {
                 currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
             }
 
+            /*
             if(curTransition.getLine() != null){
                 curTransition.getLine().setFill(Color.BLACK);
             }
+            */
 
             // TODO: prompt user if loop goes over X iterations
         }

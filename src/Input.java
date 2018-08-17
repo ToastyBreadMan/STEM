@@ -105,7 +105,7 @@ public class Input {
 		for(int i = 0; i < 11; i++){
 			State st = new State();
 			st.setName(Integer.toString(i));
-			st.setPaths(new ArrayList<>());
+			st.setTransition(new ArrayList<>());
 			states.add(st);
 		}
 
@@ -117,7 +117,7 @@ public class Input {
 			tr.setWriteChar('-');
 			tr.setMoveDirection(Transition.Direction.RIGHT);
 			transitions.add(tr);
-			states.get(i).getPaths().add(tr);
+			states.get(i).getTransition().add(tr);
 		}
 
 		states.get(0).setStart(true);

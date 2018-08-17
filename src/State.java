@@ -11,17 +11,17 @@ class State {
 	private boolean start;
 	private boolean accept;
 	private Circle circle;
-	private ArrayList<Transition> paths;
+	private ArrayList<Transition> transition;
 
 	public State(){
-		paths = new ArrayList<>();
+		transition = new ArrayList<>();
 	}
 
 	public State(String name, double x, double y){
 		this.name = name;
 		this.x = x;
 		this.y = y;
-		paths = new ArrayList<>();
+		transition = new ArrayList<>();
 	}
 
 	public State(String name, double x, double y, Text label, Circle circle){
@@ -30,7 +30,7 @@ class State {
 		this.y = y;
 		this.label = label;
 		this.circle = circle;
-		paths = new ArrayList<>();
+		transition = new ArrayList<>();
 	}
 
 	public String getName() {
@@ -89,11 +89,11 @@ class State {
 		this.circle = circle;
 	}
 	
-	public ArrayList<Transition> getPaths() {
-		return paths;
+	public ArrayList<Transition> getTransition() {
+		return transition;
 	}
 	
-	public void setPaths(ArrayList<Transition> paths) {
-		this.paths = paths;
+	public void setTransition(ArrayList<Transition> transition) {
+		this.transition = transition;
 	}
 }

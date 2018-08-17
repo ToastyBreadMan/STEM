@@ -14,7 +14,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -135,13 +134,21 @@ class Editor {
 
 	I gotchu fam
 	 */
-	
-	
-	/* Called whenever a new machine is setup */
+
 	void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
+		startMachine(window, prev);
+	}
 
-
+	void loadMachine(Stage window, Scene prev, Machine m){
+		currentMachine = m;
+		redrawAllStates();
+		redrawAllPaths();
+		startMachine(window, prev);
+	}
+	
+	/* Called whenever a new machine is setup */
+	void startMachine(Stage window, Scene prev){
 		EventHandler<MouseEvent> MoveEvent = this::setCursor;
 
 		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
@@ -258,8 +265,9 @@ class Editor {
 
 						for(Transition t : currentMachine.getTransitions()){
 							if(t.getToState() == targetState) {
-								editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
-								t.getFromState().getPaths().remove(t);
+								editorSpace.getChildren().removeAll(t.getPath().getAllNodes());
+								t.setPath(null);
+								t.getFromState().getTransition().remove(t);
 
 								deleteTransitions.add(t);
 							}
@@ -298,8 +306,32 @@ class Editor {
 								else{
 									System.out.printf("Create Transition from %s to %s\n", transitionFromState.getName(), s.getName());
 
-									// TODO: Implement add Transition
-									addTransition(transitionFromState, s);
+									Transition t = addTransition(transitionFromState, s);
+									currentMachine.getTransitions().add(t);
+									transitionFromState.getTransition().add(t);
+
+									Path path = null;
+									for(Path p : currentMachine.getPaths()){
+										if(p.compareTo(transitionFromState, s)) {
+										    path = p;
+										    System.out.println("Found Path");
+										    break;
+										}
+									}
+
+									if (path == null){
+										path = new Path(transitionFromState, s);
+										System.out.println("New Path");
+									}
+
+									// TODO: check if same transition
+
+									currentMachine.getPaths().add(path);
+									ArrayList<Node> nodes = path.addTransition(t);
+									editorSpace.getChildren().addAll(nodes);
+
+									for(Node n : nodes)
+										n.toBack();
 
 									transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 									transitionFromState = null;
@@ -333,11 +365,13 @@ class Editor {
 	private void deleteState(State state){
 		editorSpace.getChildren().removeAll(state.getCircle(), state.getLabel());
 
-		currentMachine.getTransitions().removeAll(state.getPaths());
+		currentMachine.getTransitions().removeAll(state.getTransition());
 
-		for(Transition t : state.getPaths())
-			editorSpace.getChildren().removeAll(t.getLine(), t.getLabel());
-		state.getPaths().clear();
+		for(Transition t : state.getTransition()){
+			editorSpace.getChildren().removeAll(t.getPath().getAllNodes());
+			t.setPath(null);
+		}
+		state.getTransition().clear();
 
 		state.setCircle(null);
 		state.setLabel(null);
@@ -438,6 +472,14 @@ class Editor {
 			}
 		}
 		return returnVal;
+	}
+
+	private void redrawAllStates(){
+
+	}
+
+	private void redrawAllPaths(){
+
 	}
 
 	private double distForm(double x1, double x2, double y1, double y2){

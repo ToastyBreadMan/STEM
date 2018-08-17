@@ -2,9 +2,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 class Transition {
-	private Line line;
-
-	private Text label;
+    private Path path;
 	private State toState;
 	private State fromState;
 	private char readChar;
@@ -22,31 +20,6 @@ class Transition {
 		this.readChar = readChar;
 		this.writeChar = writeChar;
 		this.moveDirection = moveDirection;
-	}
-
-	public Transition(State toState, State fromState, char readChar, char writeChar, Direction moveDirection, Line line){
-		this.toState = toState;
-		this.fromState = fromState;
-		this.readChar = readChar;
-		this.writeChar = writeChar;
-		this.moveDirection = moveDirection;
-		this.line = line;
-	}
-
-	public Line getLine(){
-		return line;
-	}
-	
-	public void setLine(Line line){
-		this.line = line;
-	}
-
-	public Text getLabel() {
-		return label;
-	}
-
-	public void setLabel(Text label) {
-		this.label = label;
 	}
 
 	public State getToState() {
@@ -87,5 +60,13 @@ class Transition {
 	
 	public void setMoveDirection(Direction moveDirection){
 		this.moveDirection = moveDirection;
+	}
+
+	public void setPath(Path p){
+		this.path = p;
+	}
+
+	public Path getPath(){
+		return this.path;
 	}
 }
