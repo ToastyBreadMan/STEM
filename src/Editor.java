@@ -390,8 +390,18 @@ class Editor {
 	}
 	
 
-	private void addTransition(State from, State to) {
+	private Transition addTransition(State from, State to) {
+		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window ,from, to);
+
+		// Check if transition is valid is done.
+		if(t.createdTransition == null)
+			System.out.println("null");
+		else
+			System.out.printf("Transition: %s -> %s %c %c %s\n", t.createdTransition.getFromState().getName(), t.createdTransition.getToState().getName(),
+					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
+
+		return t.createdTransition;
 	}
 	
 	private double calcDist(MouseEvent event, Machine currentMachine){

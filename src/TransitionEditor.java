@@ -1,4 +1,5 @@
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectExpression;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,7 +14,8 @@ import javafx.stage.Stage;
 
 
 public class TransitionEditor {
-    private ToggleGroup col3Toggle;
+
+    public Transition createdTransition;
 
     public TransitionEditor(Stage window, State from, State to){
         Stage transitionEditor = new Stage();
@@ -81,19 +83,19 @@ public class TransitionEditor {
 
         VBox col3VBox = new VBox();
 
-        col3Toggle = new ToggleGroup();
+        ToggleGroup col3Toggle = new ToggleGroup();
         ToggleButton left = new ToggleButton("<-");
         ToggleButton right = new ToggleButton("->");
         ToggleButton none = new ToggleButton("N");
 
-        left.setUserData("left");
+        left.setUserData(Transition.Direction.LEFT);
         left.setToggleGroup(col3Toggle);
-        right.setUserData("right");
+        right.setUserData(Transition.Direction.RIGHT);
         right.setToggleGroup(col3Toggle);
-        none.setUserData("none");
+        none.setUserData(Transition.Direction.STAY);
         none.setToggleGroup(col3Toggle);
 
-        col3VBox.getChildren().addAll(left, right, none);
+        col3VBox.getChildren().addAll(right, left, none);
 
         col3.getChildren().addAll(col3Text, col3VBox);
 
@@ -104,8 +106,17 @@ public class TransitionEditor {
         //  |____/ \__,_|_.__/|_| |_| |_|_|\__|
         //
 
-        Button submit = new Button("Confirm");
-        borderPane.setAlignment(submit, Pos.CENTER);
+        Button submitButton = new Button("Confirm");
+        submitButton.setOnAction(event -> {
+            createdTransition = new Transition(to, from, col1TextArea.getCharacters().charAt(0),
+                    col2TextArea.getCharacters().charAt(0),
+                    (Transition.Direction) col3Toggle.getSelectedToggle().getUserData());
+
+            transitionEditor.close();
+        });
+
+
+        borderPane.setAlignment(submitButton, Pos.CENTER);
 
         //   ____  _           _ _
         //  | __ )(_)_ __   __| (_)_ __   __ _ ___
@@ -125,6 +136,23 @@ public class TransitionEditor {
                 () -> Font.font(col2TextArea.getWidth() / 2), col2TextArea.widthProperty());
         ObjectExpression<Font> toggleButtonFontTrack = Bindings.createObjectBinding(
                 () -> Font.font(left.getWidth() / 8), left.widthProperty());
+        ObjectExpression<Font> submitButtonFontTrack = Bindings.createObjectBinding(
+                () -> Font.font(Math.min(borderPane.getWidth(), borderPane.getHeight())/ 8), borderPane.widthProperty(), borderPane.heightProperty());
+
+        BooleanBinding submitButtonDisableBinding = new BooleanBinding() {
+            {
+                super.bind(col1TextArea.textProperty(),
+                        col2TextArea.textProperty(),
+                        col3Toggle.selectedToggleProperty());
+            }
+
+            @Override
+            protected boolean computeValue() {
+                return (col1TextArea.getText().isEmpty()
+                        || col2TextArea.getText().isEmpty()
+                        || col3Toggle.getSelectedToggle() == null);
+            }
+        };
 
         col1TextArea.prefHeightProperty().bind(col1TextArea.widthProperty());
         col1TextArea.fontProperty().bind(col1TextAreaFontTrack);
@@ -142,19 +170,21 @@ public class TransitionEditor {
         none.prefHeightProperty().bind(col2TextArea.widthProperty().divide(3.2));
         none.fontProperty().bind(toggleButtonFontTrack);
 
+        submitButton.fontProperty().bind(submitButtonFontTrack);
+        submitButton.disableProperty().bind(submitButtonDisableBinding);
+
         col1.prefWidthProperty().bind(hBox.widthProperty().divide(3));
         col2.prefWidthProperty().bind(hBox.widthProperty().divide(3));
         col3.prefWidthProperty().bind(hBox.widthProperty().divide(3));
 
-
         borderPane.setCenter(hBox);
-        borderPane.setBottom(submit);
+        borderPane.setBottom(submitButton);
         Scene popUp = new Scene(borderPane, 300,200);
         transitionEditor.setScene(popUp);
 
-        transitionEditor.minHeightProperty().bind(borderPane.widthProperty().divide(2));
+        transitionEditor.minHeightProperty().bind(borderPane.widthProperty().divide(1.5));
 
-        transitionEditor.show();
+        transitionEditor.showAndWait();
     }
 
     private boolean containsIllegalCharacters(String s){
