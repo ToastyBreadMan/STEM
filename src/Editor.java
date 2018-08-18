@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -166,6 +167,8 @@ class Editor {
 				transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 				transitionFromState = null;
 			}
+			for (Path p : currentMachine.getPaths())
+				p.setTextFillColor(Color.BLACK);
 
 			//   _   _
 			//  | \ | | ___  _ __   ___
@@ -247,35 +250,64 @@ class Editor {
 			else if (new_toggle.getUserData() == "Delete State"){
 				System.out.println(new_toggle.getUserData());
 
+				for (Path p : currentMachine.getPaths())
+					p.setTextFillColor(Color.DARKRED);
+
 				currentHandler = event -> {
 					if(event.getButton() == MouseButton.PRIMARY
 							&& (event.getTarget() instanceof Circle
 							|| event.getTarget() instanceof Text)){
 
-						Object Target;
-						State targetState;
-						ArrayList<Transition> deleteTransitions = new ArrayList<>();
+						Object Target = ((Node) event.getTarget()).getUserData();
 
-						Target = ((Node) event.getTarget()).getUserData();
+						if(Target instanceof State) {
+							State targetState;
+							ArrayList<Transition> deleteTransitions = new ArrayList<>();
+							ArrayList<Path> deletePaths = new ArrayList<>();
 
-						if(Target instanceof State)
 							targetState = (State) Target;
-						else
-							return;
 
-						for(Transition t : currentMachine.getTransitions()){
-							if(t.getToState() == targetState) {
-								editorSpace.getChildren().removeAll(t.getPath().getAllNodes());
-								t.setPath(null);
-								t.getFromState().getTransition().remove(t);
+							for (Transition t : currentMachine.getTransitions()) {
+								if (t.getToState() == targetState) {
 
-								deleteTransitions.add(t);
+									ArrayList<Node> nodes = t.getPath().getAllNodes();
+									if (!nodes.isEmpty())
+										editorSpace.getChildren().removeAll(t.getPath().getAllNodes());
+									t.getFromState().getTransition().remove(t);
+
+									deletePaths.add(t.getPath());
+									deleteTransitions.add(t);
+								}
 							}
-						}
-						currentMachine.getTransitions().removeAll(deleteTransitions);
-						deleteTransitions.clear();
+							currentMachine.getPaths().removeAll(deletePaths);
+							currentMachine.getTransitions().removeAll(deleteTransitions);
+							deleteTransitions.clear();
+							deletePaths.clear();
 
-						deleteState(targetState);
+							deleteState(targetState);
+						}
+						else if(Target instanceof Transition){
+							ArrayList<Node> nodes;
+							Transition targetTransition;
+
+							targetTransition = (Transition) Target;
+							nodes = targetTransition.getPath().removeTransition(targetTransition);
+
+							if(!nodes.isEmpty())
+								editorSpace.getChildren().removeAll(nodes);
+
+							if(targetTransition.getPath().getAllNodes().isEmpty())
+								currentMachine.getPaths().remove(targetTransition.getPath());
+
+							targetTransition.getFromState().getTransition().remove(targetTransition);
+							currentMachine.getTransitions().remove(targetTransition);
+						}
+
+						for(Transition t : currentMachine.getTransitions())
+							System.out.printf("%c ; %c ; %c\n", t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+
+						for(Path p : currentMachine.getPaths())
+							System.out.println(p.toString());
 					}
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
@@ -306,7 +338,21 @@ class Editor {
 								else{
 									System.out.printf("Create Transition from %s to %s\n", transitionFromState.getName(), s.getName());
 
+									s.getCircle().setFill(Color.AQUA);
 									Transition t = addTransition(transitionFromState, s);
+
+									if(t == null){
+										transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+										transitionFromState = null;
+
+										return;
+									}
+
+									for (Transition temp : currentMachine.getTransitions()){
+										if(temp.compareTo(t))
+											return;
+									}
+
 									currentMachine.getTransitions().add(t);
 									transitionFromState.getTransition().add(t);
 
@@ -322,22 +368,21 @@ class Editor {
 									if (path == null){
 										path = new Path(transitionFromState, s);
 										System.out.println("New Path");
+										currentMachine.getPaths().add(path);
 									}
 
-									// TODO: check if same transition
-
-									currentMachine.getPaths().add(path);
+									t.setPath(path);
 									ArrayList<Node> nodes = path.addTransition(t);
 									editorSpace.getChildren().addAll(nodes);
 
 									for(Node n : nodes)
-										n.toBack();
+										if(n instanceof Line)
+											n.toBack();
 
+									s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 									transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 									transitionFromState = null;
 								}
-							}
-							else if (Target.getUserData() instanceof Transition){
 							}
 						}
 						else{
@@ -369,6 +414,7 @@ class Editor {
 
 		for(Transition t : state.getTransition()){
 			editorSpace.getChildren().removeAll(t.getPath().getAllNodes());
+			currentMachine.getPaths().remove(t.getPath());
 			t.setPath(null);
 		}
 		state.getTransition().clear();
@@ -475,11 +521,19 @@ class Editor {
 	}
 
 	private void redrawAllStates(){
+		for(State s : currentMachine.getStates())
+			editorSpace.getChildren().removeAll(s.getCircle(), s.getLabel());
 
+		for(State s : currentMachine.getStates())
+			editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
 	}
 
 	private void redrawAllPaths(){
+		for(Path p : currentMachine.getPaths())
+			editorSpace.getChildren().removeAll(p.getAllNodes());
 
+		for(Path p : currentMachine.getPaths())
+			editorSpace.getChildren().addAll(p.getAllNodes());
 	}
 
 	private double distForm(double x1, double x2, double y1, double y2){

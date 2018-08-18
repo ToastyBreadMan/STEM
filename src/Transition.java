@@ -69,4 +69,12 @@ class Transition {
 	public Path getPath(){
 		return this.path;
 	}
+
+	public boolean compareTo(Transition t){
+		return (t.fromState == fromState)
+				&&(t.toState == toState)
+				&&(t.readChar == readChar)
+				&&(t.writeChar == writeChar)
+				&&(t.moveDirection == moveDirection);
+	}
 }
