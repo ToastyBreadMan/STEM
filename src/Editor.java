@@ -14,11 +14,13 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 class Editor {
 	private Stage window;
@@ -103,6 +105,11 @@ class Editor {
 		backButton.fontProperty().bind(backButtonTrack);
 		backButton.setOnAction(e->deleteEditor(window, prev));
 
+		Button tapeButton = new Button("Edit Tape");
+		ObjectProperty<Font> tapeButtonTack = new SimpleObjectProperty<>(Font.getDefault());
+		tapeButton.fontProperty().bind(tapeButtonTack);
+		tapeButton.setOnAction(e->editTape(window, currentMachine));
+
 		// Add toggle buttons
 		bar.getItems().addAll(addState, deleteState, addTransition);
 
@@ -110,7 +117,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons
-		bar.getItems().addAll(testButton, backButton);
+		bar.getItems().addAll(testButton, backButton, tapeButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -543,5 +550,51 @@ class Editor {
 	private void getInput(Stage window, Scene prev){
 		Input inputWindow = new Input(window);
 		inputWindow.launch();
+	}
+
+	private void editTape(Stage window, Machine currentMachine) {
+		TextInputDialog tapeEdit = new TextInputDialog();
+		tapeEdit.setTitle("Edit Tape");
+		tapeEdit.setHeaderText("Valid characters are Ascii values 32-125\nThis includes all alpha-numeric values.");
+
+
+		tapeEdit.setContentText("Enter a string for the tape (spaces for blank):");
+		tapeEdit.initOwner(window);
+		tapeEdit.initModality(Modality.APPLICATION_MODAL);
+
+		Optional<String> result = tapeEdit.showAndWait();
+		result.ifPresent(tapeString -> {
+			ArrayList<Character> characters = new ArrayList<Character>();
+			for(Character c: tapeString.toCharArray()) {
+				if (c >= 32 && c < 126) {
+					characters.add(c);
+				}
+				else {
+					Alert alert = new Alert(Alert.AlertType.WARNING);
+					alert.setTitle("Invalid character(s)");
+					alert.setContentText("You input invalid character(s) in your tape.");
+					alert.initOwner(window);
+					alert.initModality(Modality.APPLICATION_MODAL);
+					alert.showAndWait();
+					editTape(window, currentMachine);
+					return;
+
+
+				}
+			}
+			System.out.print("Old tape: ");
+			for(Character c: currentMachine.tape.getTapeAsArray()) {
+				System.out.print(c);
+			}
+			System.out.println();
+
+			currentMachine.tape.initTape(characters);
+			System.out.print("New tape: ");
+			for(Character c: currentMachine.tape.getTapeAsArray()) {
+				System.out.print(c);
+			}
+			System.out.println();
+
+		});
 	}
 }
