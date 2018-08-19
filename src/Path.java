@@ -68,8 +68,12 @@ public class Path {
         }
             if((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
                     || (fromState.getX() == toState.getX() && fromState.getY() < toState.getY()) ){
+
+                char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+                char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
+
                 Text newText = new Text(String.format("%c ; %c ; %c -->",
-                        t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0)));
+                        readChar, writeChar, t.getMoveDirection().toString().charAt(0)));
 
                 newText.setTextAlignment(TextAlignment.CENTER);
 
@@ -87,14 +91,21 @@ public class Path {
                 ret.add(newText);
             }
             else {
+                char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+                char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
+
                 Text newText = new Text(String.format("<-- %c ; %c ; %c",
-                        t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0)));
+                        readChar, writeChar, t.getMoveDirection().toString().charAt(0)));
 
                 newText.setTextAlignment(TextAlignment.CENTER);
+
                 newText.setX(midPointX - (belowTexts.size()+1) * textX - textX * 0.5  - 2 * distance * Math.cos(Math.toRadians(theta)));
                 newText.setY(midPointY + (belowTexts.size()+1) * textY + textY * 0.5 - 2 * distance * Math.sin(Math.toRadians(theta)));
+
                 newText.getTransforms().add(new Rotate(theta, newText.getX(), newText.getY()));
+
                 System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
+
                 newText.setUserData(t);
 
                 belowTexts.add(newText);

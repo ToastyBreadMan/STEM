@@ -11,6 +11,7 @@ class State {
 	private boolean start;
 	private boolean accept;
 	private Circle circle;
+	private Circle acceptCircle;
 	private ArrayList<Transition> transition;
 
 	public State(){
@@ -88,7 +89,15 @@ class State {
 	public void setCircle(Circle circle){
 		this.circle = circle;
 	}
-	
+
+	public Circle getAcceptCircle() {
+		return acceptCircle;
+	}
+
+	public void setAcceptCircle(Circle acceptCircle) {
+		this.acceptCircle = acceptCircle;
+	}
+
 	public ArrayList<Transition> getTransition() {
 		return transition;
 	}

@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -34,6 +35,7 @@ class Editor {
 	private State transitionFromState;
 	private int stateNextVal = 0;
 	private int circleRadius;
+	private Polygon startTriangle;
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
@@ -51,6 +53,7 @@ class Editor {
 		pane.prefWidthProperty().bind(editor.widthProperty());
 
 		circleRadius = 20;
+		startTriangle = new Polygon();
 	}
 
 	void setCircleRadius(int size){
@@ -75,10 +78,10 @@ class Editor {
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
-		ToggleButton deleteState = new ToggleButton("Delete State");
+		ToggleButton deleteState = new ToggleButton("Delete Value");
 		ObjectProperty<Font> deleteStateTrack = new SimpleObjectProperty<>(Font.getDefault());
 		deleteState.fontProperty().bind(deleteStateTrack);
-		deleteState.setUserData("Delete State");
+		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
@@ -100,15 +103,15 @@ class Editor {
 		testButton.fontProperty().bind(testButtonTrack);
 		testButton.setOnAction(e-> getInput(window, prev));
 		
-		Button backButton = new Button("Back");
-		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
-		backButton.fontProperty().bind(backButtonTrack);
-		backButton.setOnAction(e->deleteEditor(window, prev));
-
 		Button tapeButton = new Button("Edit Tape");
 		ObjectProperty<Font> tapeButtonTack = new SimpleObjectProperty<>(Font.getDefault());
 		tapeButton.fontProperty().bind(tapeButtonTack);
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
+
+		Button backButton = new Button("Back");
+		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
+		backButton.fontProperty().bind(backButtonTrack);
+		backButton.setOnAction(e->deleteEditor(window, prev));
 
 		// Add toggle buttons
 		bar.getItems().addAll(addState, deleteState, addTransition);
@@ -117,7 +120,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons
-		bar.getItems().addAll(testButton, backButton, tapeButton);
+		bar.getItems().addAll(testButton, tapeButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -129,26 +132,19 @@ class Editor {
 			deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			tapeButtonTack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 		});
 
 		return bar;
 	}
 	
-	/*
-	FIXME
-	If someone can clean up this next function, please do so.
-
-
-	I gotchu fam
-	 */
-
-	void newMachine(Stage window, Scene prev){
+	public void newMachine(Stage window, Scene prev){
 		currentMachine = new Machine();
 		startMachine(window, prev);
 	}
 
-	void loadMachine(Stage window, Scene prev, Machine m){
+	public void loadMachine(Stage window, Scene prev, Machine m){
 		currentMachine = m;
 		redrawAllStates();
 		redrawAllPaths();
@@ -156,8 +152,10 @@ class Editor {
 	}
 	
 	/* Called whenever a new machine is setup */
-	void startMachine(Stage window, Scene prev){
+	private void startMachine(Stage window, Scene prev){
 		EventHandler<MouseEvent> MoveEvent = this::setCursor;
+
+		ContextMenu contextMenu = initContextMenu();
 
 		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
 
@@ -239,6 +237,13 @@ class Editor {
 						c.setUserData(s);
 						t.setUserData(s);
 
+						c.setOnContextMenuRequested(event1 -> {
+							contextMenu.show(c,event1.getScreenX(), event1.getScreenY());
+						});
+						t.setOnContextMenuRequested(event2 -> {
+							contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
+						});
+
 						currentMachine.addState(s);
 						editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
 					}
@@ -254,7 +259,7 @@ class Editor {
 			//  | |_| |  __/ |  __/ |_  __/  ___) | |_ (_| | |_  __/
 			//  |____/ \___|_|\___|\__\___| |____/ \__\__,_|\__\___|
 			//
-			else if (new_toggle.getUserData() == "Delete State"){
+			else if (new_toggle.getUserData() == "Delete Value"){
 				System.out.println(new_toggle.getUserData());
 
 				for (Path p : currentMachine.getPaths())
@@ -406,11 +411,61 @@ class Editor {
 		});
 	}
 
-	State findState(String id){
-		for(State s : currentMachine.getStates())
-			if(s.getName().equals(id))
-				return s;
-		return null;
+	private ContextMenu initContextMenu(){
+		ContextMenu contextMenu = new ContextMenu();
+
+		MenuItem setStart = new MenuItem("Set Start");
+		setStart.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+
+			editorSpace.getChildren().remove(startTriangle);
+			startTriangle.getPoints().clear();
+
+			startTriangle.getPoints().addAll(
+					s.getCircle().getCenterX()-circleRadius - 1, s.getCircle().getCenterY(),
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()-circleRadius,
+					s.getCircle().getCenterX()-2*circleRadius, s.getCircle().getCenterY()+circleRadius
+			);
+
+			startTriangle.setFill(null);
+			startTriangle.setStroke(Color.BLACK);
+
+			editorSpace.getChildren().addAll(startTriangle);
+			currentMachine.setStartState(s);
+			System.out.printf("State %s is now start\n", currentMachine.getStartState().getName());
+		});
+
+		MenuItem toggleAccept = new MenuItem("Toggle Accept");
+		toggleAccept.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+
+			if(s.getAcceptCircle() == null){
+				s.setAccept(true);
+
+				Circle c = new Circle(s.getCircle().getCenterX(), s.getCircle().getCenterY()
+						, circleRadius * 1.25, null);
+				c.setStrokeWidth(2);
+				c.setStroke(Color.BLACK);
+
+				s.setAcceptCircle(c);
+				editorSpace.getChildren().add(c);
+				c.toBack();
+
+				System.out.printf("State %s is accept = %s\n", s.getName(), s.isAccept());
+			}
+			else {
+				s.setAccept(false);
+
+				editorSpace.getChildren().remove(s.getAcceptCircle());
+
+				s.setAcceptCircle(null);
+				System.out.printf("State %s is accept = %s\n", s.getName(), s.isAccept());
+			}
+		});
+
+		contextMenu.getItems().addAll(setStart, toggleAccept);
+
+		return contextMenu;
 	}
 
 	// Function to delete state
@@ -428,6 +483,15 @@ class Editor {
 
 		state.setCircle(null);
 		state.setLabel(null);
+
+		if (currentMachine.getStartState() == state){
+		    System.out.printf("State %s is start removing...", state.getName());
+			currentMachine.setStartState(null);
+			editorSpace.getChildren().remove(startTriangle);
+		}
+
+		if (state.isAccept())
+			editorSpace.getChildren().remove(state.getAcceptCircle());
 
 		currentMachine.deleteState(state);
 		deletedValues.add(Integer.parseInt(state.getName()));
@@ -564,7 +628,7 @@ class Editor {
 
 		Optional<String> result = tapeEdit.showAndWait();
 		result.ifPresent(tapeString -> {
-			ArrayList<Character> characters = new ArrayList<Character>();
+			ArrayList<Character> characters = new ArrayList<>();
 			for(Character c: tapeString.toCharArray()) {
 				if (c >= 32 && c < 126) {
 					characters.add(c);
