@@ -1,14 +1,18 @@
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -19,6 +23,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
@@ -36,6 +42,8 @@ class Editor {
 	private int stateNextVal = 0;
 	private int circleRadius;
 	private Polygon startTriangle;
+	private ContextMenu contextMenu = initContextMenu();
+
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
@@ -98,15 +106,15 @@ class Editor {
 		// Begin NON-Toggle buttons
 
 		/* Open the tester dialog. */
-		Button testButton = new Button("Test Machine");
-		ObjectProperty<Font> testButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
-		testButton.fontProperty().bind(testButtonTrack);
-		testButton.setOnAction(e-> getInput(window, prev));
-		
 		Button tapeButton = new Button("Edit Tape");
 		ObjectProperty<Font> tapeButtonTack = new SimpleObjectProperty<>(Font.getDefault());
 		tapeButton.fontProperty().bind(tapeButtonTack);
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
+
+		Button testButton = new Button("Test Machine");
+		ObjectProperty<Font> testButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
+		testButton.fontProperty().bind(testButtonTrack);
+		testButton.setOnAction(e-> testMachine(testButton, addState, deleteState, addTransition, tapeButton));
 
 		Button backButton = new Button("Back");
 		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
@@ -114,13 +122,13 @@ class Editor {
 		backButton.setOnAction(e->deleteEditor(window, prev));
 
 		// Add toggle buttons
-		bar.getItems().addAll(addState, deleteState, addTransition);
+		bar.getItems().addAll(addState, addTransition, deleteState);
 
 		// Add separator
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons
-		bar.getItems().addAll(testButton, tapeButton, backButton);
+		bar.getItems().addAll(tapeButton, testButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -153,9 +161,22 @@ class Editor {
 	
 	/* Called whenever a new machine is setup */
 	private void startMachine(Stage window, Scene prev){
-		EventHandler<MouseEvent> MoveEvent = this::setCursor;
 
-		ContextMenu contextMenu = initContextMenu();
+		Circle circle = new Circle(circleRadius, null);
+		circle.setStroke(Color.BLACK);
+
+		SnapshotParameters sp = new SnapshotParameters();
+		sp.setFill(Color.TRANSPARENT);
+
+		Image img = circle.snapshot(sp, null);
+		ImageCursor cursor = new ImageCursor(img, img.getHeight() / 2, img.getWidth() / 2);
+
+		EventHandler<MouseEvent> MoveEvent = event -> {
+			if(event.getY() > circleRadius)
+				editor.setCursor(cursor);
+			else
+				editor.setCursor(Cursor.DEFAULT);
+		};
 
 		toggleGroup.selectedToggleProperty().addListener((ov, toggle, new_toggle) -> {
 
@@ -298,6 +319,7 @@ class Editor {
 
 							deleteState(targetState);
 						}
+						// TODO: edge case causes transitions not to delete properly
 						else if(Target instanceof Transition){
 							ArrayList<Node> nodes;
 							Transition targetTransition;
@@ -355,6 +377,7 @@ class Editor {
 
 									if(t == null){
 										transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+										s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 										transitionFromState = null;
 
 										return;
@@ -498,24 +521,6 @@ class Editor {
 		state = null;
 	}
 
-	private void setCursor(MouseEvent event){
-		if(event.getY() > circleRadius) {
-			Circle circle = new Circle(circleRadius, null);
-			circle.setStroke(Color.BLACK);
-			
-			SnapshotParameters sp = new SnapshotParameters();
-			sp.setFill(Color.TRANSPARENT);
-			
-			Image img = circle.snapshot(sp, null);
-			ImageCursor cursor = new ImageCursor(img, img.getHeight() / 2, img.getWidth() / 2);
-			
-			editor.setCursor(cursor);
-		}
-		else{
-			editor.setCursor(Cursor.DEFAULT);
-		}
-	}
-	
 	private void deleteEditor(Stage window, Scene prev){
 		System.out.println("If you see this you should be saving your machine");
 		window.setScene(prev);
@@ -592,16 +597,65 @@ class Editor {
 	}
 
 	private void redrawAllStates(){
-		for(State s : currentMachine.getStates())
+		for(State s : currentMachine.getStates()){
 			editorSpace.getChildren().removeAll(s.getCircle(), s.getLabel());
 
-		for(State s : currentMachine.getStates())
+			Circle c = new Circle(s.getX(), s.getY(), circleRadius, Color.LIGHTGOLDENRODYELLOW);
+			c.setId(s.getName());
+			c.setStrokeWidth(2);
+			c.setStroke(Color.BLACK);
+
+			Text t = new Text(s.getName());
+			t.setId(s.getName());
+			t.setX(c.getCenterX() - (t.getLayoutBounds().getWidth() / 2));
+			t.setY(c.getCenterY() + (t.getLayoutBounds().getHeight() / 4));
+
+			// Set Create State and add it to the Node's user data
+			// so it is easy to find if clicked on
+			c.setUserData(s);
+			t.setUserData(s);
+
+			c.setOnContextMenuRequested(event1 -> {
+				contextMenu.show(c,event1.getScreenX(), event1.getScreenY());
+			});
+			t.setOnContextMenuRequested(event2 -> {
+				contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
+			});
+
 			editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
+		}
 	}
 
 	private void redrawAllPaths(){
 		for(Path p : currentMachine.getPaths())
 			editorSpace.getChildren().removeAll(p.getAllNodes());
+
+		currentMachine.getPaths().clear();
+
+		for (Transition t : currentMachine.getTransitions()){
+			Path path = null;
+			for(Path p : currentMachine.getPaths()){
+				if(p.compareTo(t.getFromState(), t.getToState())) {
+					path = p;
+					System.out.println("Found Path");
+					break;
+				}
+			}
+
+			if (path == null){
+				path = new Path(t.getFromState(), t.getToState());
+				System.out.println("New Path");
+				currentMachine.getPaths().add(path);
+			}
+
+			t.setPath(path);
+			ArrayList<Node> nodes = path.addTransition(t);
+			editorSpace.getChildren().addAll(nodes);
+
+			for(Node n : nodes)
+				if(n instanceof Line)
+					n.toBack();
+		}
 
 		for(Path p : currentMachine.getPaths())
 			editorSpace.getChildren().addAll(p.getAllNodes());
@@ -611,16 +665,100 @@ class Editor {
 		return Math.hypot(x2-x1, y2-y1);
 	}
 	
-	private void getInput(Stage window, Scene prev){
-		Input inputWindow = new Input(window);
-		inputWindow.launch();
+	private void testMachine(Button thisButton ,Node... args){
+		toggleGroup.selectToggle(null);
+		for(Node b : args)
+			b.setDisable(true);
+
+		Tester tester = new Tester();
+
+		Task<Void> task = new Task<>() {
+			@Override
+			public Void call(){
+				try {
+					tester.runMachine(currentMachine, 500);
+				} catch (Exception e) {
+					System.out.println(e);
+					Alert alert = new Alert(Alert.AlertType.ERROR);
+					alert.initOwner(window);
+					alert.initModality(Modality.APPLICATION_MODAL);
+					alert.setTitle("An Exception has Occurred!");
+					alert.setHeaderText(e.toString());
+					// TODO: Better send us message
+					alert.setContentText("Oops...");
+
+					StringWriter stringWriter = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(stringWriter);
+					e.printStackTrace(printWriter);
+					String exceptionText = stringWriter.toString();
+
+					Label label = new Label("The exception stacktrace was:");
+
+					TextArea textArea = new TextArea(exceptionText);
+					textArea.setEditable(false);
+					textArea.setWrapText(true);
+					textArea.setMaxWidth(Double.MAX_VALUE);
+					textArea.setMaxHeight(Double.MAX_VALUE);
+					GridPane.setVgrow(textArea, Priority.ALWAYS);
+					GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+					GridPane expContent = new GridPane();
+					expContent.setMaxWidth(Double.MAX_VALUE);
+					expContent.add(label, 0, 0);
+					expContent.add(textArea, 0, 1);
+
+					alert.getDialogPane().setExpandableContent(expContent);
+
+					alert.showAndWait();
+				}
+
+				return null;
+			}
+		};
+		task.setOnSucceeded(event -> {
+			Alert alert = new Alert(Alert.AlertType.ERROR);
+			alert.initOwner(window);
+			alert.initModality(Modality.APPLICATION_MODAL);
+			alert.setTitle("The machine has finished");
+
+			if(tester.didSucceed()){
+				alert.setGraphic(new ImageView(this.getClass().getResource("checkmark.png").toString()));
+				alert.setHeaderText("The machine has finished successfully");
+			}
+			else {
+				alert.setHeaderText("The machine has finished unsuccessfully");
+				alert.setContentText(tester.getFailReason());
+			}
+
+			alert.showAndWait();
+
+			thisButton.setText("Test Machine");
+			thisButton.setOnAction(event1 ->  testMachine(thisButton, args));
+
+			for(Node b : args)
+				b.setDisable(false);
+		});
+		task.setOnCancelled(event -> {
+			for(State s : currentMachine.getStates())
+				s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+
+		    for(Node b : args)
+		    	b.setDisable(false);
+
+			thisButton.setText("Test Machine");
+			thisButton.setOnAction(event1 ->  testMachine(thisButton, args));
+		});
+
+		thisButton.setText("Stop Machine");
+		thisButton.setOnAction(event ->  task.cancel());
+
+		new Thread(task).start();
 	}
 
 	private void editTape(Stage window, Machine currentMachine) {
 		TextInputDialog tapeEdit = new TextInputDialog();
 		tapeEdit.setTitle("Edit Tape");
 		tapeEdit.setHeaderText("Valid characters are Ascii values 32-125\nThis includes all alpha-numeric values.");
-
 
 		tapeEdit.setContentText("Enter a string for the tape (spaces for blank):");
 		tapeEdit.initOwner(window);
@@ -642,8 +780,6 @@ class Editor {
 					alert.showAndWait();
 					editTape(window, currentMachine);
 					return;
-
-
 				}
 			}
 			System.out.print("Old tape: ");

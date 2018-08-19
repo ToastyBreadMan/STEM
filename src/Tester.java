@@ -1,28 +1,36 @@
+import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Tester {
+    private String failReason;
+    private boolean succeeded;
+    private int loops;
 
-    public boolean runMachine(Machine m, int tapeLoc, int waitTime) throws Exception{
+    public String getFailReason() {
+        return failReason;
+    }
+
+    public boolean didSucceed() {
+        return succeeded;
+    }
+
+    public void runMachine(Machine m, int waitTime) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
         Tape tape = m.tape;
 
-        // Fail if tapeLoc is out of scope
-        if(!tape.setTapeHead(tapeLoc)){
-            System.out.printf("Invalid TapeHead value: %d /t TapeHead must be between 0 and %d\n", tapeLoc, tape.getSize()-1);
-            return false;
-        }
-
         // Fail if there is no start state
         currentState = m.getStartState();
         if(currentState == null){
-            System.out.println("Machine has no start state!");
-            return false;
+            failReason = "Machine has no start state!";
+            succeeded = false;
+            return;
         }
 
+        loops = 0;
         // Main body
         while(true) {
             Character curChar = tape.currentTapeVal();
@@ -61,7 +69,9 @@ public class Tester {
                     currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
                 }
 
-                return currentState.isAccept();
+                failReason = String.format("State %s is not an accept state", currentState.getName());
+                succeeded = currentState.isAccept();
+                return;
             }
 
             // Set color of the selected Transition
@@ -76,8 +86,8 @@ public class Tester {
                 try{
                     tape.setTape(curTransition.getWriteChar());
                 } catch (Exception e){
-                    System.out.println(e.getMessage());
-                    return false;
+                    failReason = String.format("Cannot set %c to tape location %d", curTransition.getWriteChar(), tape.getTapeHead());
+                    throw e;
                 }
             }
 
@@ -92,6 +102,13 @@ public class Tester {
                     break;
             }
 
+            TimeUnit.MILLISECONDS.sleep(waitTime);
+
+            // Reset Colors
+            if(currentState.getCircle() != null) {
+                currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+            }
+
             currentState = curTransition.getToState();
 
             System.out.print("|");
@@ -100,20 +117,10 @@ public class Tester {
             }
             System.out.print("\n");
 
-            TimeUnit.MILLISECONDS.sleep(waitTime);
-
-            // Reset Colors
-            if(currentState.getCircle() != null) {
-                currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-            }
-
-            /*
-            if(curTransition.getLine() != null){
-                curTransition.getLine().setFill(Color.BLACK);
-            }
-            */
-
+            loops++;
             // TODO: prompt user if loop goes over X iterations
+            if(loops % 1000 == 0){
+            }
         }
     }
 }

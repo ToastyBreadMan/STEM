@@ -133,8 +133,12 @@ public class Path {
 
         if((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
                 || (fromState.getX() == toState.getX() && fromState.getY() < toState.getY()) ){
+
+            char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+            char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
+
             text = String.format("%c ; %c ; %c -->",
-                    t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+                    readChar, writeChar, t.getMoveDirection().toString().charAt(0));
 
             for(Text curText : aboveTexts){
                 if (curText.getText().compareTo(text) == 0){
@@ -145,8 +149,11 @@ public class Path {
             }
         }
         else {
+            char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+            char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
+
             text = String.format("<-- %c ; %c ; %c",
-                    t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+                    readChar, writeChar, t.getMoveDirection().toString().charAt(0));
 
             for(Text curText : belowTexts) {
                 if (curText.getText().compareTo(text) == 0){

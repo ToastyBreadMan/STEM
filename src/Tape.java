@@ -13,6 +13,10 @@ public class Tape{
         return true;
     }
 
+    public int getTapeHead(){
+        return this.tapeHead;
+    }
+
     // Initialize Tape to t and set Tapehead to the start
     public void initTape(ArrayList<Character> t){
         this.tape.clear();
@@ -35,6 +39,8 @@ public class Tape{
     }
 
     public Character currentTapeVal(){
+        if(tape.isEmpty())
+            appendTape('~');
         return tape.get(tapeHead);
     }
 
@@ -42,7 +48,7 @@ public class Tape{
         tapeHead--;
 
         if(tapeHead == -1){
-            prependTape(new Character(' '));
+            prependTape('~');
             tapeHead = 0;
         }
         return tape.get(tapeHead);
@@ -52,7 +58,7 @@ public class Tape{
         tapeHead++;
 
         if(tapeHead > tape.size()-1){
-            appendTape(new Character(' '));
+            appendTape('~');
             tapeHead = tape.size()-1;
         }
         return tape.get(tapeHead);
