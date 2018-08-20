@@ -240,6 +240,7 @@ class Editor {
 						if (transitionMatcher.matches()) {
 							Transition newTransition = new Transition();
 							newTransition.setFromState(totalStates.get(transitionMatcher.group(1)));
+							totalStates.get((transitionMatcher.group(1))).getTransition().add(newTransition);
 							newTransition.setToState(totalStates.get(transitionMatcher.group(2)));
 							newTransition.setReadChar(transitionMatcher.group(3).charAt(0));
 							newTransition.setWriteChar(transitionMatcher.group(4).charAt(0));
@@ -332,6 +333,7 @@ class Editor {
 
 
 							// Setup the transition
+							startState.getTransition().add(newTransition);
 							newTransition.setFromState(startState);
 							if (transitionMatch.group(2).charAt(0) == '#') newTransition.setReadChar(' '); // Change the blanks to spaces
 							else if (transitionMatch.group(2).charAt(0) == '*') newTransition.setReadChar('~'); // Change the wildcard to tilde
@@ -344,6 +346,7 @@ class Editor {
 							if (transitionMatch.group(4).charAt(0) == 'L') newTransition.setMoveDirection(Transition.Direction.LEFT);
 							else if (transitionMatch.group(4).charAt(0) == 'R') newTransition.setMoveDirection(Transition.Direction.RIGHT);
 							else throw new IOException("Bad Direction"); // Old machine only accepted left and right directions.
+
 							if(statesNeeded.containsKey(transitionMatch.group(5))) {
 								newTransition.setToState(statesNeeded.get(transitionMatch.group(5)));
 							}
