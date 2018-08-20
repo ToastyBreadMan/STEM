@@ -55,6 +55,7 @@ class Machine {
 	}
 
 	public String toString(){
+		//System.out.println("I'm in toString");
 		StringBuilder ret = new StringBuilder();
 		ret.append(String.format("// Save File for JFLAP-ISH\n// Version %.2f\n\n", 1.0));
 		ret.append("// State Format: name x y start accept\n");
@@ -63,7 +64,7 @@ class Machine {
 		for (State s : states){
 			ret.append(String.format("\t%s %f %f %s %s\n",
 					s.getName(), s.getX(), s.getY(),
-					Boolean.toString(s.isStart()), Boolean.toString(s.isAccept())));
+					Boolean.toString((startState == s) ? true : false), Boolean.toString(s.isAccept())));
 		}
 		ret.append("\n");
 

@@ -117,6 +117,12 @@ public class Main extends Application {
 			editor.newMachine(window, menu);
 			editor = null;
 		});
-		
+
+		loadMachineButton.setOnAction(e-> {
+			editor = new Editor(window, menu);
+			editor.setMenu(window);
+			editor.loadMachine(window, menu);
+			editor = null;
+		});
 	}
 }
