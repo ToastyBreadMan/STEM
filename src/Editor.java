@@ -332,8 +332,13 @@ class Editor {
 
 							// Setup the transition
 							newTransition.setFromState(startState);
-							newTransition.setReadChar(transitionMatch.group(2).charAt(0));
-							newTransition.setWriteChar(transitionMatch.group(3).charAt(0));
+							if (transitionMatch.group(2).charAt(0) == '#') newTransition.setReadChar(' '); // Change the blanks to spaces
+							else if (transitionMatch.group(2).charAt(0) == '*') newTransition.setReadChar('~'); // Change the wildcard to tilde
+							else newTransition.setReadChar(transitionMatch.group(2).charAt(0));
+
+							if (transitionMatch.group(3).charAt(0) == '#') newTransition.setWriteChar(' '); // Change the blanks to spaces
+							else if (transitionMatch.group(3).charAt(0) == '*') newTransition.setWriteChar('~'); // Change the wildcard to tilde
+							else newTransition.setWriteChar(transitionMatch.group(3).charAt(0));
 
 							if (transitionMatch.group(4).charAt(0) == 'L') newTransition.setMoveDirection(Transition.Direction.LEFT);
 							else if (transitionMatch.group(4).charAt(0) == 'R') newTransition.setMoveDirection(Transition.Direction.RIGHT);
@@ -912,13 +917,8 @@ class Editor {
 				if(n instanceof Line)
 					n.toBack();
 		}
-		try {
-			for (Path p : currentMachine.getPaths())
-				editorSpace.getChildren().addAll(p.getAllNodes());
-		}
-		catch (Exception e) {
 
-		}
+
 	}
 
 	private double distForm(double x1, double x2, double y1, double y2){
