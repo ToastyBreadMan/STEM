@@ -165,7 +165,7 @@ class Editor {
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 				bw.write(currentMachine.toString());
-
+				bw.close();
 				return true;
 			}
 			catch (IOException e) {
@@ -203,8 +203,68 @@ class Editor {
 				String curLine = br.readLine(); // Header (Compare to find out if imported from old or current)
 				String[] splitLine;
 				if (curLine.equals(ourHeader)) {
+					Hashtable<String, State> totalStates = new Hashtable<>();
+					//ArrayList<Transition> totalTransitions = new ArrayList<>();
+					Pattern statePattern = Pattern.compile("\t(-?\\d+) (\\d+.\\d+) (\\d+.\\d+) (\\w+) (\\w+)");
+					Pattern transitionPattern = Pattern.compile("\t(-?\\d+) (-?\\d+) (\\p{ASCII}) (\\p{ASCII}) (\\w+)");
 
-					// Import all data
+					// Read until beginning of states
+					while(!curLine.equals("STATES:")) {
+						curLine = br.readLine();
+					}
+					// Process all states
+					while(!curLine.startsWith("//")) {
+						curLine = br.readLine();
+						Matcher stateMatcher = statePattern.matcher(curLine);
+						if (stateMatcher.matches()) {
+							State newState = new State();
+							newState.setLabel(new Text(stateMatcher.group(1)));
+							newState.setName(stateMatcher.group(1));
+							newState.setX(Double.parseDouble(stateMatcher.group(2)));
+							newState.setY(Double.parseDouble(stateMatcher.group(3)));
+							if (Boolean.parseBoolean(stateMatcher.group(4))) loadedMachine.setStartState(newState);
+							newState.setAccept(Boolean.parseBoolean(stateMatcher.group(5)));
+							loadedMachine.addState(newState);
+							totalStates.put(stateMatcher.group(1), newState);
+
+						}
+					}
+					// Read until beginning of transitions
+					while(!curLine.equals("TRANSITION:")) {
+						curLine = br.readLine();
+					}
+					// Process all transitions
+					while(!curLine.startsWith("//")) {
+						curLine = br.readLine();
+						Matcher transitionMatcher = transitionPattern.matcher(curLine);
+						if (transitionMatcher.matches()) {
+							Transition newTransition = new Transition();
+							newTransition.setFromState(totalStates.get(transitionMatcher.group(1)));
+							newTransition.setToState(totalStates.get(transitionMatcher.group(2)));
+							newTransition.setReadChar(transitionMatcher.group(3).charAt(0));
+							newTransition.setWriteChar(transitionMatcher.group(4).charAt(0));
+							if(transitionMatcher.group(5).equals("RIGHT")) newTransition.setMoveDirection(Transition.Direction.RIGHT);
+							else if(transitionMatcher.group(5).equals("LEFT")) newTransition.setMoveDirection(Transition.Direction.LEFT);
+							else throw new IOException("Bad Transition");
+							loadedMachine.getTransitions().add(newTransition);
+						}
+					}
+					// Read until beginning of tape
+					while(!curLine.equals("TAPE:")) {
+						curLine = br.readLine();
+					}
+					// Read tape
+					curLine = br.readLine();
+					curLine = curLine.substring(1, curLine.length());
+					int tapeHead = Integer.parseInt(curLine);
+					curLine = br.readLine();
+					curLine = curLine.substring(1, curLine.length()); // Remove the tab
+					ArrayList<Character> newTape = new ArrayList<>();
+					for(char c : curLine.toCharArray()) newTape.add(c);
+					loadedMachine.tape.initTape(newTape);
+					loadedMachine.tape.setTapeHead(tapeHead);
+
+
 				} else if (curLine.equals(oldHeader)) {
 					br.readLine(); // TransitionCharacters MaxStates (Not needed for our machine)
 
@@ -215,7 +275,7 @@ class Editor {
 					Matcher tapeMatch = tapeInfo.matcher(curLine);
 					int tapeHead;
 					if (tapeMatch.matches()) tapeHead = Integer.parseInt(tapeMatch.group(3));
-					else throw new IOException("TapeHead");
+					else throw new IOException("Bad TapeHead");
 
 					curLine = br.readLine(); // Tape (Grab this and copy it)
 					ArrayList<Character> tapeChars = new ArrayList<>();
@@ -230,7 +290,7 @@ class Editor {
 					Matcher transitionNumMatch = transitionNum.matcher(curLine);
 					int numTransitions;
 					if (transitionNumMatch.matches()) numTransitions = Integer.parseInt(curLine.substring(0, curLine.length() - 1));
-					else throw new IOException("TransitionNum");
+					else throw new IOException("Bad NumTransitions");
 					System.out.println(numTransitions);
 					Hashtable<String, State> statesNeeded = new Hashtable<>();
 					ArrayList<Transition> totalTransitions = new ArrayList<>();
@@ -267,17 +327,18 @@ class Editor {
 							newTransition.setFromState(startState);
 							newTransition.setReadChar(transitionMatch.group(2).charAt(0));
 							newTransition.setWriteChar(transitionMatch.group(3).charAt(0));
-							System.out.println("|" + transitionMatch.group(4) + "|");
+
 							if (transitionMatch.group(4).charAt(0) == 'L') newTransition.setMoveDirection(Transition.Direction.LEFT);
 							else if (transitionMatch.group(4).charAt(0) == 'R') newTransition.setMoveDirection(Transition.Direction.RIGHT);
-							else throw new IOException("Direction"); // Old machine only accepted left and right directions.
+							else throw new IOException("Bad Direction"); // Old machine only accepted left and right directions.
 							if(statesNeeded.containsKey(transitionMatch.group(5))) {
 								newTransition.setToState(statesNeeded.get(transitionMatch.group(5)));
 							}
 							else {
 								State toState = new State();
 								statesNeeded.put(transitionMatch.group(5), toState);
-								if(transitionMatch.group(5) == "-1") {
+
+								if(transitionMatch.group(5).equals("-1")) {
 									toState.setAccept(true); // Old machine only had one accept state.
 								}
 								newTransition.setToState(toState);
@@ -295,12 +356,10 @@ class Editor {
 						State curState = s.getValue();
 						curState.setName(s.getKey());
 
-						curState.setX(100 + 150 * (counter % 4) + 30 * (counter / 4 % 2));
-						curState.setY(30 + 150 * (counter / 4) + 30 * (counter % 2));
+						curState.setX(100 + 150 * (counter % 5) + 30 * (counter / 5));
+						curState.setY(30 + 150 * (counter / 5) + 30 * (counter % 2));
 						curState.setLabel(new Text(s.getKey()));
-						//Circle circle = new Circle(circleRadius, null);
-						//circle.setStroke(Color.BLACK);
-						//curState.setCircle(circle);
+
 						loadedMachine.addState(curState);
 						counter++;
 					}
@@ -843,13 +902,9 @@ class Editor {
 				if(n instanceof Line)
 					n.toBack();
 		}
-		try {
-			for (Path p : currentMachine.getPaths())
-				editorSpace.getChildren().addAll(p.getAllNodes());
-		}
-		catch (Exception e){
-			System.out.println("Ran into a problem.");
-		}
+
+		for (Path p : currentMachine.getPaths())
+			editorSpace.getChildren().addAll(p.getAllNodes());
 	}
 
 	private double distForm(double x1, double x2, double y1, double y2){

@@ -64,7 +64,7 @@ class Machine {
 		for (State s : states){
 			ret.append(String.format("\t%s %f %f %s %s\n",
 					s.getName(), s.getX(), s.getY(),
-					Boolean.toString((startState == s) ? true : false), Boolean.toString(s.isAccept())));
+					Boolean.toString((startState == s)), Boolean.toString(s.isAccept())));
 		}
 		ret.append("\n");
 
@@ -83,9 +83,10 @@ class Machine {
 		ret.append("// Tape format: tapeChar(0) tapeChar(1) ... tapeChar(n)\n");
 		ret.append("TAPE:\n");
 
+		ret.append(String.format("\t%d\n", tape.getTapeHead()));
 		ret.append("\t");
 		for (Character c : tape.getTapeAsArray()){
-			ret.append(String.format("%c ", c));
+			ret.append(String.format("%c", c));
 		}
 		ret.append("\n");
 
