@@ -264,6 +264,13 @@ class Editor {
 					loadedMachine.tape.initTape(newTape);
 					loadedMachine.tape.setTapeHead(tapeHead);
 
+					int highestState = Integer.MIN_VALUE;
+					for (Map.Entry<String, State> pair : totalStates.entrySet()) {
+
+						int cur = Integer.parseInt(pair.getKey());
+						if (cur > highestState) highestState = cur;
+					}
+					stateNextVal = highestState + 1;
 
 				} else if (curLine.equals(oldHeader)) {
 					br.readLine(); // TransitionCharacters MaxStates (Not needed for our machine)
@@ -351,7 +358,7 @@ class Editor {
 						// Skip the line if it isn't valid
 					}
 					Integer counter = 0;
-
+					int highestState = Integer.MIN_VALUE;
 					for(Map.Entry<String, State> s : statesNeeded.entrySet()) {
 						State curState = s.getValue();
 						curState.setName(s.getKey());
@@ -362,7 +369,10 @@ class Editor {
 
 						loadedMachine.addState(curState);
 						counter++;
+						int curVal = Integer.parseInt(curState.getName());
+						if (curVal > highestState) highestState = curVal;
 					}
+					stateNextVal = highestState + 1;
 					loadedMachine.setTransitions(totalTransitions);
 
 
@@ -902,9 +912,13 @@ class Editor {
 				if(n instanceof Line)
 					n.toBack();
 		}
+		try {
+			for (Path p : currentMachine.getPaths())
+				editorSpace.getChildren().addAll(p.getAllNodes());
+		}
+		catch (Exception e) {
 
-		for (Path p : currentMachine.getPaths())
-			editorSpace.getChildren().addAll(p.getAllNodes());
+		}
 	}
 
 	private double distForm(double x1, double x2, double y1, double y2){
