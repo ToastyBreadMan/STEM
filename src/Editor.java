@@ -245,6 +245,7 @@ class Editor {
 							newTransition.setWriteChar(transitionMatcher.group(4).charAt(0));
 							if(transitionMatcher.group(5).equals("RIGHT")) newTransition.setMoveDirection(Transition.Direction.RIGHT);
 							else if(transitionMatcher.group(5).equals("LEFT")) newTransition.setMoveDirection(Transition.Direction.LEFT);
+							else if(transitionMatcher.group(5).equals("STAY")) newTransition.setMoveDirection(Transition.Direction.STAY);
 							else throw new IOException("Bad Transition");
 							loadedMachine.getTransitions().add(newTransition);
 						}
