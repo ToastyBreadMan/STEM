@@ -1,5 +1,7 @@
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -11,6 +13,7 @@ public class Path {
     private State state1;
     private State state2;
     private Line line;
+    private CubicCurve curve;
     private ArrayList<Text> aboveTexts;
     private ArrayList<Text> belowTexts;
 
@@ -34,40 +37,74 @@ public class Path {
         State fromState = t.getFromState();
         State toState = t.getToState();
 
-        if(line == null){
-            line = new Line(fromState.getX(), fromState.getY(),
-                    toState.getX(), toState.getY());
-            line.toBack();
+        if(toState == fromState){
+            if(curve == null){
+                curve = new CubicCurve(fromState.getCircle().getCenterX(), fromState.getCircle().getCenterY(),
+                        fromState.getCircle().getCenterX()-4*fromState.getCircle().getRadius(),
+                        fromState.getCircle().getCenterY()-4*fromState.getCircle().getRadius(),
+                        fromState.getCircle().getCenterX()+4*fromState.getCircle().getRadius(),
+                        fromState.getCircle().getCenterY()-4*fromState.getCircle().getRadius(),
+                        fromState.getCircle().getCenterX(), fromState.getCircle().getCenterY());
 
+                curve.setFill(null);
+                curve.setStroke(Color.BLACK);
 
-            if(toState.getX() != fromState.getX())
-                theta = computeDegree(fromState.getX(), toState.getX(),
-                    fromState.getY(), toState.getY());
-            else
-                theta = 90;
+                ret.add(curve);
+            }
+            char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+            char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
 
-            System.out.println(theta);
-            System.out.println(Math.toRadians(theta));
+            Text newText = new Text(String.format("%c ; %c ; %c",
+                    readChar, writeChar, t.getMoveDirection().toString().charAt(0)));
 
-            System.out.printf("sin(%f) == %f\n", Math.toRadians(theta), Math.sin(Math.toRadians(theta)));
-            System.out.printf("cos(%f) == %f\n", Math.toRadians(theta), Math.cos(Math.toRadians(theta)));
+            newText.setTextAlignment(TextAlignment.CENTER);
 
+            newText.setX(fromState.getCircle().getCenterX() - 1.6 * distance);
+            newText.setY(fromState.getCircle().getCenterY() - 3.25*fromState.getCircle().getRadius() - (aboveTexts.size()  * distance));
 
-            textX = distance * Math.sin(Math.toRadians(theta));
-            textY = distance * Math.cos(Math.toRadians(theta));
+            System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
 
-            System.out.printf("TextX: %f, TextY: %f\n", textX, textY);
+            newText.setUserData(t);
+            aboveTexts.add(newText);
 
-            midPointX = (fromState.getX() + toState.getX())/2.0;
-            midPointY = (fromState.getY() + toState.getY())/2.0;
+            ret.add(newText);
 
-            System.out.printf("MidPointX: %f, MidpointY: %f\n", midPointX, midPointY);
-
-            System.out.println("New Line");
-            ret.add(line);
         }
-            if((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
-                    || (fromState.getX() == toState.getX() && fromState.getY() < toState.getY()) ){
+        else {
+            if (line == null) {
+                line = new Line(fromState.getX(), fromState.getY(),
+                        toState.getX(), toState.getY());
+                line.toBack();
+
+
+                if (toState.getX() != fromState.getX())
+                    theta = computeDegree(fromState.getX(), toState.getX(),
+                            fromState.getY(), toState.getY());
+                else
+                    theta = 90;
+
+                System.out.println(theta);
+                System.out.println(Math.toRadians(theta));
+
+                System.out.printf("sin(%f) == %f\n", Math.toRadians(theta), Math.sin(Math.toRadians(theta)));
+                System.out.printf("cos(%f) == %f\n", Math.toRadians(theta), Math.cos(Math.toRadians(theta)));
+
+
+                textX = distance * Math.sin(Math.toRadians(theta));
+                textY = distance * Math.cos(Math.toRadians(theta));
+
+                System.out.printf("TextX: %f, TextY: %f\n", textX, textY);
+
+                midPointX = (fromState.getX() + toState.getX()) / 2.0;
+                midPointY = (fromState.getY() + toState.getY()) / 2.0;
+
+                System.out.printf("MidPointX: %f, MidpointY: %f\n", midPointX, midPointY);
+
+                System.out.println("New Line");
+                ret.add(line);
+            }
+            if ((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
+                    || (fromState.getX() == toState.getX() && fromState.getY() < toState.getY())) {
 
                 char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
                 char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
@@ -77,8 +114,8 @@ public class Path {
 
                 newText.setTextAlignment(TextAlignment.CENTER);
 
-                newText.setX(midPointX + (aboveTexts.size()+1) * textX - 2 * distance * Math.cos(Math.toRadians(theta)));
-                newText.setY(midPointY - (aboveTexts.size()+1) * textY - 2 * distance * Math.sin(Math.toRadians(theta)));
+                newText.setX(midPointX + (aboveTexts.size() + 1) * textX - 2 * distance * Math.cos(Math.toRadians(theta)));
+                newText.setY(midPointY - (aboveTexts.size() + 1) * textY - 2 * distance * Math.sin(Math.toRadians(theta)));
 
                 newText.getTransforms().add(new Rotate(theta, newText.getX(), newText.getY()));
 
@@ -89,8 +126,7 @@ public class Path {
                 aboveTexts.add(newText);
 
                 ret.add(newText);
-            }
-            else {
+            } else {
                 char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
                 char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
 
@@ -99,8 +135,8 @@ public class Path {
 
                 newText.setTextAlignment(TextAlignment.CENTER);
 
-                newText.setX(midPointX - (belowTexts.size()+1) * textX - textX * 0.5  - 2 * distance * Math.cos(Math.toRadians(theta)));
-                newText.setY(midPointY + (belowTexts.size()+1) * textY + textY * 0.5 - 2 * distance * Math.sin(Math.toRadians(theta)));
+                newText.setX(midPointX - (belowTexts.size() + 1) * textX - textX * 0.5 - 2 * distance * Math.cos(Math.toRadians(theta)));
+                newText.setY(midPointY + (belowTexts.size() + 1) * textY + textY * 0.5 - 2 * distance * Math.sin(Math.toRadians(theta)));
 
                 newText.getTransforms().add(new Rotate(theta, newText.getX(), newText.getY()));
 
@@ -112,6 +148,7 @@ public class Path {
 
                 ret.add(newText);
             }
+        }
 
         return ret;
     }
@@ -131,6 +168,21 @@ public class Path {
         State toState = t.getToState();
         String text;
 
+        if(toState == fromState){
+            char readChar = (t.getReadChar() == ' ') ? '☐' : t.getReadChar();
+            char writeChar = (t.getWriteChar() == ' ') ? '☐' : t.getWriteChar();
+
+            text = String.format("%c ; %c ; %c",
+                    t.getReadChar(), t.getWriteChar(), t.getMoveDirection().toString().charAt(0));
+
+            for(Text curText : aboveTexts){
+                if (curText.getText().compareTo(text) == 0){
+                    ret.add(curText);
+                    aboveTexts.remove(curText);
+                    break;
+                }
+            }
+        }
         if((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
                 || (fromState.getX() == toState.getX() && fromState.getY() < toState.getY()) ){
 
@@ -165,8 +217,12 @@ public class Path {
         }
 
         if(aboveTexts.isEmpty() && belowTexts.isEmpty()){
-            ret.add(line);
+            if(line != null)
+                ret.add(line);
+            if(curve != null)
+                ret.add(curve);
             line = null;
+            curve = null;
         }
 
         return ret;
@@ -185,6 +241,8 @@ public class Path {
         ArrayList<Node> ret = new ArrayList<>();
         if(line != null)
             ret.add(line);
+        if(curve != null)
+            ret.add(curve);
         ret.addAll(aboveTexts);
         ret.addAll(belowTexts);
 

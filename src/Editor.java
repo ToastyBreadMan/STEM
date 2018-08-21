@@ -15,6 +15,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
@@ -22,7 +23,6 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 
 import java.io.*;
 import java.util.*;
@@ -43,9 +43,7 @@ class Editor {
 	private int circleRadius;
 	private Polygon startTriangle;
 	private ContextMenu contextMenu = initContextMenu();
-
-	private static String ourHeader = "// Save File for JFLAP-ISH";
-	private static String oldHeader = "xTuringMachine File Format 1.0";
+	private String machineFile;
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
@@ -72,8 +70,8 @@ class Editor {
 	
 	void setMenu(Stage window){
 		window.setTitle("Editor");
-		window.setMinWidth(500);
-		window.setMinHeight(500);
+		window.setMinWidth(550);
+		window.setMinHeight(550);
 		window.setScene(editor);
 	}
 	
@@ -81,6 +79,7 @@ class Editor {
 	private ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
+
 
 		ToggleButton addState = new ToggleButton("Add State");
 		ObjectProperty<Font> addStateTrack = new SimpleObjectProperty<>(Font.getDefault());
@@ -118,6 +117,11 @@ class Editor {
 		testButton.fontProperty().bind(testButtonTrack);
 		testButton.setOnAction(e-> testMachine(testButton, addState, deleteState, addTransition, tapeButton));
 
+		Button saveButton = new Button("Save");
+		ObjectProperty<Font> saveButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
+		saveButton.fontProperty().bind(saveButtonTrack);
+		saveButton.setOnAction(event -> saveMachine(window, currentMachine));
+
 		Button backButton = new Button("Back");
 		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
 		backButton.fontProperty().bind(backButtonTrack);
@@ -130,7 +134,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons
-		bar.getItems().addAll(tapeButton, testButton, backButton);
+		bar.getItems().addAll(tapeButton, testButton, saveButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -141,8 +145,9 @@ class Editor {
 			addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			tapeButtonTack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
+			saveButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 			backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
 		});
 
@@ -202,6 +207,8 @@ class Editor {
 				br = new BufferedReader(new FileReader(file));
 				String curLine = br.readLine(); // Header (Compare to find out if imported from old or current)
 				String[] splitLine;
+				String ourHeader = "// Save File for JFLAP-ISH";
+				String oldHeader = "xTuringMachine File Format 1.0";
 				if (curLine.equals(ourHeader)) {
 					Hashtable<String, State> totalStates = new Hashtable<>();
 					//ArrayList<Transition> totalTransitions = new ArrayList<>();
@@ -423,6 +430,13 @@ class Editor {
 	/* Called whenever a new machine is setup */
 	private void startMachine(Stage window, Scene prev){
 
+		machineFile = currentMachine.toString();
+
+		window.setOnCloseRequest(we -> {
+			if(!deleteEditor(window, prev, currentMachine))
+				we.consume();
+		});
+
 		Circle circle = new Circle(circleRadius, null);
 		circle.setStroke(Color.BLACK);
 
@@ -580,8 +594,8 @@ class Editor {
 
 							deleteState(targetState);
 						}
-						// TODO: edge case causes transitions not to delete properly
 						else if(Target instanceof Transition){
+						    System.out.println("Test");
 							ArrayList<Node> nodes;
 							Transition targetTransition;
 
@@ -672,7 +686,7 @@ class Editor {
 									editorSpace.getChildren().addAll(nodes);
 
 									for(Node n : nodes)
-										if(n instanceof Line)
+										if(n instanceof Line || n instanceof CubicCurve)
 											n.toBack();
 
 									s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
@@ -782,9 +796,33 @@ class Editor {
 		state = null;
 	}
 
-	private void deleteEditor(Stage window, Scene prev, Machine m){
+	private boolean deleteEditor(Stage window, Scene prev, Machine m){
 		System.out.println("If you see this you should be saving your machine");
-		saveMachine(window, currentMachine);
+		if(machineFile.compareTo(currentMachine.toString()) != 0){
+			ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+			ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
+			ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+			Alert saveAlert = new Alert(Alert.AlertType.WARNING, "You have not saved your machine, would you like to?");
+			saveAlert.initOwner(window);
+			saveAlert.initModality(Modality.APPLICATION_MODAL);
+			saveAlert.setTitle("Warning!");
+			saveAlert.getButtonTypes().setAll(yes, no, cancel);
+
+			Optional<ButtonType> buttonData = saveAlert.showAndWait();
+
+			if(buttonData.isPresent() && buttonData.get().getButtonData() == ButtonBar.ButtonData.YES){
+				saveMachine(window, currentMachine);
+			}
+			else if(buttonData.isPresent() && buttonData.get().getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
+				return false;
+			}
+			else if(!buttonData.isPresent())
+				return false;
+		}
+
+		window.setOnCloseRequest(null);
+
 		window.setScene(prev);
 
 		//TODO: Save machine before this
@@ -806,6 +844,7 @@ class Editor {
 			window.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 		}
 		currentHandler = null;
+		return true;
 	}
 	
 
@@ -839,26 +878,6 @@ class Editor {
 		return min;
 	}
 	
-	private Pair calcCloseState(MouseEvent event, Machine currentMachine){
-		double min = Double.MAX_VALUE;
-		State minState = null;
-		Pair returnVal = null;
-		if(!(currentMachine.getStates().isEmpty())) {
-			minState = null;
-			for (State state : currentMachine.getStates()) {
-				//System.out.printf("Using (%f, %f) and (%f, %f)", event.getX(), event.getY(), state.getCircle().getCenterX(), state.getCircle().getCenterY());
-				double dist = distForm(event.getX(), state.getCircle().getCenterX(),
-						event.getY(), state.getCircle().getCenterY());
-				if(min > dist){
-					min = dist;
-					minState = state;
-					returnVal = new Pair(min, minState);
-				}
-			}
-		}
-		return returnVal;
-	}
-
 	private void redrawAllStates(){
 		for(State s : currentMachine.getStates()){
 			editorSpace.getChildren().removeAll(s.getCircle(), s.getLabel());
@@ -886,8 +905,32 @@ class Editor {
 				contextMenu.show(t,event2.getScreenX(),event2.getScreenY());
 			});
 
-
 			editorSpace.getChildren().addAll(s.getCircle(), s.getLabel());
+
+			if(s.isAccept()){
+				Circle ca = new Circle(s.getCircle().getCenterX(), s.getCircle().getCenterY()
+						, circleRadius * 1.25, null);
+				ca.setStrokeWidth(2);
+				ca.setStroke(Color.BLACK);
+
+				s.setAcceptCircle(ca);
+				editorSpace.getChildren().add(s.getAcceptCircle());
+			}
+		}
+
+		State startState = currentMachine.getStartState();
+
+		if(startState != null){
+			startTriangle.getPoints().addAll(
+					startState.getCircle().getCenterX()-circleRadius - 1, startState.getCircle().getCenterY(),
+					startState.getCircle().getCenterX()-2*circleRadius, startState.getCircle().getCenterY()-circleRadius,
+					startState.getCircle().getCenterX()-2*circleRadius, startState.getCircle().getCenterY()+circleRadius
+			);
+
+			startTriangle.setFill(null);
+			startTriangle.setStroke(Color.BLACK);
+
+			editorSpace.getChildren().addAll(startTriangle);
 		}
 	}
 
@@ -918,7 +961,7 @@ class Editor {
 			editorSpace.getChildren().addAll(nodes);
 
 			for(Node n : nodes)
-				if(n instanceof Line)
+				if(n instanceof Line || n instanceof CubicCurve)
 					n.toBack();
 		}
 
