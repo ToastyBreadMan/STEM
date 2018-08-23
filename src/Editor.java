@@ -1155,6 +1155,8 @@ class Editor {
 			}
 		};
 		task.setOnSucceeded(event -> {
+		    refreshTapeDisplay();
+
 			Alert alert = new Alert(Alert.AlertType.ERROR);
 			alert.initOwner(window);
 			alert.initModality(Modality.APPLICATION_MODAL);
@@ -1178,6 +1180,8 @@ class Editor {
 				b.setDisable(false);
 		});
 		task.setOnCancelled(event -> {
+			refreshTapeDisplay();
+
 			for(State s : currentMachine.getStates())
 				s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 

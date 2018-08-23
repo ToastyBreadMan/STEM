@@ -102,6 +102,9 @@ public class Tester {
                     break;
             }
 
+            System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
+                    currentState.getName(), curTransition.getToState().getName(),
+                    curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));
             TimeUnit.MILLISECONDS.sleep(waitTime);
 
             // Reset Colors
