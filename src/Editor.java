@@ -3,21 +3,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Polygon;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -44,6 +40,8 @@ class Editor {
 	private Polygon startTriangle;
 	private ContextMenu contextMenu = initContextMenu();
 	private String machineFile;
+	private GridPane boxes;
+	private Integer tapeDisplayOffset = 0;
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
@@ -54,6 +52,7 @@ class Editor {
 		
 		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
+		pane.setBottom(initTapeDisplay());
 
 		editor = new Scene(pane, 500, 500);
 
@@ -74,7 +73,137 @@ class Editor {
 		window.setMinHeight(550);
 		window.setScene(editor);
 	}
-	
+
+	private BorderPane initTapeDisplay() {
+		// StackPane to overlay elements
+		BorderPane tapeArea = new BorderPane();
+
+		// GridPane to display the boxes and the characters BorderPane for buttons
+
+
+
+		GridPane boxes = new GridPane();
+		boxes.setAlignment(Pos.CENTER);
+		this.boxes = boxes;
+		//BorderPane buttons = new BorderPane();
+
+
+
+		// Move tape view right button
+		Button shiftRight = new Button(">>>");
+		shiftRight.setPrefWidth(50);
+		shiftRight.setPrefHeight(30);
+		// Move tape view left button
+		Button shiftLeft = new Button("<<<");
+		shiftLeft.setPrefWidth(50);
+		shiftLeft.setPrefHeight(30);
+
+
+
+		//buttons.setLeft(shiftLeft);
+		//buttons.setRight(shiftRight);
+		//buttons.setTop(refreshTapeDisplay);
+
+		tapeArea.setCenter(boxes);
+		tapeArea.setLeft(shiftLeft);
+		tapeArea.setRight(shiftRight);
+
+
+		// FIXME Add click listeners to shift the tape with the buttons
+
+		shiftLeft.setOnMouseClicked((button) -> {
+			tapeDisplayOffset--;
+			refreshTapeDisplay();
+		});
+
+		shiftRight.setOnMouseClicked((button) -> {
+			tapeDisplayOffset++;
+			refreshTapeDisplay();
+		});
+
+
+
+
+
+		boxes.widthProperty().addListener((obs, oldVal, newVal) -> {
+
+
+
+
+			double newWidth = newVal.doubleValue() - 130;
+			double oldWidth = oldVal.doubleValue() - 130;
+			int newCount = (int)newWidth / 30;
+			int oldCount = (int)oldWidth / 30;
+			if (newCount == oldCount) return;
+			Character[] tapeChars;
+			try {
+				tapeChars = currentMachine.tape.getTapeAsArray();
+			}
+			catch (NullPointerException e) {
+				tapeChars = new Character[] {};
+			}
+			int index = 0;
+			int size = tapeChars.length;
+
+			boxes.getChildren().clear();
+			// FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
+			for (int i = 0; i < newCount; i++) {
+				StackPane box = new StackPane();
+				Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+				Label tapeChar;
+				if (index < size) {
+					tapeChar = new Label(tapeChars[index].toString());
+				}
+				else {
+					tapeChar = new Label(" ");
+				}
+
+
+				tapeBox.setStroke(Paint.valueOf("#000000"));
+				GridPane.setConstraints(box, i, 0);
+				box.getChildren().add(tapeBox);
+				box.getChildren().add(tapeChar);
+				boxes.getChildren().add(box);
+				index++;
+			}
+
+
+		});
+
+		// Get number of elements in the tape to display
+
+
+
+
+		return tapeArea;
+	}
+
+	private void refreshTapeDisplay() {
+		int index = tapeDisplayOffset;
+		Character[] tapeChars = currentMachine.tape.getTapeAsArray();
+		int size = tapeChars.length;
+		for(Node n : boxes.getChildren()) {
+			if (n instanceof StackPane) {
+				Node toDelete = null;
+				Node toAdd;
+				if (index < size && index >= 0) {
+					toAdd = new Label(tapeChars[index].toString());
+				}
+				else {
+					toAdd = new Label(" ");
+				}
+				for(Node b : ((StackPane) n).getChildren()) {
+					if (b instanceof Label) {
+						toDelete = b;
+					}
+				}
+				((StackPane) n).getChildren().remove(toDelete);
+				((StackPane) n).getChildren().add(toAdd);
+				index++;
+			}
+		}
+	}
+
 	/* This sets up the menu bar, but does NOT set the button actions */
 	private ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
@@ -98,6 +227,9 @@ class Editor {
 		addTransition.fontProperty().bind(addTransitionTrack);
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
+
+
+
 
 		// END TOGGLE BUTTONS
 
@@ -380,7 +512,7 @@ class Editor {
 						curState.setName(s.getKey());
 
 						curState.setX(100 + 150 * (counter % 5) + 30 * (counter / 5));
-						curState.setY(30 + 150 * (counter / 5) + 30 * (counter % 2));
+						curState.setY(100 + 150 * (counter / 5) + 30 * (counter % 2));
 						curState.setLabel(new Text(s.getKey()));
 
 						loadedMachine.addState(curState);
@@ -423,7 +555,7 @@ class Editor {
 		redrawAllStates();
 		redrawAllPaths();
 		startMachine(window, prev);
-
+		refreshTapeDisplay();
 
 	}
 	
@@ -1096,6 +1228,7 @@ class Editor {
 			System.out.println();
 
 			currentMachine.tape.initTape(characters);
+			refreshTapeDisplay();
 			System.out.print("New tape: ");
 			for(Character c: currentMachine.tape.getTapeAsArray()) {
 				System.out.print(c);
