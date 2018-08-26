@@ -1,5 +1,5 @@
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectExpression;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -209,55 +209,57 @@ class Editor {
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
 
+		ObjectExpression<Font> barTextTrack = Bindings.createObjectBinding(
+				() -> Font.font(Math.min(bar.getWidth() / 49, 20)), bar.widthProperty());
 
 		ToggleButton addState = new ToggleButton("Add State");
-		ObjectProperty<Font> addStateTrack = new SimpleObjectProperty<>(Font.getDefault());
-		addState.fontProperty().bind(addStateTrack);
+		addState.fontProperty().bind(barTextTrack);
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete Value");
-		ObjectProperty<Font> deleteStateTrack = new SimpleObjectProperty<>(Font.getDefault());
-		deleteState.fontProperty().bind(deleteStateTrack);
+		deleteState.fontProperty().bind(barTextTrack);
 		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
-		ObjectProperty<Font> addTransitionTrack = new SimpleObjectProperty<>(Font.getDefault());
-		addTransition.fontProperty().bind(addTransitionTrack);
+		addTransition.fontProperty().bind(barTextTrack);
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
-
-
-
-
 		// END TOGGLE BUTTONS
 
 		Separator separator = new Separator();
 		separator.setOrientation(Orientation.VERTICAL);
 
 		// Begin NON-Toggle buttons
-
-		/* Open the tester dialog. */
 		Button tapeButton = new Button("Edit Tape");
-		ObjectProperty<Font> tapeButtonTack = new SimpleObjectProperty<>(Font.getDefault());
-		tapeButton.fontProperty().bind(tapeButtonTack);
+		tapeButton.fontProperty().bind(barTextTrack);
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
-		Button testButton = new Button("Test Machine");
-		ObjectProperty<Font> testButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
-		testButton.fontProperty().bind(testButtonTrack);
-		testButton.setOnAction(e-> testMachine(testButton, addState, deleteState, addTransition, tapeButton));
+		// Run Machine with options for speed
+		MenuItem slow = new MenuItem("Slow");
+		slow.setOnAction(e -> currentMachine.setSpeed(500));
+		MenuItem normal = new MenuItem("Normal");
+		normal.setOnAction(e -> currentMachine.setSpeed(250));
+		MenuItem fast = new MenuItem("Fast");
+		fast.setOnAction(e -> currentMachine.setSpeed(75));
+		MenuItem noDelay = new MenuItem("No Delay");
+		noDelay.setOnAction(e -> currentMachine.setSpeed(0));
+
+		SplitMenuButton runMachine = new SplitMenuButton(slow, normal, fast, noDelay);
+		runMachine.setText("RunMachine");
+		runMachine.fontProperty().bind(barTextTrack);
+		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton));
+
 
 		Button saveButton = new Button("Save");
-		ObjectProperty<Font> saveButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
-		saveButton.fontProperty().bind(saveButtonTrack);
+		saveButton.fontProperty().bind(barTextTrack);
 		saveButton.setOnAction(event -> saveMachine(window, currentMachine));
 
 		Button backButton = new Button("Back");
-		ObjectProperty<Font> backButtonTrack = new SimpleObjectProperty<>(Font.getDefault());
-		backButton.fontProperty().bind(backButtonTrack);
+		backButton.fontProperty().bind(barTextTrack);
 		backButton.setOnAction(e->deleteEditor(window, prev, currentMachine));
+
 
 		// Add toggle buttons
 		bar.getItems().addAll(addState, addTransition, deleteState);
@@ -266,22 +268,13 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons
-		bar.getItems().addAll(tapeButton, testButton, saveButton, backButton);
+		bar.getItems().addAll(tapeButton, runMachine, saveButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
 		// Cursor when over the bar will always be default cursor
 		bar.addEventFilter(MouseEvent.MOUSE_MOVED, event -> editor.setCursor(Cursor.DEFAULT));
 
-		bar.widthProperty().addListener((observable, oldWidth, newWidth) -> {
-			addStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			deleteStateTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			addTransitionTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			tapeButtonTack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			testButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			saveButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-			backButtonTrack.set(Font.font(Math.min(newWidth.doubleValue() / 45, 20)));
-		});
 
 		return bar;
 	}
@@ -422,16 +415,23 @@ class Editor {
 					Pattern tapeInfo = Pattern.compile("(-?\\d+) (-?\\d+) (-?\\d+)\\p{Punct}");
 					Matcher tapeMatch = tapeInfo.matcher(curLine);
 					int tapeHead;
-					if (tapeMatch.matches()) tapeHead = Integer.parseInt(tapeMatch.group(3));
+					if (tapeMatch.matches()) tapeHead = Integer.parseInt(tapeMatch.group(3)) - Integer.parseInt(tapeMatch.group(1));
 					else throw new IOException("Bad TapeHead");
 
 					curLine = br.readLine(); // Tape (Grab this and copy it)
 					ArrayList<Character> tapeChars = new ArrayList<>();
-					for (char c : curLine.toCharArray()) tapeChars.add(c);
+					for (char c : curLine.toCharArray()){
+						if(c == '#')
+							tapeChars.add(' ');
+						else
+							tapeChars.add(c);
+					}
 
 					// Tape is loaded here.
 					loadedMachine.tape.initTape(tapeChars);
 					loadedMachine.tape.setTapeHead(tapeHead);
+
+					System.out.printf("--- TAPE HEAD = %d ----\n", tapeHead);
 
 					curLine = br.readLine(); // NumTransitions (This tells how many more lines to read for transitions)
 					Pattern transitionNum = Pattern.compile("(\\d+)\\p{Punct}");
@@ -1104,7 +1104,7 @@ class Editor {
 		return Math.hypot(x2-x1, y2-y1);
 	}
 	
-	private void testMachine(Button thisButton ,Node... args){
+	private void runMachine(SplitMenuButton thisButton , Node... args){
 		toggleGroup.selectToggle(null);
 		for(Node b : args)
 			b.setDisable(true);
@@ -1115,7 +1115,7 @@ class Editor {
 			@Override
 			public Void call(){
 				try {
-					tester.runMachine(currentMachine, 500);
+					tester.runMachine(currentMachine);
 				} catch (Exception e) {
 					System.out.println(e);
 					Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -1174,7 +1174,7 @@ class Editor {
 			alert.showAndWait();
 
 			thisButton.setText("Test Machine");
-			thisButton.setOnAction(event1 ->  testMachine(thisButton, args));
+			thisButton.setOnAction(event1 ->  runMachine(thisButton, args));
 
 			for(Node b : args)
 				b.setDisable(false);
@@ -1189,7 +1189,7 @@ class Editor {
 		    	b.setDisable(false);
 
 			thisButton.setText("Test Machine");
-			thisButton.setOnAction(event1 ->  testMachine(thisButton, args));
+			thisButton.setOnAction(event1 ->  runMachine(thisButton, args));
 		});
 
 		thisButton.setText("Stop Machine");

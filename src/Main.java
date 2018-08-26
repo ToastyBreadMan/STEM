@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -54,55 +56,36 @@ public class Main extends Application {
 		VBox buttonLayout = new VBox(20); 				//inner VBox to hold buttons
 		buttonLayout.setPadding(new Insets(0, 20, 20, 20));
 
-		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
-		ObjectProperty<Font> label0track = new SimpleObjectProperty<>(Font.getDefault());
-		Label label1 = new Label("To begin, create a new machine.");
-		ObjectProperty<Font> label1track = new SimpleObjectProperty<>(Font.getDefault());
+		ObjectExpression<Font> fontTrack = Bindings.createObjectBinding(
+				() -> Font.font(buttonLayout.getWidth() / 25), buttonLayout.widthProperty());
 
-		label0.fontProperty().bind(label0track);
-		label1.fontProperty().bind(label1track);
+		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
+		Label label1 = new Label("To begin, create a new machine.");
+
+		label0.fontProperty().bind(fontTrack);
+		label1.fontProperty().bind(fontTrack);
 
 		Button newMachineButton = new Button("New Machine");
 		newMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		newMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> newMachineLabelTrack = new SimpleObjectProperty<>(Font.getDefault());
-		newMachineButton.fontProperty().bind(newMachineLabelTrack);
+		newMachineButton.fontProperty().bind(fontTrack);
 		newMachineButton.requestFocus();
 
 		Button loadMachineButton = new Button("Load Machine");
 		loadMachineButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		loadMachineButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> loadMachineLabelTrack = new SimpleObjectProperty<>(Font.getDefault());
-		loadMachineButton.fontProperty().bind(loadMachineLabelTrack);
+		loadMachineButton.fontProperty().bind(fontTrack);
 
 		Button helpButton = new Button("Help");
 		helpButton.prefWidthProperty().bind(buttonLayout.widthProperty());
 		helpButton.prefHeightProperty().bind(buttonLayout.heightProperty());
-		ObjectProperty<Font> helpButtonTrack= new SimpleObjectProperty<>(Font.getDefault());
-		helpButton.fontProperty().bind(helpButtonTrack);
+		helpButton.fontProperty().bind(fontTrack);
 
-		//closebutton = new CloseButton();
-		//closebutton.setCloseButton(window);
-		
 		/* Set layout. */
 		BorderPane menuLayout = new BorderPane(); 				//outer Borderpane to hold menubar
 		menuLayout.setTop(menuBar);
-		//menuLayout.setStyle("-fx-background-color: #002b36");
 
 		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, loadMachineButton, helpButton); //, closebutton.getCloseButton());
-		//buttonLayout.setStyle("-fx-background-color: #002b36");
-
-		// Set set the label size to be buttonLayout's width / 25
-		buttonLayout.widthProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldWidth, Number newWidth) {
-				label0track.set(Font.font(newWidth.doubleValue() / 25));
-				label1track.set(Font.font(newWidth.doubleValue() / 25));
-				newMachineLabelTrack.set(Font.font(newWidth.doubleValue() / 25));
-				loadMachineLabelTrack.set(Font.font(newWidth.doubleValue() / 25));
-				helpButtonTrack.set(Font.font(newWidth.doubleValue() / 25));
-			}
-		});
 
 		menuLayout.setCenter(buttonLayout);
 		menu = new Scene(menuLayout, 300, 400);

@@ -5,10 +5,12 @@ class Machine {
 	private ArrayList<State> states = new ArrayList<>();
 	private ArrayList<Transition> transitions = new ArrayList<>();
 	private ArrayList<Path> paths = new ArrayList<>();
+	private int speed;
 	public Tape tape;
 
 	Machine(){
 		this.tape = new Tape();
+		this.speed = 250;
 	}
 
 	Machine(ArrayList<State> states, ArrayList<Transition> transitions, State startState){
@@ -16,6 +18,7 @@ class Machine {
 		this.transitions = transitions;
 		this.startState = startState;
 		this.tape = new Tape();
+		this.speed = 250;
 	}
 
 	public State getStartState() {
@@ -52,6 +55,15 @@ class Machine {
 
 	public ArrayList<Path> getPaths() {
 		return paths;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+	    System.out.printf("Speed: %d", speed);
+		this.speed = speed;
 	}
 
 	public String toString(){

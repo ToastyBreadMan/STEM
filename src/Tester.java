@@ -17,7 +17,7 @@ public class Tester {
         return succeeded;
     }
 
-    public void runMachine(Machine m, int waitTime) throws Exception{
+    public void runMachine(Machine m) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
         Tape tape = m.tape;
@@ -29,6 +29,8 @@ public class Tester {
             succeeded = false;
             return;
         }
+
+        int waitTime = m.getSpeed();
 
         loops = 0;
         // Main body

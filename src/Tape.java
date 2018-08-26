@@ -40,7 +40,7 @@ public class Tape{
 
     public Character currentTapeVal(){
         if(tape.isEmpty())
-            appendTape('~');
+            appendTape(' ');
         return tape.get(tapeHead);
     }
 
@@ -48,7 +48,7 @@ public class Tape{
         tapeHead--;
 
         if(tapeHead == -1){
-            prependTape('~');
+            prependTape(' ');
             tapeHead = 0;
         }
         return tape.get(tapeHead);
@@ -58,7 +58,7 @@ public class Tape{
         tapeHead++;
 
         if(tapeHead > tape.size()-1){
-            appendTape('~');
+            appendTape(' ');
             tapeHead = tape.size()-1;
         }
         return tape.get(tapeHead);
