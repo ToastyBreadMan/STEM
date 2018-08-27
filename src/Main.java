@@ -1,10 +1,6 @@
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;

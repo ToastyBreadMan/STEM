@@ -62,7 +62,7 @@ public class Path {
             newText.setX(fromState.getCircle().getCenterX() - 1.6 * distance);
             newText.setY(fromState.getCircle().getCenterY() - 3.25*fromState.getCircle().getRadius() - (aboveTexts.size()  * distance));
 
-            System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
+            //System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
 
             newText.setUserData(t);
             aboveTexts.add(newText);
@@ -83,24 +83,24 @@ public class Path {
                 else
                     theta = 90;
 
-                System.out.println(theta);
-                System.out.println(Math.toRadians(theta));
+                //System.out.println(theta);
+                //System.out.println(Math.toRadians(theta));
 
-                System.out.printf("sin(%f) == %f\n", Math.toRadians(theta), Math.sin(Math.toRadians(theta)));
-                System.out.printf("cos(%f) == %f\n", Math.toRadians(theta), Math.cos(Math.toRadians(theta)));
+                //System.out.printf("sin(%f) == %f\n", Math.toRadians(theta), Math.sin(Math.toRadians(theta)));
+                //System.out.printf("cos(%f) == %f\n", Math.toRadians(theta), Math.cos(Math.toRadians(theta)));
 
 
                 textX = distance * Math.sin(Math.toRadians(theta));
                 textY = distance * Math.cos(Math.toRadians(theta));
 
-                System.out.printf("TextX: %f, TextY: %f\n", textX, textY);
+                //System.out.printf("TextX: %f, TextY: %f\n", textX, textY);
 
                 midPointX = (fromState.getX() + toState.getX()) / 2.0;
                 midPointY = (fromState.getY() + toState.getY()) / 2.0;
 
-                System.out.printf("MidPointX: %f, MidpointY: %f\n", midPointX, midPointY);
+                //System.out.printf("MidPointX: %f, MidpointY: %f\n", midPointX, midPointY);
 
-                System.out.println("New Line");
+                //System.out.println("New Line");
                 ret.add(line);
             }
             if ((fromState.getX() != toState.getX() && fromState.getX() < toState.getX())
@@ -119,7 +119,7 @@ public class Path {
 
                 newText.getTransforms().add(new Rotate(theta, newText.getX(), newText.getY()));
 
-                System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
+                //System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
 
                 newText.setUserData(t);
 
@@ -140,7 +140,7 @@ public class Path {
 
                 newText.getTransforms().add(new Rotate(theta, newText.getX(), newText.getY()));
 
-                System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
+                //System.out.printf("X: %f, Y: %f\n", newText.getX(), newText.getY());
 
                 newText.setUserData(t);
 
@@ -250,7 +250,11 @@ public class Path {
     }
 
     public boolean compareTo(State a, State b){
-        return (a == state1 || a == state2) && (b == state1 || b == state2);
+        if(a == b){
+            return a == state1 && a == state2 && b == state1 && b == state2;
+        }
+        else
+            return (a == state1 || a == state2) && (b == state1 || b == state2);
     }
 
     public ArrayList<State> getStates(){

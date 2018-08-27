@@ -1,6 +1,3 @@
-import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
-
 class Transition {
     private Path path;
 	private State toState;
