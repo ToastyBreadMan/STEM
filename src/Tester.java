@@ -106,6 +106,7 @@ public class Tester {
                 case STAY:
                     break;
             }
+            m.getTape().centerTapeDisplay();
             m.getTape().refreshTapeDisplay();
             System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
                     currentState.getName(), curTransition.getToState().getName(),

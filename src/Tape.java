@@ -13,8 +13,9 @@ import java.util.LinkedList;
 public class Tape{
     private GridPane tapeDisplay;
     private GridPane headDisplay;
-    private Integer tapeDisplayOffset;
-    private int tapeHead;
+    private Integer tapeDisplayOffset = 0;
+    private Integer tapeHead = 0;
+    private Integer tapeWidth = 0;
     private LinkedList<Character> tape = new LinkedList<>();
 
     public void incrementDisplayOffset() {
@@ -22,6 +23,15 @@ public class Tape{
     }
     public void decrementDisplayOffset() {
         tapeDisplayOffset--;
+    }
+
+    public void centerTapeDisplay() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tapeDisplayOffset = tapeHead - tapeWidth / 2;
+            }
+        });
     }
 
     public void refreshTapeDisplay() {
@@ -73,11 +83,13 @@ public class Tape{
         headDisplay = head;
 
         tapeDisplay.widthProperty().addListener((obs, oldVal, newVal) -> {
+            //System.out.println("Changing");
             double newWidth = newVal.doubleValue() - 130;
             double oldWidth = oldVal.doubleValue() - 130;
             int newCount = (int)newWidth / 30;
             int oldCount = (int)oldWidth / 30;
             if (newCount == oldCount) return;
+            tapeWidth = newCount;
             Character[] tapeChars;
             try {
                 tapeChars = getTapeAsArray();
@@ -85,7 +97,7 @@ public class Tape{
             catch (NullPointerException e) {
                 tapeChars = new Character[] {};
             }
-            int index = 0;
+            int index = tapeDisplayOffset;
             int size = tapeChars.length;
 
             tapeDisplay.getChildren().clear();
@@ -101,7 +113,7 @@ public class Tape{
 
                 if (index == tapeHead) headTapeChar = new Label("v");
                 else headTapeChar = new Label(" ");
-                if (index < size) {
+                if (index < size && index >= 0) {
                     tapeChar = new Label(tapeChars[index].toString());
                 }
                 else {
