@@ -8,11 +8,9 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
-    private Editor editor;
 
-    public Tester(Editor e) {
-        editor = e;
-    }
+
+
 
     public String getFailReason() {
         return failReason;
@@ -25,7 +23,7 @@ public class Tester {
     public void runMachine(Machine m) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
-        Tape tape = m.tape;
+        Tape tape = m.getTape();
 
         // Fail if there is no start state
         currentState = m.getStartState();
@@ -108,7 +106,7 @@ public class Tester {
                 case STAY:
                     break;
             }
-            //editor.refreshTapeDisplay();
+            m.getTape().refreshTapeDisplay();
             System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
                     currentState.getName(), curTransition.getToState().getName(),
                     curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));

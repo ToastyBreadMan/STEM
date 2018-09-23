@@ -6,7 +6,7 @@ class Machine {
 	private ArrayList<Transition> transitions = new ArrayList<>();
 	private ArrayList<Path> paths = new ArrayList<>();
 	private int speed;
-	public Tape tape;
+	private Tape tape;
 
 	Machine(){
 		this.tape = new Tape();
@@ -19,6 +19,14 @@ class Machine {
 		this.startState = startState;
 		this.tape = new Tape();
 		this.speed = 250;
+	}
+
+	public Tape getTape() {
+		return tape;
+	}
+
+	public void setTape(Tape t) {
+		tape = t;
 	}
 
 	public State getStartState() {

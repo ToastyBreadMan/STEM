@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
 import javafx.concurrent.Task;
@@ -41,20 +42,21 @@ class Editor {
 	private Polygon startTriangle;
 	private ContextMenu contextMenu = initContextMenu();
 	private String machineFile;
-	private GridPane boxes;
-	private GridPane headDisplay;
-	private Integer tapeDisplayOffset;
+	private BorderPane tapeArea;
+	//private Integer tapeDisplayOffset;
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
-
+		//setMenu(window);
+		//newMachine(window, prev);
 		BorderPane pane = new BorderPane();
-
+		BorderPane tapeArea = new BorderPane();
+		this.tapeArea = tapeArea;
 		editorSpace = new Pane();
-		tapeDisplayOffset = 0;
+
 		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
-		pane.setBottom(initTapeDisplay());
+		pane.setBottom(tapeArea);
 
 		editor = new Scene(pane, 500, 500);
 
@@ -79,20 +81,20 @@ class Editor {
 		window.setScene(editor);
 	}
 
-	private BorderPane initTapeDisplay() {
+	private BorderPane initTapeDisplay(BorderPane tapeArea) {
 		// StackPane to overlay elements
-		BorderPane tapeArea = new BorderPane();
+
 
 		// GridPane to display the boxes and the characters BorderPane for buttons
 
 
 
-		GridPane boxes = new GridPane();
-		boxes.setAlignment(Pos.CENTER);
-		this.boxes = boxes;
-		GridPane tapeHead = new GridPane();
-		tapeHead.setAlignment(Pos.CENTER);
-		this.headDisplay = tapeHead;
+		GridPane tapeDisplay = new GridPane();
+		tapeDisplay.setAlignment(Pos.CENTER);
+
+		GridPane headDisplay = new GridPane();
+		headDisplay.setAlignment(Pos.CENTER);
+
 
 
 
@@ -110,141 +112,30 @@ class Editor {
 
 
 
-		tapeArea.setCenter(tapeHead);
-		tapeArea.setBottom(boxes);
+		tapeArea.setCenter(headDisplay);
+		tapeArea.setBottom(tapeDisplay);
 		tapeArea.setLeft(shiftLeft);
 		tapeArea.setRight(shiftRight);
-		tapeArea.setPrefHeight(tapeHead.getHeight() + boxes.getHeight());
+		tapeArea.setPrefHeight(headDisplay.getHeight() + tapeDisplay.getHeight());
 
 
 
 		shiftLeft.setOnMouseClicked((button) -> {
-			tapeDisplayOffset--;
-			refreshTapeDisplay();
+			currentMachine.getTape().decrementDisplayOffset();
+			currentMachine.getTape().refreshTapeDisplay();
 		});
 
 		shiftRight.setOnMouseClicked((button) -> {
-			tapeDisplayOffset++;
-			refreshTapeDisplay();
+			currentMachine.getTape().incrementDisplayOffset();
+			currentMachine.getTape().refreshTapeDisplay();
 		});
 
-
-
-
-
-		boxes.widthProperty().addListener((obs, oldVal, newVal) -> {
-
-
-
-
-			double newWidth = newVal.doubleValue() - 130;
-			double oldWidth = oldVal.doubleValue() - 130;
-			int newCount = (int)newWidth / 30;
-			int oldCount = (int)oldWidth / 30;
-			if (newCount == oldCount) return;
-			Character[] tapeChars;
-			try {
-				tapeChars = currentMachine.tape.getTapeAsArray();
-			}
-			catch (NullPointerException e) {
-				tapeChars = new Character[] {};
-			}
-			int index = 0;
-			int size = tapeChars.length;
-
-			boxes.getChildren().clear();
-			headDisplay.getChildren().clear();
-			// FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
-			for (int i = 0; i < newCount; i++) {
-				StackPane box = new StackPane();
-				StackPane headBox = new StackPane();
-				Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
-				Rectangle headTapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
-				Label tapeChar;
-				Label headTapeChar;
-
-				if (index == currentMachine.tape.getTapeHead()) headTapeChar = new Label("v");
-				else headTapeChar = new Label(" ");
-				if (index < size) {
-					tapeChar = new Label(tapeChars[index].toString());
-				}
-				else {
-					tapeChar = new Label(" ");
-				}
-
-				headTapeBox.setStroke(Paint.valueOf("#ffffff"));
-				tapeBox.setStroke(Paint.valueOf("#000000"));
-				GridPane.setConstraints(box, i, 0);
-				GridPane.setConstraints(headBox, i, 0);
-				headBox.getChildren().add(headTapeBox);
-				headBox.getChildren().add(headTapeChar);
-				headDisplay.getChildren().add(headBox);
-				box.getChildren().add(tapeBox);
-				box.getChildren().add(tapeChar);
-				boxes.getChildren().add(box);
-				index++;
-			}
-
-
-		});
-
-		// Get number of elements in the tape to display
-
-
-
+		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay);
 
 		return tapeArea;
 	}
 
-	public void refreshTapeDisplay() {
-		int index = tapeDisplayOffset;
-		Character[] tapeChars = currentMachine.tape.getTapeAsArray();
-		int size = tapeChars.length;
-		for(Node n : boxes.getChildren()) {
-			if (n instanceof StackPane) {
-				Node toDelete = null;
-				Node toAdd;
 
-				if (index < size && index >= 0) {
-					toAdd = new Label(tapeChars[index].toString());
-				}
-				else {
-					toAdd = new Label(" ");
-				}
-				for(Node b : ((StackPane) n).getChildren()) {
-					if (b instanceof Label) {
-						toDelete = b;
-					}
-				}
-				((StackPane) n).getChildren().remove(toDelete);
-				((StackPane) n).getChildren().add(toAdd);
-				index++;
-			}
-		}
-		index = tapeDisplayOffset;
-		for(Node n: headDisplay.getChildren()) {
-			if (n instanceof StackPane) {
-				Node toDelete = null;
-				Node toAdd;
-
-				if(index == currentMachine.tape.getTapeHead()) {
-					toAdd = new Label("v");
-				}
-				else {
-					toAdd = new Label(" ");
-				}
-				for (Node b: ((StackPane) n).getChildren()) {
-					if (b instanceof Label) {
-						toDelete = b;
-					}
-				}
-				((StackPane) n).getChildren().remove(toDelete);
-				((StackPane) n).getChildren().add(toAdd);
-
-			}
-			index++;
-		}
-	}
 
 	/* This sets up the menu bar, but does NOT set the button actions */
 	private ToolBar initMenuBar(Stage window, Scene prev){
@@ -437,8 +328,8 @@ class Editor {
 					curLine = curLine.substring(1, curLine.length()); // Remove the tab
 					ArrayList<Character> newTape = new ArrayList<>();
 					for(char c : curLine.toCharArray()) newTape.add(c);
-					loadedMachine.tape.initTape(newTape);
-					loadedMachine.tape.setTapeHead(tapeHead);
+					loadedMachine.getTape().initTape(newTape);
+					loadedMachine.getTape().setTapeHead(tapeHead);
 
 					int highestState = Integer.MIN_VALUE;
 					for (Map.Entry<String, State> pair : totalStates.entrySet()) {
@@ -470,8 +361,8 @@ class Editor {
 					}
 
 					// Tape is loaded here.
-					loadedMachine.tape.initTape(tapeChars);
-					loadedMachine.tape.setTapeHead(tapeHead);
+					loadedMachine.getTape().initTape(tapeChars);
+					loadedMachine.getTape().setTapeHead(tapeHead);
 
 					System.out.printf("--- TAPE HEAD = %d ----\n", tapeHead);
 
@@ -597,13 +488,13 @@ class Editor {
 		redrawAllStates();
 		redrawAllPaths();
 		startMachine(window, prev);
-		refreshTapeDisplay();
+		currentMachine.getTape().refreshTapeDisplay();
 
 	}
 	
 	/* Called whenever a new machine is setup */
 	private void startMachine(Stage window, Scene prev){
-
+		initTapeDisplay(tapeArea);
 		machineFile = currentMachine.toString();
 
 		window.setOnCloseRequest(we -> {
@@ -881,6 +772,7 @@ class Editor {
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
 		});
+
 	}
 
 	private ContextMenu initContextMenu(){
@@ -1275,7 +1167,7 @@ class Editor {
 		for(Node b : args)
 			b.setDisable(true);
 
-		Tester tester = new Tester(this);
+		Tester tester = new Tester();
 
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -1321,7 +1213,7 @@ class Editor {
 			}
 		};
 		task.setOnSucceeded(event -> {
-		    refreshTapeDisplay();
+		    currentMachine.getTape().refreshTapeDisplay();
 
 			Alert alert = new Alert(Alert.AlertType.ERROR);
 			alert.initOwner(window);
@@ -1346,7 +1238,7 @@ class Editor {
 				b.setDisable(false);
 		});
 		task.setOnCancelled(event -> {
-			refreshTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay();
 
 			for(State s : currentMachine.getStates())
 				s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
@@ -1392,15 +1284,15 @@ class Editor {
 				}
 			}
 			System.out.print("Old tape: ");
-			for(Character c: currentMachine.tape.getTapeAsArray()) {
+			for(Character c: currentMachine.getTape().getTapeAsArray()) {
 				System.out.print(c);
 			}
 			System.out.println();
 
-			currentMachine.tape.initTape(characters);
-			refreshTapeDisplay();
+			currentMachine.getTape().initTape(characters);
+			currentMachine.getTape().refreshTapeDisplay();
 			System.out.print("New tape: ");
-			for(Character c: currentMachine.tape.getTapeAsArray()) {
+			for(Character c: currentMachine.getTape().getTapeAsArray()) {
 				System.out.print(c);
 			}
 			System.out.println();
