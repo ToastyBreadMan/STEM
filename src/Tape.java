@@ -176,8 +176,8 @@ public class Tape{
             tapeDisplay.getChildren().add(box);
             initIndex++;
         }
-        tapeArea.setCenter(headDisplay);
-        tapeArea.setBottom(tapeDisplay);
+        tapeArea.setTop(headDisplay);
+        tapeArea.setCenter(tapeDisplay);
 
 
 
@@ -256,8 +256,8 @@ public class Tape{
                 tapeDisplay.getChildren().add(box);
                 index++;
             }
-            tapeArea.setCenter(headDisplay);
-            tapeArea.setBottom(tapeDisplay);
+            tapeArea.setTop(headDisplay);
+            tapeArea.setCenter(tapeDisplay);
         });
     }
 

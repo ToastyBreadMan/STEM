@@ -151,16 +151,17 @@ class Editor {
 		shiftRight.setPrefWidth(50);
 		shiftRight.setPrefHeight(30);
 
+		tapeArea.setPrefHeight(0);
 		// Move tape view left button
 		Button shiftLeft = new Button("<<<");
 		shiftLeft.setPrefWidth(50);
 		shiftLeft.setPrefHeight(30);
 
-		tapeArea.setCenter(headDisplay);
-		tapeArea.setBottom(tapeDisplay);
+		tapeArea.setTop(headDisplay);
+		tapeArea.setCenter(tapeDisplay);
 		tapeArea.setLeft(shiftLeft);
 		tapeArea.setRight(shiftRight);
-		tapeArea.setPrefHeight(headDisplay.getHeight() + tapeDisplay.getHeight());
+		//tapeArea.setPrefHeight(headDisplay.getHeight() + tapeDisplay.getHeight());
 
 		shiftLeft.setOnMouseClicked((button) -> {
 			currentMachine.getTape().decrementDisplayOffset();
