@@ -131,7 +131,7 @@ class Editor {
 		});
 
 		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay, tapeArea);
-
+		System.out.println("I'm in here!");
 		return tapeArea;
 	}
 
@@ -249,7 +249,7 @@ class Editor {
 	}
 
 	public void loadMachine(Stage window, Scene prev){
-		Machine loadedMachine = new Machine();
+		currentMachine = new Machine();
 
 		FileChooser chooser = new FileChooser();
 		FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
@@ -286,9 +286,9 @@ class Editor {
 							newState.setName(stateMatcher.group(1));
 							newState.setX(Double.parseDouble(stateMatcher.group(2)));
 							newState.setY(Double.parseDouble(stateMatcher.group(3)));
-							if (Boolean.parseBoolean(stateMatcher.group(4))) loadedMachine.setStartState(newState);
+							if (Boolean.parseBoolean(stateMatcher.group(4))) currentMachine.setStartState(newState);
 							newState.setAccept(Boolean.parseBoolean(stateMatcher.group(5)));
-							loadedMachine.addState(newState);
+							currentMachine.addState(newState);
 							totalStates.put(stateMatcher.group(1), newState);
 
 						}
@@ -312,7 +312,7 @@ class Editor {
 							else if(transitionMatcher.group(5).equals("LEFT")) newTransition.setMoveDirection(Transition.Direction.LEFT);
 							else if(transitionMatcher.group(5).equals("STAY")) newTransition.setMoveDirection(Transition.Direction.STAY);
 							else throw new IOException("Bad Transition");
-							loadedMachine.getTransitions().add(newTransition);
+							currentMachine.getTransitions().add(newTransition);
 						}
 					}
 					// Read until beginning of tape
@@ -327,8 +327,8 @@ class Editor {
 					curLine = curLine.substring(1, curLine.length()); // Remove the tab
 					ArrayList<Character> newTape = new ArrayList<>();
 					for(char c : curLine.toCharArray()) newTape.add(c);
-					loadedMachine.getTape().initTape(newTape);
-					loadedMachine.getTape().setTapeHead(tapeHead);
+					currentMachine.getTape().initTape(newTape);
+					currentMachine.getTape().setTapeHead(tapeHead);
 
 					int highestState = Integer.MIN_VALUE;
 					for (Map.Entry<String, State> pair : totalStates.entrySet()) {
@@ -360,8 +360,8 @@ class Editor {
 					}
 
 					// Tape is loaded here.
-					loadedMachine.getTape().initTape(tapeChars);
-					loadedMachine.getTape().setTapeHead(tapeHead);
+					currentMachine.getTape().initTape(tapeChars);
+					currentMachine.getTape().setTapeHead(tapeHead);
 
 					System.out.printf("--- TAPE HEAD = %d ----\n", tapeHead);
 
@@ -444,16 +444,16 @@ class Editor {
 						curState.setName(s.getKey());
 
 						curState.setX(100 + 150 * (counter % 5) + 30 * (counter / 5));
-						curState.setY(100 + 150 * (counter / 5) + 30 * (counter % 2));
+						curState.setY(120 + 150 * (counter / 5) + 30 * (counter % 2));
 						curState.setLabel(new Text(s.getKey()));
 
-						loadedMachine.addState(curState);
+						currentMachine.addState(curState);
 						counter++;
 						int curVal = Integer.parseInt(curState.getName());
 						if (curVal > highestState) highestState = curVal;
 					}
 					stateNextVal = highestState + 1;
-					loadedMachine.setTransitions(totalTransitions);
+					currentMachine.setTransitions(totalTransitions);
 
 
 
@@ -483,11 +483,12 @@ class Editor {
 		}
 
 
-		currentMachine = loadedMachine;
+		//currentMachine = currentMachine;
 		redrawAllStates();
 		redrawAllPaths();
-		startMachine(window, prev);
 		currentMachine.getTape().refreshTapeDisplay();
+		startMachine(window, prev);
+
 
 	}
 	

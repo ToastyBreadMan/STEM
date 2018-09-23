@@ -109,6 +109,75 @@ public class Tape{
         tapeDisplay = tape;
         headDisplay = head;
 
+        Character[] initTapeChars;
+        try {
+            initTapeChars = getTapeAsArray();
+        }
+        catch (NullPointerException e) {
+            initTapeChars = new Character[] {};
+        }
+        int initIndex = tapeDisplayOffset;
+        int initSize = initTapeChars.length;
+        tapeArea.getChildren().remove(tapeDisplay);
+        tapeArea.getChildren().remove(headDisplay);
+        tapeDisplay = new GridPane();
+        tapeDisplay.setAlignment(Pos.CENTER);
+        headDisplay = new GridPane();
+        headDisplay.setAlignment(Pos.CENTER);
+        // FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
+        for (Integer i = 0; i < ((int)tapeArea.getWidth() - 130) / 31; i++) {
+            StackPane box = new StackPane();
+            StackPane headBox = new StackPane();
+            Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+            Rectangle headTapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+            Label tapeChar;
+            Label headTapeChar;
+
+            if (initIndex == tapeHead) {
+                headTapeChar = new Label("↓");
+                headTapeChar.setFont(Font.font(20));
+                //tapeBox.setFill(Paint.valueOf("#CAE1F9"));
+            }
+            else {
+                headTapeChar = new Label(" ");
+            }
+            if (initIndex < initSize && initIndex >= 0) {
+                tapeChar = new Label(initTapeChars[initIndex].toString());
+            }
+            else {
+                tapeChar = new Label(" ");
+            }
+
+            tapeChar.setId(Integer.toString(i + tapeDisplayOffset));
+
+            tapeBox.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
+
+                refreshTapeDisplay();
+            });
+
+            tapeChar.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
+
+                refreshTapeDisplay();
+            });
+
+            headTapeBox.setStroke(Paint.valueOf("#ffffff"));
+            tapeBox.setStroke(Paint.valueOf("#000000"));
+            GridPane.setConstraints(box, i, 0);
+            GridPane.setConstraints(headBox, i, 0);
+            headBox.getChildren().add(headTapeBox);
+            headBox.getChildren().add(headTapeChar);
+            headDisplay.getChildren().add(headBox);
+            box.getChildren().add(tapeBox);
+            box.getChildren().add(tapeChar);
+            tapeDisplay.getChildren().add(box);
+            initIndex++;
+        }
+        tapeArea.setCenter(headDisplay);
+        tapeArea.setBottom(tapeDisplay);
+
+
 
         tapeWidth = Bindings.createIntegerBinding(
                 () -> ((int)(tapeArea.getWidth() - 130)) / 31, tapeArea.widthProperty());
