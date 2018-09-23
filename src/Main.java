@@ -30,6 +30,7 @@ public class Main extends Application {
 		window.setScene(menu);
 		window.setTitle("Definitely NOT JFlap");
 		window.show();
+
 	}
 	
 	private void initMenu(){
@@ -103,5 +104,6 @@ public class Main extends Application {
 			editor.loadMachine(window, menu);
 			editor = null;
 		});
+
 	}
 }

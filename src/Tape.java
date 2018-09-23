@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -73,10 +74,15 @@ public class Tape{
                             if (b instanceof Label) {
                                 if(index < size && index >= 0) {
                                     ((Label) b).setText(tapeChars[index].toString());
+                                    ((Label) b).setFont(Font.font(20));
                                 }
                                 else {
                                     ((Label) b).setText(" ");
                                 }
+                            }
+                            if (b instanceof Rectangle) {
+                                if (index == tapeHead) ((Rectangle) b).setFill(Paint.valueOf("#CAE1F9"));
+                                else ((Rectangle) b).setFill(Color.TRANSPARENT);
                             }
                         }
                         index++;
@@ -124,12 +130,14 @@ public class Tape{
         tapeDisplay.setAlignment(Pos.CENTER);
         headDisplay = new GridPane();
         headDisplay.setAlignment(Pos.CENTER);
+
         // FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
         for (Integer i = 0; i < ((int)tapeArea.getWidth() - 130) / 31; i++) {
             StackPane box = new StackPane();
             StackPane headBox = new StackPane();
-            Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
-            Rectangle headTapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+            Rectangle tapeBox = new Rectangle(30, 30, Color.TRANSPARENT);
+            Rectangle headTapeBox = new Rectangle(30, 30, Color.TRANSPARENT);
+
             Label tapeChar;
             Label headTapeChar;
 
@@ -143,16 +151,18 @@ public class Tape{
             }
             if (initIndex < initSize && initIndex >= 0) {
                 tapeChar = new Label(initTapeChars[initIndex].toString());
+                tapeChar.setFont(Font.font(20));
             }
             else {
                 tapeChar = new Label(" ");
             }
+            if (initIndex == tapeHead) tapeBox.setFill(Paint.valueOf("#CAE1F9"));
+            else tapeBox.setFill(Color.TRANSPARENT);
 
             tapeChar.setId(Integer.toString(i + tapeDisplayOffset));
 
             tapeBox.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
                 tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
-
                 refreshTapeDisplay();
             });
 
@@ -162,7 +172,7 @@ public class Tape{
                 refreshTapeDisplay();
             });
 
-            headTapeBox.setStroke(Paint.valueOf("#ffffff"));
+            headTapeBox.setStroke(Paint.valueOf("#000000"));
             tapeBox.setStroke(Paint.valueOf("#000000"));
             GridPane.setConstraints(box, i, 0);
             GridPane.setConstraints(headBox, i, 0);
@@ -198,31 +208,37 @@ public class Tape{
             tapeDisplay.setAlignment(Pos.CENTER);
             headDisplay = new GridPane();
             headDisplay.setAlignment(Pos.CENTER);
-            // FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
+
             for (Integer i = 0; i < newCount.intValue(); i++) {
                 StackPane box = new StackPane();
                 StackPane headBox = new StackPane();
-                Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
-                Rectangle headTapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+                Rectangle tapeBox = new Rectangle(30, 30, Color.TRANSPARENT);
+                Rectangle headTapeBox = new Rectangle(30, 30, Color.TRANSPARENT);
                 Label tapeChar;
                 Label headTapeChar;
+
 
                 if (index == tapeHead) {
                     headTapeChar = new Label("↓");
                     headTapeChar.setFont(Font.font(20));
-                    //tapeBox.setFill(Paint.valueOf("#CAE1F9"));
+
                 }
                 else {
                     headTapeChar = new Label(" ");
                 }
                 if (index < size && index >= 0) {
                     tapeChar = new Label(tapeChars[index].toString());
+                    tapeChar.setFont(Font.font(20));
+
                 }
                 else {
                     tapeChar = new Label(" ");
-                }
 
-                tapeChar.setId(Integer.toString(i + tapeDisplayOffset));
+                }
+                if (index == tapeHead) tapeBox.setFill(Paint.valueOf("#CAE1F9"));
+                else tapeBox.setFill(Color.TRANSPARENT);
+
+                tapeChar.setId(Integer.toString(i));
 
                 tapeBox.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
                     tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
@@ -236,7 +252,7 @@ public class Tape{
                     refreshTapeDisplay();
                 });
 
-                headTapeBox.setStroke(Paint.valueOf("#ffffff"));
+                headTapeBox.setStroke(Color.TRANSPARENT);
                 tapeBox.setStroke(Paint.valueOf("#000000"));
                 GridPane.setConstraints(box, i, 0);
                 GridPane.setConstraints(headBox, i, 0);
