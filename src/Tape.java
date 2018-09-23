@@ -164,7 +164,7 @@ public class Tape{
                 refreshTapeDisplay();
             });
 
-            headTapeBox.setStroke(Paint.valueOf("#000000"));
+            headTapeBox.setStroke(Color.TRANSPARENT);
             tapeBox.setStroke(Paint.valueOf("#000000"));
             GridPane.setConstraints(box, i, 0);
             GridPane.setConstraints(headBox, i, 0);
