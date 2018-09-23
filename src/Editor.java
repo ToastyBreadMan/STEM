@@ -42,7 +42,8 @@ class Editor {
 	private ContextMenu contextMenu = initContextMenu();
 	private String machineFile;
 	private GridPane boxes;
-	private Integer tapeDisplayOffset = 0;
+	private GridPane headDisplay;
+	private Integer tapeDisplayOffset;
 
 	Editor(Stage window, Scene prev){
 		this.window = window;
@@ -50,15 +51,18 @@ class Editor {
 		BorderPane pane = new BorderPane();
 
 		editorSpace = new Pane();
-		
+		tapeDisplayOffset = 0;
 		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
 		pane.setBottom(initTapeDisplay());
 
 		editor = new Scene(pane, 500, 500);
 
+
 		pane.prefHeightProperty().bind(editor.heightProperty());
 		pane.prefWidthProperty().bind(editor.widthProperty());
+
+
 
 		circleRadius = 20;
 		startTriangle = new Polygon();
@@ -86,7 +90,10 @@ class Editor {
 		GridPane boxes = new GridPane();
 		boxes.setAlignment(Pos.CENTER);
 		this.boxes = boxes;
-		//BorderPane buttons = new BorderPane();
+		GridPane tapeHead = new GridPane();
+		tapeHead.setAlignment(Pos.CENTER);
+		this.headDisplay = tapeHead;
+
 
 
 
@@ -94,6 +101,7 @@ class Editor {
 		Button shiftRight = new Button(">>>");
 		shiftRight.setPrefWidth(50);
 		shiftRight.setPrefHeight(30);
+
 		// Move tape view left button
 		Button shiftLeft = new Button("<<<");
 		shiftLeft.setPrefWidth(50);
@@ -101,16 +109,14 @@ class Editor {
 
 
 
-		//buttons.setLeft(shiftLeft);
-		//buttons.setRight(shiftRight);
-		//buttons.setTop(refreshTapeDisplay);
 
-		tapeArea.setCenter(boxes);
+		tapeArea.setCenter(tapeHead);
+		tapeArea.setBottom(boxes);
 		tapeArea.setLeft(shiftLeft);
 		tapeArea.setRight(shiftRight);
+		tapeArea.setPrefHeight(tapeHead.getHeight() + boxes.getHeight());
 
 
-		// FIXME Add click listeners to shift the tape with the buttons
 
 		shiftLeft.setOnMouseClicked((button) -> {
 			tapeDisplayOffset--;
@@ -147,11 +153,18 @@ class Editor {
 			int size = tapeChars.length;
 
 			boxes.getChildren().clear();
+			headDisplay.getChildren().clear();
 			// FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
 			for (int i = 0; i < newCount; i++) {
 				StackPane box = new StackPane();
+				StackPane headBox = new StackPane();
 				Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
+				Rectangle headTapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
 				Label tapeChar;
+				Label headTapeChar;
+
+				if (index == currentMachine.tape.getTapeHead()) headTapeChar = new Label("v");
+				else headTapeChar = new Label(" ");
 				if (index < size) {
 					tapeChar = new Label(tapeChars[index].toString());
 				}
@@ -159,9 +172,13 @@ class Editor {
 					tapeChar = new Label(" ");
 				}
 
-
+				headTapeBox.setStroke(Paint.valueOf("#ffffff"));
 				tapeBox.setStroke(Paint.valueOf("#000000"));
 				GridPane.setConstraints(box, i, 0);
+				GridPane.setConstraints(headBox, i, 0);
+				headBox.getChildren().add(headTapeBox);
+				headBox.getChildren().add(headTapeChar);
+				headDisplay.getChildren().add(headBox);
 				box.getChildren().add(tapeBox);
 				box.getChildren().add(tapeChar);
 				boxes.getChildren().add(box);
@@ -179,7 +196,7 @@ class Editor {
 		return tapeArea;
 	}
 
-	private void refreshTapeDisplay() {
+	public void refreshTapeDisplay() {
 		int index = tapeDisplayOffset;
 		Character[] tapeChars = currentMachine.tape.getTapeAsArray();
 		int size = tapeChars.length;
@@ -187,6 +204,7 @@ class Editor {
 			if (n instanceof StackPane) {
 				Node toDelete = null;
 				Node toAdd;
+
 				if (index < size && index >= 0) {
 					toAdd = new Label(tapeChars[index].toString());
 				}
@@ -202,6 +220,29 @@ class Editor {
 				((StackPane) n).getChildren().add(toAdd);
 				index++;
 			}
+		}
+		index = tapeDisplayOffset;
+		for(Node n: headDisplay.getChildren()) {
+			if (n instanceof StackPane) {
+				Node toDelete = null;
+				Node toAdd;
+
+				if(index == currentMachine.tape.getTapeHead()) {
+					toAdd = new Label("v");
+				}
+				else {
+					toAdd = new Label(" ");
+				}
+				for (Node b: ((StackPane) n).getChildren()) {
+					if (b instanceof Label) {
+						toDelete = b;
+					}
+				}
+				((StackPane) n).getChildren().remove(toDelete);
+				((StackPane) n).getChildren().add(toAdd);
+
+			}
+			index++;
 		}
 	}
 
@@ -930,7 +971,7 @@ class Editor {
 				}
 			};
 
-			EventHandler<MouseEvent> click = new EventHandler<>() {
+			EventHandler<MouseEvent> click = new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
 					editorSpace.removeEventHandler(MouseEvent.MOUSE_MOVED, move);
@@ -1234,7 +1275,7 @@ class Editor {
 		for(Node b : args)
 			b.setDisable(true);
 
-		Tester tester = new Tester();
+		Tester tester = new Tester(this);
 
 		Task<Void> task = new Task<Void>() {
 			@Override

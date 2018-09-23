@@ -8,6 +8,11 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
+    private Editor editor;
+
+    public Tester(Editor e) {
+        editor = e;
+    }
 
     public String getFailReason() {
         return failReason;
@@ -103,7 +108,7 @@ public class Tester {
                 case STAY:
                     break;
             }
-
+            //editor.refreshTapeDisplay();
             System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
                     currentState.getName(), curTransition.getToState().getName(),
                     curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));
