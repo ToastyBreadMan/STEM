@@ -1,22 +1,48 @@
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.binding.ObjectExpression;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Tape{
     private GridPane tapeDisplay;
     private GridPane headDisplay;
+    private final Lock l = new ReentrantLock();
     private Integer tapeDisplayOffset = 0;
     private Integer tapeHead = 0;
-    private Integer tapeWidth = 0;
+    ObservableIntegerValue tapeWidth;
+
     private LinkedList<Character> tape = new LinkedList<>();
+
+    @Override
+    public String toString() {
+        String s = new String();
+        for(char c : tape) {
+            s += c;
+        }
+        return s;
+    }
 
     public void incrementDisplayOffset() {
         tapeDisplayOffset++;
@@ -29,7 +55,7 @@ public class Tape{
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                tapeDisplayOffset = tapeHead - tapeWidth / 2;
+                tapeDisplayOffset = tapeHead - tapeWidth.get() / 2;
             }
         });
     }
@@ -62,7 +88,8 @@ public class Tape{
                         for (Node b: ((StackPane) n).getChildren()) {
                             if (b instanceof Label) {
                                 if(index == getTapeHead()) {
-                                    ((Label) b).setText("v");
+                                    ((Label) b).setText("↓");
+                                    ((Label) b).setFont(Font.font(20));
                                 }
                                 else {
                                     ((Label) b).setText(" ");
@@ -77,19 +104,16 @@ public class Tape{
 
     }
 
-    public void setDisplay(GridPane tape, GridPane head) {
+    public void setDisplay(GridPane tape, GridPane head, BorderPane tapeArea) {
         tapeDisplayOffset = 0;
         tapeDisplay = tape;
         headDisplay = head;
 
-        tapeDisplay.widthProperty().addListener((obs, oldVal, newVal) -> {
-            //System.out.println("Changing");
-            double newWidth = newVal.doubleValue() - 130;
-            double oldWidth = oldVal.doubleValue() - 130;
-            int newCount = (int)newWidth / 30;
-            int oldCount = (int)oldWidth / 30;
-            if (newCount == oldCount) return;
-            tapeWidth = newCount;
+
+        tapeWidth = Bindings.createIntegerBinding(
+                () -> ((int)(tapeArea.getWidth() - 130)) / 31, tapeArea.widthProperty());
+
+        tapeWidth.addListener((obs, oldCount, newCount) -> {
             Character[] tapeChars;
             try {
                 tapeChars = getTapeAsArray();
@@ -99,11 +123,14 @@ public class Tape{
             }
             int index = tapeDisplayOffset;
             int size = tapeChars.length;
-
-            tapeDisplay.getChildren().clear();
-            headDisplay.getChildren().clear();
+            tapeArea.getChildren().remove(tapeDisplay);
+            tapeArea.getChildren().remove(headDisplay);
+            tapeDisplay = new GridPane();
+            tapeDisplay.setAlignment(Pos.CENTER);
+            headDisplay = new GridPane();
+            headDisplay.setAlignment(Pos.CENTER);
             // FIXME Add a right click listener to choose the head by right clicking the rectangle desired?
-            for (int i = 0; i < newCount; i++) {
+            for (Integer i = 0; i < newCount.intValue(); i++) {
                 StackPane box = new StackPane();
                 StackPane headBox = new StackPane();
                 Rectangle tapeBox = new Rectangle(30, 30, Paint.valueOf("#ffffff"));
@@ -111,14 +138,34 @@ public class Tape{
                 Label tapeChar;
                 Label headTapeChar;
 
-                if (index == tapeHead) headTapeChar = new Label("v");
-                else headTapeChar = new Label(" ");
+                if (index == tapeHead) {
+                    headTapeChar = new Label("↓");
+                    headTapeChar.setFont(Font.font(20));
+                    //tapeBox.setFill(Paint.valueOf("#CAE1F9"));
+                }
+                else {
+                    headTapeChar = new Label(" ");
+                }
                 if (index < size && index >= 0) {
                     tapeChar = new Label(tapeChars[index].toString());
                 }
                 else {
                     tapeChar = new Label(" ");
                 }
+
+                tapeChar.setId(Integer.toString(i + tapeDisplayOffset));
+
+                tapeBox.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                    tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
+
+                    refreshTapeDisplay();
+                });
+
+                tapeChar.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                    tapeHead = Integer.parseInt(tapeChar.getId()) + tapeDisplayOffset;
+
+                    refreshTapeDisplay();
+                });
 
                 headTapeBox.setStroke(Paint.valueOf("#ffffff"));
                 tapeBox.setStroke(Paint.valueOf("#000000"));
@@ -132,10 +179,9 @@ public class Tape{
                 tapeDisplay.getChildren().add(box);
                 index++;
             }
-
-
+            tapeArea.setCenter(headDisplay);
+            tapeArea.setBottom(tapeDisplay);
         });
-
     }
 
 
@@ -156,6 +202,7 @@ public class Tape{
         this.tape.clear();
         this.tape.addAll(t);
         this.tapeHead = 0;
+        this.tapeDisplayOffset = 0;
     }
 
     public int getSize(){ return tape.size(); }

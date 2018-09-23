@@ -130,7 +130,7 @@ class Editor {
 			currentMachine.getTape().refreshTapeDisplay();
 		});
 
-		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay);
+		currentMachine.getTape().setDisplay(tapeDisplay, headDisplay, tapeArea);
 
 		return tapeArea;
 	}
@@ -141,7 +141,6 @@ class Editor {
 	private ToolBar initMenuBar(Stage window, Scene prev){
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
-
 		ObjectExpression<Font> barTextTrack = Bindings.createObjectBinding(
 				() -> Font.font(Math.min(bar.getWidth() / 49, 20)), bar.widthProperty());
 
@@ -1257,7 +1256,7 @@ class Editor {
 	}
 
 	private void editTape(Stage window, Machine currentMachine) {
-		TextInputDialog tapeEdit = new TextInputDialog();
+		TextInputDialog tapeEdit = new TextInputDialog( currentMachine.getTape().toString());
 		tapeEdit.setTitle("Edit Tape");
 		tapeEdit.setHeaderText("Valid characters are Ascii values 32-125\nThis includes all alpha-numeric values.");
 
@@ -1283,19 +1282,9 @@ class Editor {
 					return;
 				}
 			}
-			System.out.print("Old tape: ");
-			for(Character c: currentMachine.getTape().getTapeAsArray()) {
-				System.out.print(c);
-			}
-			System.out.println();
 
 			currentMachine.getTape().initTape(characters);
 			currentMachine.getTape().refreshTapeDisplay();
-			System.out.print("New tape: ");
-			for(Character c: currentMachine.getTape().getTapeAsArray()) {
-				System.out.print(c);
-			}
-			System.out.println();
 
 		});
 	}
