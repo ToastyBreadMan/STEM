@@ -1,4 +1,3 @@
-import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -8,9 +7,6 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
-
-
-
 
     public String getFailReason() {
         return failReason;
@@ -96,6 +92,10 @@ public class Tester {
                 }
             }
 
+            System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
+                    currentState.getName(), curTransition.getToState().getName(),
+                    curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));
+            TimeUnit.MILLISECONDS.sleep(waitTime);
             switch(curTransition.getMoveDirection()){
                 case LEFT:
                     tape.left();
@@ -108,10 +108,6 @@ public class Tester {
             }
             m.getTape().centerTapeDisplay();
             m.getTape().refreshTapeDisplay();
-            System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
-                    currentState.getName(), curTransition.getToState().getName(),
-                    curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));
-            TimeUnit.MILLISECONDS.sleep(waitTime);
 
             // Reset Colors
             if(currentState.getCircle() != null) {
