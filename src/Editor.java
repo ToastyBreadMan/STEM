@@ -184,20 +184,23 @@ class Editor {
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
 		ObjectExpression<Font> barTextTrack = Bindings.createObjectBinding(
-				() -> Font.font(Math.min(bar.getWidth() / 49, 20)), bar.widthProperty());
+				() -> Font.font(Math.min(bar.getWidth() / 55, 20)), bar.widthProperty());
 
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.fontProperty().bind(barTextTrack);
+		addState.prefWidthProperty().bind(bar.widthProperty().divide(8));
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
 		ToggleButton deleteState = new ToggleButton("Delete Value");
 		deleteState.fontProperty().bind(barTextTrack);
+		deleteState.prefWidthProperty().bind(bar.widthProperty().divide(7));
 		deleteState.setUserData("Delete Value");
 		deleteState.setToggleGroup(toggleGroup);
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(6));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 		// END TOGGLE BUTTONS
@@ -208,6 +211,7 @@ class Editor {
 		// Begin NON-Toggle buttons
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		// Run Machine with options for speed
@@ -223,15 +227,18 @@ class Editor {
 		SplitMenuButton runMachine = new SplitMenuButton(slow, normal, fast, noDelay);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
+		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
 		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton));
 
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
+		saveButton.prefWidthProperty().bind(bar.widthProperty().divide(14));
 		saveButton.setOnAction(event -> saveMachine(window, currentMachine));
 
 		Button backButton = new Button("Back");
 		backButton.fontProperty().bind(barTextTrack);
+		backButton.prefWidthProperty().bind(bar.widthProperty().divide(14));
 		backButton.setOnAction(e->deleteEditor(window, prev, currentMachine));
 
 		// Add toggle buttons

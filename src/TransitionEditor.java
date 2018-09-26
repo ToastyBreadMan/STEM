@@ -179,9 +179,11 @@ public class TransitionEditor {
 
         borderPane.setCenter(hBox);
         borderPane.setBottom(submitButton);
-        Scene popUp = new Scene(borderPane, 300,200);
+        Scene popUp = new Scene(borderPane, 290,200);
         transitionEditor.setScene(popUp);
 
+        // Dirty hack to get the scene to update better
+        transitionEditor.setMinWidth(300);
         transitionEditor.minHeightProperty().bind(borderPane.widthProperty().divide(1.5));
 
         transitionEditor.showAndWait();
