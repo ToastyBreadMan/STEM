@@ -48,6 +48,7 @@ public class TransitionEditor {
         }));
         col1TextArea.setAlignment(Pos.CENTER);
         col1TextArea.setStyle("-fx-padding: 5px; -fx-border-insets: 5px; -fx-background-insets:5px;");
+        col1TextArea.resize(100, 100);
 
         col1.getChildren().addAll(col1Text,col1TextArea);
 
@@ -70,6 +71,7 @@ public class TransitionEditor {
         }));
         col2TextArea.setAlignment(Pos.CENTER);
         col2TextArea.setStyle("-fx-padding: 5px; -fx-border-insets: 5px; -fx-background-insets: 5px;");
+        col2TextArea.resize(100, 100);
 
         col2.getChildren().addAll(col2Text, col2TextArea);
 
@@ -179,10 +181,9 @@ public class TransitionEditor {
 
         borderPane.setCenter(hBox);
         borderPane.setBottom(submitButton);
-        Scene popUp = new Scene(borderPane, 290,200);
+        Scene popUp = new Scene(borderPane, 300,200);
         transitionEditor.setScene(popUp);
 
-        // Dirty hack to get the scene to update better
         transitionEditor.setMinWidth(300);
         transitionEditor.minHeightProperty().bind(borderPane.widthProperty().divide(1.5));
 
