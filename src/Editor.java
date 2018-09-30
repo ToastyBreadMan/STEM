@@ -8,6 +8,8 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
@@ -29,6 +32,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 class Editor {
 	private Stage window;
@@ -223,8 +227,10 @@ class Editor {
 		fast.setOnAction(e -> currentMachine.setSpeed(75));
 		MenuItem noDelay = new MenuItem("No Delay");
 		noDelay.setOnAction(e -> currentMachine.setSpeed(0));
+		MenuItem manualControl = new MenuItem("Manual");
+		manualControl.setOnAction(e -> currentMachine.setSpeed(-1));
 
-		SplitMenuButton runMachine = new SplitMenuButton(slow, normal, fast, noDelay);
+		SplitMenuButton runMachine = new SplitMenuButton(slow, normal, fast, noDelay, manualControl);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
@@ -420,7 +426,8 @@ class Editor {
 		//currentMachine = currentMachine;
 		redrawAllStates();
 		redrawAllPaths();
-		currentMachine.getTape().refreshTapeDisplay();
+
+		//currentMachine.getTape().refreshTapeDisplay();
 		startMachine(window, prev);
 	}
 	
@@ -799,91 +806,172 @@ class Editor {
 
 		Tester tester = new Tester();
 
-		Task<Void> task = new Task<Void>() {
-			@Override
-			public Void call(){
-				try {
-					tester.runMachine(currentMachine);
-				} catch (Exception e) {
-					System.out.println(e);
-					Alert alert = new Alert(Alert.AlertType.ERROR);
-					alert.initOwner(window);
-					alert.initModality(Modality.APPLICATION_MODAL);
-					alert.setTitle("An Exception has Occurred!");
-					alert.setHeaderText(e.toString());
-					// TODO: Better send us message
-					alert.setContentText("Oops...");
+		if(currentMachine.getSpeed() == -1){
+			ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
+					() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
 
-					StringWriter stringWriter = new StringWriter();
-					PrintWriter printWriter = new PrintWriter(stringWriter);
-					e.printStackTrace(printWriter);
-					String exceptionText = stringWriter.toString();
+			Text t = new Text( "<Right Arrow> Advance one state  <Left Arrow> Back one state  <Esc> Stop Machine");
+			t.xProperty().bind(editorSpace.widthProperty().divide(10));
+			t.yProperty().bind(editorSpace.heightProperty());
+			t.fontProperty().bind(textTrack);
+			editorSpace.getChildren().add(t);
 
-					Label label = new Label("The exception stacktrace was:");
+			ArrayList<MachineStep> machineSteps = new ArrayList<>();
 
-					TextArea textArea = new TextArea(exceptionText);
-					textArea.setEditable(false);
-					textArea.setWrapText(true);
-					textArea.setMaxWidth(Double.MAX_VALUE);
-					textArea.setMaxHeight(Double.MAX_VALUE);
-					GridPane.setVgrow(textArea, Priority.ALWAYS);
-					GridPane.setHgrow(textArea, Priority.ALWAYS);
+			thisButton.setText("Stop Machine");
+			thisButton.setOnAction(event -> {
+				editorSpace.getChildren().remove(t);
 
-					GridPane expContent = new GridPane();
-					expContent.setMaxWidth(Double.MAX_VALUE);
-					expContent.add(label, 0, 0);
-					expContent.add(textArea, 0, 1);
+				currentMachine.getTape().refreshTapeDisplay();
 
-					alert.getDialogPane().setExpandableContent(expContent);
+				for (State s : currentMachine.getStates())
+					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 
-					alert.showAndWait();
+				for (Node b : args)
+					b.setDisable(false);
+
+				machineSteps.clear();
+
+				thisButton.setText("Run Machine");
+				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+			});
+
+			currentMachine.getTape().centerTapeDisplay();
+			currentMachine.getTape().refreshTapeDisplay();
+
+			EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
+				@Override
+				public void handle(KeyEvent keyEvent) {
+					if (keyEvent.getCode() == KeyCode.ESCAPE) {
+						thisButton.fire();
+
+						window.removeEventHandler(KeyEvent.KEY_PRESSED, this);
+						keyEvent.consume();
+					}
+					else if(keyEvent.getCode() == KeyCode.RIGHT) {
+						State currentState;
+
+
+						if(machineSteps.size() == 0){
+							currentState = currentMachine.getStartState();
+						}
+						else{
+							System.out.println(machineSteps.get(machineSteps.size()-1).getTransition().toString());
+							machineSteps.get(machineSteps.size()-1).getTransition().getFromState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+							currentState = machineSteps.get(machineSteps.size()-1).getTransition().getToState();
+						}
+
+						Transition next = tester.nextTransition(currentState, currentMachine.getTape());
+
+						if(next == null) {
+							Alert alert = new Alert(Alert.AlertType.ERROR);
+							alert.initOwner(window);
+							alert.initModality(Modality.APPLICATION_MODAL);
+							alert.setTitle("The machine has finished");
+
+							if (currentState.isAccept()) {
+								alert.setGraphic(new ImageView(this.getClass().getResource("checkmark.png").toString()));
+								alert.setHeaderText("The machine has finished successfully");
+							} else {
+								alert.setHeaderText("The machine has finished unsuccessfully");
+								alert.setContentText(tester.getFailReason());
+							}
+
+							alert.showAndWait();
+							keyEvent.consume();
+							return;
+						}
+
+						machineSteps.add(new MachineStep(next, currentMachine.getTape().currentTapeVal()));
+
+						currentMachine.getTape().centerTapeDisplay();
+						currentMachine.getTape().refreshTapeDisplay();
+
+						if(next.getWriteChar() != '~'){
+							try{
+								currentMachine.getTape().setTape(next.getWriteChar());
+							} catch (Exception e){
+								showException(e);
+							}
+						}
+
+						switch(machineSteps.get(machineSteps.size()-1).getTransition().getMoveDirection()) {
+							case LEFT:
+								currentMachine.getTape().left();
+								break;
+							case RIGHT:
+								currentMachine.getTape().right();
+								break;
+							case STAY:
+								break;
+						}
+
+
+						keyEvent.consume();
+					}
+					else if(keyEvent.getCode() == KeyCode.LEFT){
+						keyEvent.consume();
+					}
+				}
+			};
+
+			window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+			t.requestFocus();
+		}
+		else {
+			Task<Void> task = new Task<Void>() {
+				@Override
+				public Void call() {
+					try {
+						tester.runMachine(currentMachine);
+					} catch (Exception e) {
+						showException(e);
+					}
+					return null;
+				}
+			};
+			task.setOnSucceeded(event -> {
+				currentMachine.getTape().refreshTapeDisplay();
+
+				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.initOwner(window);
+				alert.initModality(Modality.APPLICATION_MODAL);
+				alert.setTitle("The machine has finished");
+
+				if (tester.didSucceed()) {
+					alert.setGraphic(new ImageView(this.getClass().getResource("checkmark.png").toString()));
+					alert.setHeaderText("The machine has finished successfully");
+				} else {
+					alert.setHeaderText("The machine has finished unsuccessfully");
+					alert.setContentText(tester.getFailReason());
 				}
 
-				return null;
-			}
-		};
-		task.setOnSucceeded(event -> {
-			currentMachine.getTape().refreshTapeDisplay();
+				alert.showAndWait();
 
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.initOwner(window);
-			alert.initModality(Modality.APPLICATION_MODAL);
-			alert.setTitle("The machine has finished");
+				thisButton.setText("Run Machine");
+				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
 
-			if(tester.didSucceed()){
-				alert.setGraphic(new ImageView(this.getClass().getResource("checkmark.png").toString()));
-				alert.setHeaderText("The machine has finished successfully");
-			}
-			else {
-				alert.setHeaderText("The machine has finished unsuccessfully");
-				alert.setContentText(tester.getFailReason());
-			}
+				for (Node b : args)
+					b.setDisable(false);
+			});
+			task.setOnCancelled(event -> {
+				currentMachine.getTape().refreshTapeDisplay();
 
-			alert.showAndWait();
+				for (State s : currentMachine.getStates())
+					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 
-			thisButton.setText("Run Machine");
-			thisButton.setOnAction(event1 ->  runMachine(thisButton, args));
+				for (Node b : args)
+					b.setDisable(false);
 
-			for(Node b : args)
-				b.setDisable(false);
-		});
-		task.setOnCancelled(event -> {
-			currentMachine.getTape().refreshTapeDisplay();
+				thisButton.setText("Run Machine");
+				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+			});
 
-			for(State s : currentMachine.getStates())
-				s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+			thisButton.setText("Stop Machine");
+			thisButton.setOnAction(event -> task.cancel());
 
-			for(Node b : args)
-				b.setDisable(false);
-
-			thisButton.setText("Run Machine");
-			thisButton.setOnAction(event1 ->  runMachine(thisButton, args));
-		});
-
-		thisButton.setText("Stop Machine");
-		thisButton.setOnAction(event ->  task.cancel());
-
-		new Thread(task).start();
+			new Thread(task).start();
+		}
 	}
 
 	//   ____          _                      __  __      _   _               _
@@ -1030,6 +1118,41 @@ class Editor {
 
 	}
 
+
+	public void showException(Exception e){
+		System.out.println(e);
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.initOwner(window);
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setTitle("An Exception has Occurred!");
+		alert.setHeaderText(e.toString());
+		// TODO: Better send us message
+		alert.setContentText("Oops...");
+
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		e.printStackTrace(printWriter);
+		String exceptionText = stringWriter.toString();
+
+		Label label = new Label("The exception stacktrace was:");
+
+		TextArea textArea = new TextArea(exceptionText);
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+		GridPane expContent = new GridPane();
+		expContent.setMaxWidth(Double.MAX_VALUE);
+		expContent.add(label, 0, 0);
+		expContent.add(textArea, 0, 1);
+
+		alert.getDialogPane().setExpandableContent(expContent);
+
+		alert.showAndWait();
+	}
 	//   __  __       _   _       _____                 _   _
 	//  |  \/  | __ _| |_| |__   |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
 	//  | |\/| |/ _` | __| '_ \  | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|

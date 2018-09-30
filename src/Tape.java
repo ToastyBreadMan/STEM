@@ -45,18 +45,10 @@ public class Tape{
     }
 
     public void centerTapeDisplay() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                tapeDisplayOffset = tapeHead - tapeWidth.get() / 2;
-            }
-        });
+        tapeDisplayOffset = tapeHead - tapeWidth.get() / 2;
     }
 
     public void refreshTapeDisplay() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
                 int index = tapeDisplayOffset;
                 Character[] tapeChars = getTapeAsArray();
                 int size = tapeChars.length;
@@ -83,13 +75,12 @@ public class Tape{
                 index = tapeDisplayOffset;
                 for(Node n: headDisplay.getChildren()) {
                     if (n instanceof StackPane) {
-                        for (Node b: ((StackPane) n).getChildren()) {
+                        for (Node b : ((StackPane) n).getChildren()) {
                             if (b instanceof Label) {
-                                if(index == getTapeHead()) {
+                                if (index == getTapeHead()) {
                                     ((Label) b).setText("↓");
                                     ((Label) b).setFont(Font.font(20));
-                                }
-                                else {
+                                } else {
                                     ((Label) b).setText(" ");
                                 }
                             }
@@ -97,8 +88,6 @@ public class Tape{
                     }
                     index++;
                 }
-            }
-        });
 
     }
 

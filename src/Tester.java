@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -16,6 +17,38 @@ public class Tester {
         return succeeded;
     }
 
+    public Transition nextTransition(State currentState, Tape tape){
+        Character curChar = tape.currentTapeVal();
+        Transition curTransition = null;
+
+        // Set the color of the selected State
+        if(currentState.getCircle() != null){
+            currentState.getCircle().setFill(Color.GREENYELLOW);
+        }
+
+        // Find the transition where the current tape char is
+        // equal to the first transition's readChar
+        for(Transition t : currentState.getTransition()){
+            if(t.getReadChar() == curChar && t.getFromState() == currentState){
+                curTransition = t;
+                break;
+            }
+        }
+
+        // If no Transition is found, search for a transition
+        // with no read char. I.E. catchall transition
+        if(curTransition == null){
+            for(Transition t : currentState.getTransition()){
+                if(t.getFromState() == currentState && t.getReadChar() == '~'){
+                    curTransition = t;
+                    break;
+                }
+            }
+        }
+
+        return curTransition;
+    }
+
     public void runMachine(Machine m) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
@@ -32,71 +65,28 @@ public class Tester {
         int waitTime = m.getSpeed();
 
         loops = 0;
+
         // Main body
-        while(true) {
-            Character curChar = tape.currentTapeVal();
-            Transition curTransition = null;
 
-            // Set the color of the selected State
-            if(currentState.getCircle() != null){
-                currentState.getCircle().setFill(Color.GREENYELLOW);
-            }
-
-            // Find the transition where the current tape char is
-            // equal to the first transition's readChar
-            for(Transition t : currentState.getTransition()){
-                if(t.getReadChar() == curChar && t.getFromState() == currentState){
-                    curTransition = t;
-                    break;
-                }
-            }
-
-            // If no Transition is found, search for a transition
-            // with no read char. I.E. catchall transition
-            if(curTransition == null){
-                for(Transition t : currentState.getTransition()){
-                    if(t.getFromState() == currentState && t.getReadChar() == '~'){
-                        curTransition = t;
-                        break;
-                    }
-                }
-            }
-
-            // If no transition is found still, exit the Machine
-            if(curTransition == null){
-
-                TimeUnit.MILLISECONDS.sleep(waitTime);
-                if(currentState.getCircle() != null) {
-                    currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-                }
-
-                failReason = String.format("State %s is not an accept state", currentState.getName());
-                succeeded = currentState.isAccept();
-                return;
-            }
-
-            // Set color of the selected Transition
-            /*
-            if(curTransition.getLine() != null){
-                curTransition.getLine().setFill(Color.YELLOWGREEN);
-            }
-            */
+        Transition next = this.nextTransition(currentState, m.getTape());
+        while(next != null) {
 
             // If the writeChar is the null character do not write anything
-            if(curTransition.getWriteChar() != '~'){
+            if(next.getWriteChar() != '~'){
                 try{
-                    tape.setTape(curTransition.getWriteChar());
+                    tape.setTape(next.getWriteChar());
                 } catch (Exception e){
-                    failReason = String.format("Cannot set %c to tape location %d", curTransition.getWriteChar(), tape.getTapeHead());
+                    failReason = String.format("Cannot set %c to tape location %d", next.getWriteChar(), tape.getTapeHead());
                     throw e;
                 }
             }
 
             System.out.printf("Going from State %s to %s along Transition %c ; %c ; %c\n",
-                    currentState.getName(), curTransition.getToState().getName(),
-                    curTransition.getReadChar(), curTransition.getWriteChar(), curTransition.getMoveDirection().toString().charAt(0));
+                    currentState.getName(), next.getToState().getName(),
+                    next.getReadChar(), next.getWriteChar(), next.getMoveDirection().toString().charAt(0));
+
             TimeUnit.MILLISECONDS.sleep(waitTime);
-            switch(curTransition.getMoveDirection()){
+            switch(next.getMoveDirection()){
                 case LEFT:
                     tape.left();
                     break;
@@ -106,26 +96,32 @@ public class Tester {
                 case STAY:
                     break;
             }
-            m.getTape().centerTapeDisplay();
-            m.getTape().refreshTapeDisplay();
+
+            Platform.runLater(() -> {
+                m.getTape().centerTapeDisplay();
+                m.getTape().refreshTapeDisplay();
+            });
 
             // Reset Colors
             if(currentState.getCircle() != null) {
                 currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
             }
 
-            currentState = curTransition.getToState();
-
-            System.out.print("|");
-            for(Character c : tape.getTapeAsArray()){
-                System.out.printf("%c|", c);
-            }
-            System.out.print("\n");
+            currentState = next.getToState();
+            next = this.nextTransition(currentState, m.getTape());
 
             loops++;
             // TODO: prompt user if loop goes over X iterations
             if(loops % 1000 == 0){
             }
         }
+        m.getTape().centerTapeDisplay();
+        m.getTape().refreshTapeDisplay();
+
+        TimeUnit.MILLISECONDS.sleep(waitTime);
+        if(currentState.getCircle() != null) {
+            currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+        }
+        this.succeeded = currentState.isAccept();
     }
 }
