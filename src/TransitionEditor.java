@@ -88,7 +88,7 @@ public class TransitionEditor {
         ToggleGroup col3Toggle = new ToggleGroup();
         ToggleButton left = new ToggleButton("<-");
         ToggleButton right = new ToggleButton("->");
-        ToggleButton none = new ToggleButton("N");
+        ToggleButton none = new ToggleButton("S");
 
         left.setUserData(Transition.Direction.LEFT);
         left.setToggleGroup(col3Toggle);

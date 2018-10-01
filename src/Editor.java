@@ -219,6 +219,8 @@ class Editor {
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		// Run Machine with options for speed
+		MenuItem manualControl = new MenuItem("Manual");
+		manualControl.setOnAction(e -> currentMachine.setSpeed(-1));
 		MenuItem slow = new MenuItem("Slow");
 		slow.setOnAction(e -> currentMachine.setSpeed(500));
 		MenuItem normal = new MenuItem("Normal");
@@ -227,10 +229,8 @@ class Editor {
 		fast.setOnAction(e -> currentMachine.setSpeed(75));
 		MenuItem noDelay = new MenuItem("No Delay");
 		noDelay.setOnAction(e -> currentMachine.setSpeed(0));
-		MenuItem manualControl = new MenuItem("Manual");
-		manualControl.setOnAction(e -> currentMachine.setSpeed(-1));
 
-		SplitMenuButton runMachine = new SplitMenuButton(slow, normal, fast, noDelay, manualControl);
+		SplitMenuButton runMachine = new SplitMenuButton(manualControl, slow, normal, fast, noDelay);
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
@@ -818,24 +818,6 @@ class Editor {
 
 			ArrayList<MachineStep> machineSteps = new ArrayList<>();
 
-			thisButton.setText("Stop Machine");
-			thisButton.setOnAction(event -> {
-				editorSpace.getChildren().remove(t);
-
-				currentMachine.getTape().refreshTapeDisplay();
-
-				for (State s : currentMachine.getStates())
-					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-
-				for (Node b : args)
-					b.setDisable(false);
-
-				machineSteps.clear();
-
-				thisButton.setText("Run Machine");
-				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
-			});
-
 			currentMachine.getTape().centerTapeDisplay();
 			currentMachine.getTape().refreshTapeDisplay();
 
@@ -844,23 +826,22 @@ class Editor {
 				public void handle(KeyEvent keyEvent) {
 					if (keyEvent.getCode() == KeyCode.ESCAPE) {
 						thisButton.fire();
+						System.out.println("ESC");
 
-						window.removeEventHandler(KeyEvent.KEY_PRESSED, this);
 						keyEvent.consume();
 					}
 					else if(keyEvent.getCode() == KeyCode.RIGHT) {
 						State currentState;
-
 
 						if(machineSteps.size() == 0){
 							currentState = currentMachine.getStartState();
 						}
 						else{
 							System.out.println(machineSteps.get(machineSteps.size()-1).getTransition().toString());
-							machineSteps.get(machineSteps.size()-1).getTransition().getFromState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 							currentState = machineSteps.get(machineSteps.size()-1).getTransition().getToState();
 						}
 
+						System.out.printf("Current State = %s\n", currentState.getName());
 						Transition next = tester.nextTransition(currentState, currentMachine.getTape());
 
 						if(next == null) {
@@ -877,15 +858,19 @@ class Editor {
 								alert.setContentText(tester.getFailReason());
 							}
 
+							currentMachine.getTape().centerTapeDisplay();
+							currentMachine.getTape().refreshTapeDisplay();
+
 							alert.showAndWait();
 							keyEvent.consume();
 							return;
 						}
 
+						System.out.printf("Next = %c %c %s\n", next.getReadChar(), next.getWriteChar(), next.getMoveDirection().toString());
 						machineSteps.add(new MachineStep(next, currentMachine.getTape().currentTapeVal()));
 
-						currentMachine.getTape().centerTapeDisplay();
-						currentMachine.getTape().refreshTapeDisplay();
+						next.getFromState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+						next.getToState().getCircle().setFill(Color.GREENYELLOW);
 
 						if(next.getWriteChar() != '~'){
 							try{
@@ -906,16 +891,75 @@ class Editor {
 								break;
 						}
 
+						currentMachine.getTape().centerTapeDisplay();
+						currentMachine.getTape().refreshTapeDisplay();
 
 						keyEvent.consume();
 					}
 					else if(keyEvent.getCode() == KeyCode.LEFT){
+						System.out.println("Left");
+						if(machineSteps.size() == 0){
+							return;
+						}
+
+						MachineStep lastStep = machineSteps.get(machineSteps.size()-1);
+						System.out.printf("Next = %c %c %s\n", lastStep.getTransition().getReadChar(), lastStep.getTransition().getWriteChar(), lastStep.getTransition().getMoveDirection().toString());
+
+
+						lastStep.getTransition().getToState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+
+						switch(lastStep.getTransition().getMoveDirection()){
+							case LEFT:
+								currentMachine.getTape().right();
+								break;
+							case RIGHT:
+								currentMachine.getTape().left();
+								break;
+							case STAY:
+								break;
+						}
+
+						try {
+							currentMachine.getTape().setTape(lastStep.getChar());
+						} catch (Exception e){
+							showException(e);
+						}
+
+						lastStep.getTransition().getFromState().getCircle().setFill(Color.GREENYELLOW);
+
+						currentMachine.getTape().centerTapeDisplay();
+						currentMachine.getTape().refreshTapeDisplay();
+
+						machineSteps.remove(machineSteps.size()-1);
+
 						keyEvent.consume();
 					}
+					t.requestFocus();
 				}
 			};
 
+			thisButton.setText("Stop Machine");
+			thisButton.setOnAction(event -> {
+				editorSpace.getChildren().remove(t);
+
+				currentMachine.getTape().refreshTapeDisplay();
+
+				for (State s : currentMachine.getStates())
+					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+
+				for (Node b : args)
+					b.setDisable(false);
+
+				machineSteps.clear();
+				window.removeEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+
+				System.out.println(machineSteps.size());
+				thisButton.setText("Run Machine");
+				thisButton.setOnAction(event1 -> runMachine(thisButton, args));
+			});
+
 			window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+			currentMachine.getStartState().getCircle().setFill(Color.GREENYELLOW);
 			t.requestFocus();
 		}
 		else {

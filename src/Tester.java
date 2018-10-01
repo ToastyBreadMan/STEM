@@ -21,10 +21,6 @@ public class Tester {
         Character curChar = tape.currentTapeVal();
         Transition curTransition = null;
 
-        // Set the color of the selected State
-        if(currentState.getCircle() != null){
-            currentState.getCircle().setFill(Color.GREENYELLOW);
-        }
 
         // Find the transition where the current tape char is
         // equal to the first transition's readChar
@@ -71,6 +67,11 @@ public class Tester {
         Transition next = this.nextTransition(currentState, m.getTape());
         while(next != null) {
 
+            // Set the color of the selected State
+            if(currentState.getCircle() != null){
+                currentState.getCircle().setFill(Color.GREENYELLOW);
+            }
+
             // If the writeChar is the null character do not write anything
             if(next.getWriteChar() != '~'){
                 try{
@@ -115,8 +116,14 @@ public class Tester {
             if(loops % 1000 == 0){
             }
         }
-        m.getTape().centerTapeDisplay();
-        m.getTape().refreshTapeDisplay();
+
+        if(currentState != null)
+            currentState.getCircle().setFill(Color.GREENYELLOW);
+
+        Platform.runLater(() -> {
+            m.getTape().centerTapeDisplay();
+            m.getTape().refreshTapeDisplay();
+        });
 
         TimeUnit.MILLISECONDS.sleep(waitTime);
         if(currentState.getCircle() != null) {
