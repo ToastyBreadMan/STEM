@@ -819,6 +819,10 @@ class Editor {
 
 		Tester tester = new Tester();
 
+		if(currentMachine.getTape().getSize() < 0){
+			currentMachine.getTape().initTape(new ArrayList<>(' '));
+		}
+
 		if(currentMachine.getSpeed() == -1){
 			ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
 					() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());

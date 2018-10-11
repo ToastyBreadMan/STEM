@@ -97,6 +97,9 @@ public class Main extends Application {
 		BorderPane menuLayout = new BorderPane(); 				//outer Borderpane to hold menubar
 		menuLayout.setTop(menuBar);
 
+		//Delete this once help menu is better
+		helpButton.setDisable(true);
+
 		buttonLayout.getChildren().addAll(label0, label1, newMachineButton, loadMachineButton, helpButton); //, closebutton.getCloseButton());
 
 		menuLayout.setCenter(buttonLayout);
