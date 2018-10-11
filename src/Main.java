@@ -43,7 +43,7 @@ public class Main extends Application {
 		window.setMinHeight(400);
 		initMenu();
 		window.setScene(menu);
-		window.setTitle("Definitely NOT JFlap");
+		window.setTitle("STEM");
 		window.show();
 
 	}
@@ -71,7 +71,7 @@ public class Main extends Application {
 		ObjectExpression<Font> fontTrack = Bindings.createObjectBinding(
 				() -> Font.font(buttonLayout.getWidth() / 25), buttonLayout.widthProperty());
 
-		Label label0 = new Label("Welcome to the Turing Machine Simulator!");
+		Label label0 = new Label("Welcome to the Simple Turing machine EMulator!");
 		Label label1 = new Label("To begin, create a new machine.");
 
 		label0.fontProperty().bind(fontTrack);
