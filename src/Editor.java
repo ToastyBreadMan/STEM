@@ -78,9 +78,9 @@ class Editor {
 		this.tapeArea = tapeArea;
 		editorSpace = new Pane();
 
-		pane.setTop(initMenuBar(window, prev));
 		pane.setCenter(editorSpace);
 		pane.setBottom(tapeArea);
+		pane.setTop(initMenuBar(window, prev));
 
 		editor = new Scene(pane, 500, 500);
 
