@@ -407,7 +407,24 @@ class Editor {
 			editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 		});
 
-		contextMenu.getItems().addAll(setStart, toggleAccept, moveState);
+		MenuItem setBreak = new MenuItem("Set Breakpoint");
+		setBreak.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+			if(!s.isDebug()){
+				s.setDebug(true);
+				s.getCircle().setStroke(Color.RED);
+				System.out.printf("State %s is breakpoint = %s\n", s.getName(), s.isDebug());
+			}
+			else {
+				s.setDebug(false);
+				s.getCircle().setStroke(Color.BLACK);
+				System.out.printf("State %s is breakpoint = %s\n", s.getName(), s.isDebug());
+			}
+
+
+		});
+
+		contextMenu.getItems().addAll(setStart, toggleAccept, moveState, setBreak);
 
 		return contextMenu;
 	}

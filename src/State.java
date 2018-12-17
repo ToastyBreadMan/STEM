@@ -25,6 +25,7 @@ class State {
 	private double y;
 	private boolean start;
 	private boolean accept;
+	private boolean debug;
 	private Circle circle;
 	private Circle acceptCircle;
 	private ArrayList<Transition> transition;
@@ -120,4 +121,8 @@ class State {
 	public void setTransition(ArrayList<Transition> transition) {
 		this.transition = transition;
 	}
+
+	public void setDebug(boolean debug) { this.debug = debug; }
+
+	public boolean isDebug() {return debug;}
 }
