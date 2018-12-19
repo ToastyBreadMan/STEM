@@ -1004,10 +1004,14 @@ class Editor {
 					try {
 						trackerState = currentMachine.getStartState();
 						if(trackerState != null) {
+
 							trackerState = tester.runMachine(currentMachine, trackerState);
 							while (trackerState.isDebug()) {
 								trackerState = tester.runMachine(currentMachine, trackerState);
 							}
+						}
+						else{
+							tester.setFailReason("Machine has no start state!");
 						}
 					} catch (Exception e) {
 						showException(e);

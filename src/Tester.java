@@ -25,6 +25,8 @@ public class Tester {
     private int loops;
     private boolean cont;
 
+    public void setFailReason(String reason) { failReason = reason; }
+
     public String getFailReason() {
         return failReason;
     }
