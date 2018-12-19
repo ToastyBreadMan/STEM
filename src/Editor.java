@@ -57,6 +57,7 @@ class Editor {
 	private EventHandler<MouseEvent> currentHandler;
 	private ArrayList<Integer> deletedValues = new ArrayList<>();
 	private State transitionFromState;
+	private State trackerState;
 	private int stateNextVal = 0;
 	private int circleRadius;
 	private Polygon startTriangle;
@@ -1001,7 +1002,13 @@ class Editor {
 				@Override
 				public Void call() {
 					try {
-						tester.runMachine(currentMachine);
+						trackerState = currentMachine.getStartState();
+						if(trackerState != null) {
+							trackerState = tester.runMachine(currentMachine, trackerState);
+							while (trackerState.isDebug()) {
+								trackerState = tester.runMachine(currentMachine, trackerState);
+							}
+						}
 					} catch (Exception e) {
 						showException(e);
 					}

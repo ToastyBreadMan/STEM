@@ -14,6 +14,9 @@
  */
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
+    private boolean cont;
 
     public String getFailReason() {
         return failReason;
@@ -60,17 +64,17 @@ public class Tester {
         return curTransition;
     }
 
-    public void runMachine(Machine m) throws Exception{
+    public State runMachine(Machine m, State startState) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
         Tape tape = m.getTape();
 
         // Fail if there is no start state
-        currentState = m.getStartState();
-        if(currentState == null){
+        currentState = startState;
+       if(currentState == null){
             failReason = "Machine has no start state!";
             succeeded = false;
-            return;
+            return null;
         }
 
         int waitTime = m.getSpeed();
@@ -81,6 +85,7 @@ public class Tester {
 
         Transition next = this.nextTransition(currentState, m.getTape());
         while(next != null) {
+
 
             // Set the color of the selected State
             if(currentState.getCircle() != null){
@@ -130,6 +135,11 @@ public class Tester {
             // TODO: prompt user if loop goes over X iterations
             if(loops % 1000 == 0){
             }
+
+            //Detect breakpoints
+            if(currentState.isDebug()){
+                return currentState;
+            }
         }
 
         if(currentState != null)
@@ -145,5 +155,8 @@ public class Tester {
             currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
         }
         this.succeeded = currentState.isAccept();
+        return currentState;
     }
+
+
 }
