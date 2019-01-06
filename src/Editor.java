@@ -1006,8 +1006,43 @@ class Editor {
 						if(trackerState != null) {
 
 							trackerState = tester.runMachine(currentMachine, trackerState);
+
 							while (trackerState.isDebug()) {
-								trackerState = tester.runMachine(currentMachine, trackerState);
+								ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
+										() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
+
+								//Text t = new Text( "<Right Arrow> Continue with state in debug  <Up Arrow> Continue and revert state to normal  <Esc> Stop Machine");
+								//t.xProperty().bind(editorSpace.widthProperty().divide(10));
+								//t.yProperty().bind(editorSpace.heightProperty());
+								//t.fontProperty().bind(textTrack);
+								//editorSpace.getChildren().add(t);
+
+								tester.setCont(true);
+								EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
+									@Override
+									public void handle(KeyEvent keyEvent) {
+										if (keyEvent.getCode() == KeyCode.ESCAPE) {
+											thisButton.fire();
+											System.out.println("ESC");
+
+											keyEvent.consume();
+
+										} else if (keyEvent.getCode() == KeyCode.RIGHT) {
+											trackerState.setDebug(true);
+											keyEvent.consume();
+										} else if (keyEvent.getCode() == KeyCode.UP) {
+											trackerState.setDebug(false);
+											keyEvent.consume();
+										}
+									}
+								};
+								window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
+								//t.requestFocus();
+								if(tester.isCont()) {
+									trackerState = tester.runMachine(currentMachine, trackerState);
+								}
+								else{ break; }
+
 							}
 						}
 						else{

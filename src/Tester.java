@@ -25,6 +25,14 @@ public class Tester {
     private int loops;
     private boolean cont;
 
+    public boolean isCont() {
+        return cont;
+    }
+
+    public void setCont(boolean cont) {
+        this.cont = cont;
+    }
+
     public void setFailReason(String reason) { failReason = reason; }
 
     public String getFailReason() {
