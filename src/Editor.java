@@ -13,6 +13,7 @@
  *     GNU General Public License for more details.
  */
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
 import javafx.concurrent.Task;
@@ -44,6 +45,7 @@ import javafx.stage.Stage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -1003,52 +1005,53 @@ class Editor {
 				public Void call() {
 					try {
 						trackerState = currentMachine.getStartState();
-						if(trackerState != null) {
+						if (trackerState != null) {
 
 							trackerState = tester.runMachine(currentMachine, trackerState);
 
 							while (trackerState.isDebug()) {
-								ObjectExpression<Font> textTrack = Bindings.createObjectBinding(
-										() -> Font.font(Math.min(editorSpace.getWidth() / 55, 20)), editorSpace.widthProperty());
-
-								//Text t = new Text( "<Right Arrow> Continue with state in debug  <Up Arrow> Continue and revert state to normal  <Esc> Stop Machine");
-								//t.xProperty().bind(editorSpace.widthProperty().divide(10));
-								//t.yProperty().bind(editorSpace.heightProperty());
-								//t.fontProperty().bind(textTrack);
-								//editorSpace.getChildren().add(t);
-
-								tester.setCont(true);
-								EventHandler<KeyEvent> keyPress = new EventHandler<KeyEvent>() {
+								final CountDownLatch waitForInput = new CountDownLatch(1);
+								Platform.runLater(new Runnable() {
 									@Override
-									public void handle(KeyEvent keyEvent) {
-										if (keyEvent.getCode() == KeyCode.ESCAPE) {
-											thisButton.fire();
-											System.out.println("ESC");
+									public void run() {
+										Alert alert = new Alert(Alert.AlertType.ERROR);
+										alert.initOwner(window);
+										alert.initModality(Modality.APPLICATION_MODAL);
+										ButtonType moreDebug = new ButtonType("Continue with breakpoint set");
+										ButtonType lessDebug = new ButtonType("Continue and disable breakpoint");
+										ButtonType Cancel = new ButtonType("Stop");
 
-											keyEvent.consume();
-
-										} else if (keyEvent.getCode() == KeyCode.RIGHT) {
+										alert.setHeaderText("Breakpoint hit");
+										alert.getButtonTypes().setAll(moreDebug, lessDebug, Cancel);
+										Optional<ButtonType> method = alert.showAndWait();
+										if (method.get() == moreDebug) {
 											trackerState.setDebug(true);
-											keyEvent.consume();
-										} else if (keyEvent.getCode() == KeyCode.UP) {
+											tester.setCont(true);
+										} else if (method.get() == lessDebug) {
 											trackerState.setDebug(false);
-											keyEvent.consume();
+											tester.setCont(true);
 										}
+										else{
+											tester.setCont(false);
+										}
+										alert.showAndWait();
+										waitForInput.countDown();
 									}
-								};
-								window.addEventHandler(KeyEvent.KEY_RELEASED, keyPress);
-								//t.requestFocus();
-								if(tester.isCont()) {
+								});
+								waitForInput.await();
+								if(!(tester.isCont())){
+									this.cancel();
+								}
+								else{
 									trackerState = tester.runMachine(currentMachine, trackerState);
 								}
-								else{ break; }
-
-							}
 						}
+					}
 						else{
-							tester.setFailReason("Machine has no start state!");
-						}
-					} catch (Exception e) {
+						tester.setFailReason("Machine has no start state!");
+					}
+				}
+			catch (Exception e) {
 						showException(e);
 					}
 					return null;
