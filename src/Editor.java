@@ -1010,35 +1010,40 @@ class Editor {
 							trackerState = tester.runMachine(currentMachine, trackerState);
 
 							while (trackerState.isDebug()) {
+								trackerState.getCircle().setFill(Color.GREENYELLOW);
 								final CountDownLatch waitForInput = new CountDownLatch(1);
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {
-										Alert alert = new Alert(Alert.AlertType.ERROR);
-										alert.initOwner(window);
-										alert.initModality(Modality.APPLICATION_MODAL);
+
+										Alert debugLog = new Alert(Alert.AlertType.ERROR);
+										debugLog.initOwner(window);
+										debugLog.initModality(Modality.APPLICATION_MODAL);
 										ButtonType moreDebug = new ButtonType("Continue with breakpoint set");
 										ButtonType lessDebug = new ButtonType("Continue and disable breakpoint");
 										ButtonType Cancel = new ButtonType("Stop");
 
-										alert.setHeaderText("Breakpoint hit");
-										alert.getButtonTypes().setAll(moreDebug, lessDebug, Cancel);
-										Optional<ButtonType> method = alert.showAndWait();
+										debugLog.setHeaderText("Breakpoint hit");
+										debugLog.getButtonTypes().setAll(moreDebug, lessDebug, Cancel);
+										Optional<ButtonType> method = debugLog.showAndWait();
 										if (method.get() == moreDebug) {
 											trackerState.setDebug(true);
+											trackerState.getCircle().setStroke(Color.RED);
 											tester.setCont(true);
 										} else if (method.get() == lessDebug) {
 											trackerState.setDebug(false);
+											trackerState.getCircle().setStroke(Color.BLACK);
 											tester.setCont(true);
 										}
 										else{
 											tester.setCont(false);
 										}
-										alert.showAndWait();
+
 										waitForInput.countDown();
 									}
 								});
 								waitForInput.await();
+
 								if(!(tester.isCont())){
 									this.cancel();
 								}
