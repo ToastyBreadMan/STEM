@@ -1036,6 +1036,7 @@ class Editor {
 											tester.setCont(true);
 										}
 										else{
+											trackerState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
 											tester.setCont(false);
 										}
 
@@ -1045,7 +1046,7 @@ class Editor {
 								waitForInput.await();
 
 								if(!(tester.isCont())){
-									this.cancel();
+									break;
 								}
 								else{
 									trackerState = tester.runMachine(currentMachine, trackerState);
