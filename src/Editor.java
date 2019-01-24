@@ -40,6 +40,7 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.io.PrintWriter;
@@ -410,6 +411,31 @@ class Editor {
 			editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 		});
 
+		MenuItem setColor = new MenuItem("Set Color");
+		setColor.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+			ColorPicker stateChanger = new ColorPicker(Color.LIGHTGOLDENRODYELLOW);
+			Dialog<Color> pickerWindow = new Dialog<>();
+			pickerWindow.setTitle("Color Picker");
+			pickerWindow.setHeaderText("Select a state color");
+			pickerWindow.getDialogPane().getButtonTypes().add(ButtonType.OK);
+			pickerWindow.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+			GridPane grid = new GridPane();
+			grid.add(stateChanger, 1, 0);
+			pickerWindow.getDialogPane().setContent(grid);
+			pickerWindow.setResultConverter(dialogButton -> {
+				if(dialogButton == ButtonType.OK){
+					return stateChanger.getValue();
+				}
+						return null;
+			}
+			);
+			Optional<Color> newcolor = pickerWindow.showAndWait();
+			if(newcolor.isPresent()){
+				s.getCircle().setFill(newcolor.get());
+			}
+		});
+
 		MenuItem setBreak = new MenuItem("Set Breakpoint");
 		setBreak.setOnAction(event -> {
 			State s = (State) contextMenu.getOwnerNode().getUserData();
@@ -427,7 +453,7 @@ class Editor {
 
 		});
 
-		contextMenu.getItems().addAll(setStart, toggleAccept, moveState, setBreak);
+		contextMenu.getItems().addAll(setStart, toggleAccept, moveState, setBreak, setColor);
 
 		return contextMenu;
 	}
