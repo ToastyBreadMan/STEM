@@ -132,7 +132,6 @@ class State {
 	public boolean isDebug() {return debug;}
 
 	public void setColor(Color c){
-		this.circle.setFill(c);
 		this.baseColor = c;
 	}
 

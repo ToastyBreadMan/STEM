@@ -433,6 +433,7 @@ class Editor {
 			Optional<Color> newcolor = pickerWindow.showAndWait();
 			if(newcolor.isPresent()){
 				s.setColor(newcolor.get());
+				s.getCircle().setFill(newcolor.get());
 			}
 		});
 
