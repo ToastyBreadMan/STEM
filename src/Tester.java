@@ -132,7 +132,7 @@ public class Tester {
 
             // Reset Colors
             if(currentState.getCircle() != null) {
-                currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+                currentState.setColor(currentState.getBaseColor());
             }
 
             currentState = next.getToState();
@@ -159,7 +159,7 @@ public class Tester {
 
         TimeUnit.MILLISECONDS.sleep(waitTime);
         if(currentState.getCircle() != null) {
-            currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+            currentState.setColor(currentState.getBaseColor());
         }
         this.succeeded = currentState.isAccept();
         return currentState;

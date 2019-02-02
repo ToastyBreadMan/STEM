@@ -14,6 +14,7 @@
  */
 
 import javafx.scene.control.Alert;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;

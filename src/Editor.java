@@ -432,7 +432,7 @@ class Editor {
 			);
 			Optional<Color> newcolor = pickerWindow.showAndWait();
 			if(newcolor.isPresent()){
-				s.getCircle().setFill(newcolor.get());
+				s.setColor(newcolor.get());
 			}
 		});
 
@@ -584,6 +584,7 @@ class Editor {
 						c.setId(name);
 						c.setStrokeWidth(2);
 						c.setStroke(Color.BLACK);
+
 
 						Text t = new Text(name);
 						t.setId(name);

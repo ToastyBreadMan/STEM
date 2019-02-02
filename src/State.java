@@ -13,6 +13,7 @@
  *     GNU General Public License for more details.
  */
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
@@ -26,12 +27,15 @@ class State {
 	private boolean start;
 	private boolean accept;
 	private boolean debug;
+	private Color baseColor;
+	private Color currColor;
 	private Circle circle;
 	private Circle acceptCircle;
 	private ArrayList<Transition> transition;
 
 	public State(){
 		transition = new ArrayList<>();
+		this.baseColor = Color.LIGHTGOLDENRODYELLOW;
 	}
 
 	public State(String name, double x, double y){
@@ -48,6 +52,7 @@ class State {
 		this.label = label;
 		this.circle = circle;
 		transition = new ArrayList<>();
+		this.baseColor = Color.LIGHTGOLDENRODYELLOW;
 	}
 
 	public String getName() {
@@ -125,4 +130,17 @@ class State {
 	public void setDebug(boolean debug) { this.debug = debug; }
 
 	public boolean isDebug() {return debug;}
+
+	public void setColor(Color c){
+		this.circle.setFill(c);
+		this.baseColor = c;
+	}
+
+	public Color getBaseColor(){
+		return baseColor;
+	}
+
+	public Color getCurrColor(){
+		return currColor;
+	}
 }
