@@ -529,7 +529,7 @@ class Editor {
 			if(currentHandler != null)
 				editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			if(transitionFromState != null){
-				transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+				transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 				transitionFromState = null;
 			}
 			for (Path p : currentMachine.getPaths())
@@ -717,8 +717,8 @@ class Editor {
 									Transition t = addTransition(transitionFromState, s);
 
 									if(t == null){
-										transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-										s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+										transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
+										s.getCircle().setFill(s.getBaseColor());
 										transitionFromState = null;
 
 										return;
@@ -755,15 +755,15 @@ class Editor {
 										if(n instanceof Line || n instanceof CubicCurve)
 											n.toBack();
 
-									s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-									transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+									s.getCircle().setFill(s.getBaseColor());
+									transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 									transitionFromState = null;
 								}
 							}
 						}
 						else{
 							if(transitionFromState != null)
-								transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+								transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 							transitionFromState = null;
 						}
 
@@ -934,7 +934,7 @@ class Editor {
 						System.out.printf("Next = %c %c %s\n", next.getReadChar(), next.getWriteChar(), next.getMoveDirection().toString());
 						machineSteps.add(new MachineStep(next, currentMachine.getTape().currentTapeVal()));
 
-						next.getFromState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+						next.getFromState().getCircle().setFill(next.getFromState().getBaseColor());
 						next.getToState().getCircle().setFill(Color.GREENYELLOW);
 
 						if(next.getWriteChar() != '~'){
@@ -971,7 +971,7 @@ class Editor {
 						System.out.printf("Next = %c %c %s\n", lastStep.getTransition().getReadChar(), lastStep.getTransition().getWriteChar(), lastStep.getTransition().getMoveDirection().toString());
 
 
-						lastStep.getTransition().getToState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+						lastStep.getTransition().getToState().getCircle().setFill(lastStep.getTransition().getToState().getBaseColor());
 
 						switch(lastStep.getTransition().getMoveDirection()){
 							case LEFT:
@@ -1010,7 +1010,7 @@ class Editor {
 				currentMachine.getTape().refreshTapeDisplay();
 
 				for (State s : currentMachine.getStates())
-					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+					s.getCircle().setFill(s.getBaseColor());
 
 				for (Node b : args)
 					b.setDisable(false);
@@ -1064,7 +1064,7 @@ class Editor {
 											tester.setCont(true);
 										}
 										else{
-											trackerState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+											trackerState.getCircle().setFill(trackerState.getBaseColor());
 											tester.setCont(false);
 										}
 
@@ -1119,7 +1119,7 @@ class Editor {
 				currentMachine.getTape().refreshTapeDisplay();
 
 				for (State s : currentMachine.getStates())
-					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+					s.getCircle().setFill(s.getBaseColor());
 
 				for (Node b : args)
 					b.setDisable(false);
@@ -1152,7 +1152,7 @@ class Editor {
 			editorSpace.getChildren().remove(s.getAcceptCircle());
 
 
-		Circle c = new Circle(s.getX(), s.getY(), circleRadius, Color.LIGHTGOLDENRODYELLOW);
+		Circle c = new Circle(s.getX(), s.getY(), circleRadius, s.getBaseColor());
 		c.setId(s.getName());
 		c.setStrokeWidth(2);
 		c.setStroke(Color.BLACK);

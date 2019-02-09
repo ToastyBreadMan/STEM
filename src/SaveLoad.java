@@ -15,6 +15,7 @@
 
 import javafx.scene.control.Alert;
 
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -25,6 +26,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -255,7 +257,7 @@ public class SaveLoad {
         // () are used to create groups that can be read later.
         // ? Is used for optional information
         // + means read more of the same until finished
-        Pattern statePattern = Pattern.compile("\t(-?\\d+) (\\d+.\\d+) (\\d+.\\d+) (\\w+) (\\w+)");
+        Pattern statePattern = Pattern.compile("\t(-?\\d+) (\\d+.\\d+) (\\d+.\\d+) (\\w+) (\\w+)( (\\d*.\\d*) (\\d*.\\d*) (\\d*.\\d*) (\\d*.\\d*))?");
         Pattern transitionPattern = Pattern.compile("\t(-?\\d+) (-?\\d+) (\\p{ASCII}) (\\p{ASCII}) (\\w+)");
 
         // Read until beginning of states
@@ -277,6 +279,12 @@ public class SaveLoad {
                 newState.setY(Double.parseDouble(stateMatcher.group(3)));
                 if (Boolean.parseBoolean(stateMatcher.group(4))) loadMachine.setStartState(newState);
                 newState.setAccept(Boolean.parseBoolean(stateMatcher.group(5)));
+                String k = stateMatcher.group(6);
+                if(k != null){
+                    Scanner colGrabber = new Scanner(k);
+                    Color nucolor = new Color(colGrabber.nextDouble(), colGrabber.nextDouble(), colGrabber.nextDouble(), colGrabber.nextDouble());
+                    newState.setColor(nucolor);
+                }
 
                 // Add state to machine
                 loadMachine.addState(newState);
