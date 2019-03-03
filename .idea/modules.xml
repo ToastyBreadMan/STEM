@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JFlap-ish.iml" filepath="$PROJECT_DIR$/JFlap-ish.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/STEM.iml" filepath="$PROJECT_DIR$/.idea/STEM.iml" />
     </modules>
   </component>
 </project>

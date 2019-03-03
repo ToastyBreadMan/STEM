@@ -13,6 +13,7 @@
  *     GNU General Public License for more details.
  */
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
 import javafx.concurrent.Task;
@@ -39,11 +40,13 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -57,6 +60,7 @@ class Editor {
 	private EventHandler<MouseEvent> currentHandler;
 	private ArrayList<Integer> deletedValues = new ArrayList<>();
 	private State transitionFromState;
+	private State trackerState;
 	private int stateNextVal = 0;
 	private int circleRadius;
 	private Polygon startTriangle;
@@ -407,7 +411,50 @@ class Editor {
 			editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 		});
 
-		contextMenu.getItems().addAll(setStart, toggleAccept, moveState);
+		MenuItem setColor = new MenuItem("Set Color");
+		setColor.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+			ColorPicker stateChanger = new ColorPicker(Color.LIGHTGOLDENRODYELLOW);
+			Dialog<Color> pickerWindow = new Dialog<>();
+			pickerWindow.setTitle("Color Picker");
+			pickerWindow.setHeaderText("Select a state color");
+			pickerWindow.getDialogPane().getButtonTypes().add(ButtonType.OK);
+			pickerWindow.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+			GridPane grid = new GridPane();
+			grid.add(stateChanger, 1, 0);
+			pickerWindow.getDialogPane().setContent(grid);
+			pickerWindow.setResultConverter(dialogButton -> {
+				if(dialogButton == ButtonType.OK){
+					return stateChanger.getValue();
+				}
+						return null;
+			}
+			);
+			Optional<Color> newcolor = pickerWindow.showAndWait();
+			if(newcolor.isPresent()){
+				s.setColor(newcolor.get());
+				s.getCircle().setFill(newcolor.get());
+			}
+		});
+
+		MenuItem setBreak = new MenuItem("Set Breakpoint");
+		setBreak.setOnAction(event -> {
+			State s = (State) contextMenu.getOwnerNode().getUserData();
+			if(!s.isDebug()){
+				s.setDebug(true);
+				s.getCircle().setStroke(Color.RED);
+				System.out.printf("State %s is breakpoint = %s\n", s.getName(), s.isDebug());
+			}
+			else {
+				s.setDebug(false);
+				s.getCircle().setStroke(Color.BLACK);
+				System.out.printf("State %s is breakpoint = %s\n", s.getName(), s.isDebug());
+			}
+
+
+		});
+
+		contextMenu.getItems().addAll(setStart, toggleAccept, moveState, setBreak, setColor);
 
 		return contextMenu;
 	}
@@ -482,7 +529,7 @@ class Editor {
 			if(currentHandler != null)
 				editorSpace.removeEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			if(transitionFromState != null){
-				transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+				transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 				transitionFromState = null;
 			}
 			for (Path p : currentMachine.getPaths())
@@ -538,6 +585,7 @@ class Editor {
 						c.setId(name);
 						c.setStrokeWidth(2);
 						c.setStroke(Color.BLACK);
+
 
 						Text t = new Text(name);
 						t.setId(name);
@@ -669,8 +717,8 @@ class Editor {
 									Transition t = addTransition(transitionFromState, s);
 
 									if(t == null){
-										transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-										s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+										transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
+										s.getCircle().setFill(s.getBaseColor());
 										transitionFromState = null;
 
 										return;
@@ -707,15 +755,15 @@ class Editor {
 										if(n instanceof Line || n instanceof CubicCurve)
 											n.toBack();
 
-									s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
-									transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+									s.getCircle().setFill(s.getBaseColor());
+									transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 									transitionFromState = null;
 								}
 							}
 						}
 						else{
 							if(transitionFromState != null)
-								transitionFromState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+								transitionFromState.getCircle().setFill(transitionFromState.getBaseColor());
 							transitionFromState = null;
 						}
 
@@ -886,7 +934,7 @@ class Editor {
 						System.out.printf("Next = %c %c %s\n", next.getReadChar(), next.getWriteChar(), next.getMoveDirection().toString());
 						machineSteps.add(new MachineStep(next, currentMachine.getTape().currentTapeVal()));
 
-						next.getFromState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+						next.getFromState().getCircle().setFill(next.getFromState().getBaseColor());
 						next.getToState().getCircle().setFill(Color.GREENYELLOW);
 
 						if(next.getWriteChar() != '~'){
@@ -923,7 +971,7 @@ class Editor {
 						System.out.printf("Next = %c %c %s\n", lastStep.getTransition().getReadChar(), lastStep.getTransition().getWriteChar(), lastStep.getTransition().getMoveDirection().toString());
 
 
-						lastStep.getTransition().getToState().getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+						lastStep.getTransition().getToState().getCircle().setFill(lastStep.getTransition().getToState().getBaseColor());
 
 						switch(lastStep.getTransition().getMoveDirection()){
 							case LEFT:
@@ -962,7 +1010,7 @@ class Editor {
 				currentMachine.getTape().refreshTapeDisplay();
 
 				for (State s : currentMachine.getStates())
-					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+					s.getCircle().setFill(s.getBaseColor());
 
 				for (Node b : args)
 					b.setDisable(false);
@@ -984,8 +1032,60 @@ class Editor {
 				@Override
 				public Void call() {
 					try {
-						tester.runMachine(currentMachine);
-					} catch (Exception e) {
+						trackerState = currentMachine.getStartState();
+						if (trackerState != null) {
+
+							trackerState = tester.runMachine(currentMachine, trackerState);
+
+							while (trackerState.isDebug()) {
+								trackerState.getCircle().setFill(Color.GREENYELLOW);
+								final CountDownLatch waitForInput = new CountDownLatch(1);
+								Platform.runLater(new Runnable() {
+									@Override
+									public void run() {
+
+										Alert debugLog = new Alert(Alert.AlertType.ERROR);
+										debugLog.initOwner(window);
+										debugLog.initModality(Modality.APPLICATION_MODAL);
+										ButtonType moreDebug = new ButtonType("Continue with breakpoint set");
+										ButtonType lessDebug = new ButtonType("Continue and disable breakpoint");
+										ButtonType Cancel = new ButtonType("Stop");
+
+										debugLog.setHeaderText("Breakpoint hit");
+										debugLog.getButtonTypes().setAll(moreDebug, lessDebug, Cancel);
+										Optional<ButtonType> method = debugLog.showAndWait();
+										if (method.get() == moreDebug) {
+											trackerState.setDebug(true);
+											trackerState.getCircle().setStroke(Color.RED);
+											tester.setCont(true);
+										} else if (method.get() == lessDebug) {
+											trackerState.setDebug(false);
+											trackerState.getCircle().setStroke(Color.BLACK);
+											tester.setCont(true);
+										}
+										else{
+											trackerState.getCircle().setFill(trackerState.getBaseColor());
+											tester.setCont(false);
+										}
+
+										waitForInput.countDown();
+									}
+								});
+								waitForInput.await();
+
+								if(!(tester.isCont())){
+									break;
+								}
+								else{
+									trackerState = tester.runMachine(currentMachine, trackerState);
+								}
+						}
+					}
+						else{
+						tester.setFailReason("Machine has no start state!");
+					}
+				}
+			catch (Exception e) {
 						showException(e);
 					}
 					return null;
@@ -1019,7 +1119,7 @@ class Editor {
 				currentMachine.getTape().refreshTapeDisplay();
 
 				for (State s : currentMachine.getStates())
-					s.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+					s.getCircle().setFill(s.getBaseColor());
 
 				for (Node b : args)
 					b.setDisable(false);
@@ -1052,7 +1152,7 @@ class Editor {
 			editorSpace.getChildren().remove(s.getAcceptCircle());
 
 
-		Circle c = new Circle(s.getX(), s.getY(), circleRadius, Color.LIGHTGOLDENRODYELLOW);
+		Circle c = new Circle(s.getX(), s.getY(), circleRadius, s.getBaseColor());
 		c.setId(s.getName());
 		c.setStrokeWidth(2);
 		c.setStroke(Color.BLACK);
