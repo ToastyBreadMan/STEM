@@ -201,11 +201,11 @@ class Editor {
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
 		ObjectExpression<Font> barTextTrack = Bindings.createObjectBinding(
-				() -> Font.font(Math.min(bar.getWidth() / 55, 20)), bar.widthProperty());
+				() -> Font.font(Math.min(bar.getWidth() / 55, 18)), bar.widthProperty());
 
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.fontProperty().bind(barTextTrack);
-		addState.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		addState.prefWidthProperty().bind(bar.widthProperty().divide(9));
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
@@ -217,18 +217,42 @@ class Editor {
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
-		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(6));
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(7));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
+
+		//My first attempt at making the button a toggle
+		///*********************************************
+		//This button is going to be for the reset tape head button
+		/*
+		ToggleButton resetTape = new ToggleButton("Reset Tape");
+		resetTape.fontProperty().bind(barTextTrack);
+		resetTape.prefWidthProperty().bind(bar.widthProperty().divide(5));
+		resetTape.setUserData("Reset Tape");
+		resetTape.setToggleGroup(toggleGroup);
+		*/
+		//**********************************************/
+
 		// END TOGGLE BUTTONS
 
 		Separator separator = new Separator();
 		separator.setOrientation(Orientation.VERTICAL);
 
 		// Begin NON-Toggle buttons
+
+
+		//These are my current changes so far, if I decide to make the
+		//button a non-toggle button
+		//**********************************************/
+		Button resetButton = new Button("Reset Tape");
+		resetButton.fontProperty().bind(barTextTrack);
+		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		resetButton.setOnAction(e->resetTape(currentMachine));
+		//**********************************************/
+
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(7));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		// Run Machine with options for speed
@@ -247,8 +271,7 @@ class Editor {
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton));
-
+		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, resetButton, tapeButton));
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
@@ -266,8 +289,8 @@ class Editor {
 		// Add separator
 		bar.getItems().add(separator);
 
-		// Add non-toggle buttons
-		bar.getItems().addAll(tapeButton, runMachine, saveButton, backButton);
+		// Add non-toggle buttons + Resetting Tape
+		bar.getItems().addAll(resetButton, tapeButton, runMachine, saveButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -498,6 +521,7 @@ class Editor {
 				System.out.println("No toggle selected");
 			}
 
+
 			//      _       _     _   ____  _        _
 			//     / \   __| | __| | / ___|| |_ __ _| |_ ___
 			//    / _ \ / _` |/ _` | \___ \| __/ _` | __/ _ \
@@ -724,16 +748,45 @@ class Editor {
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
+
+			//Code for Reset Tape - Still in progress
+			//**********************************************/
+			/*
+			else if (new_toggle.getUserData() == "Reset Tape"){
+				System.out.println(new_toggle.getUserData());
+				Machine currentMachine = new Machine();
+				editorSpace.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
+				ArrayList<Character> characters = new ArrayList<>();
+
+
+				// Define our new click handler
+				currentHandler = event -> {
+				TextInputDialog resetTape = new TextInputDialog( currentMachine.getTape().toString());
+
+				currentMachine.getTape().initTape(characters);
+				currentMachine.getTape().centerTapeDisplay();
+				currentMachine.getTape().refreshTapeDisplay();
+
+				};
+			}
+			*/
+			//**********************************************/
+
 		});
 
 	}
+
+
 
 	//   __  __            _     _              __  __                               _       _   _
 	//  |  \/  | __ _  ___| |__ (_)_ __   ___  |  \/  | __ _ _ __  _   _ _ __  _   _| | __ _| |_(_) ___  _ __
 	//  | |\/| |/ _` |/ __| '_ \| | '_ \ / _ \ | |\/| |/ _` | '_ \| | | | '_ \| | | | |/ _` | __| |/ _ \| '_ \
 	//  | |  | | (_| | (__| | | | | | | |  __/ | |  | | (_| | | | | |_| | |_) | |_| | | (_| | |_| | (_) | | | |
 	//  |_|  |_|\__,_|\___|_| |_|_|_| |_|\___| |_|  |_|\__,_|_| |_|\__,_| .__/ \__,_|_|\__,_|\__|_|\___/|_| |_|
-	//                                                                  |_|
+	//
+
+
+	ArrayList<Character> originalTape = new ArrayList<>();
 	private Transition addTransition(State from, State to) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window ,from, to);
@@ -747,6 +800,16 @@ class Editor {
 
 		return t.createdTransition;
 	}
+
+	//My current code for reseting the tape, very minimal right now
+	//**********************************************/
+	private void resetTape(Machine currentMachine) {
+
+		currentMachine.getTape().initTape(originalTape);
+		//currentMachine.getTape().centerTapeDisplay();
+		currentMachine.getTape().refreshTapeDisplay();
+	}
+	//**********************************************/
 
 	private void editTape(Stage window, Machine currentMachine) {
 		TextInputDialog tapeEdit = new TextInputDialog( currentMachine.getTape().toString());
@@ -776,6 +839,9 @@ class Editor {
 				}
 			}
 
+			//Need to store this character string for my
+			//Reset tape function
+			originalTape = characters;
 			currentMachine.getTape().initTape(characters);
 			currentMachine.getTape().refreshTapeDisplay();
 
