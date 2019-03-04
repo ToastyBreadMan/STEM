@@ -805,9 +805,27 @@ class Editor {
 	//**********************************************/
 	private void resetTape(Machine currentMachine) {
 
-		currentMachine.getTape().initTape(originalTape);
-		//currentMachine.getTape().centerTapeDisplay();
-		currentMachine.getTape().refreshTapeDisplay();
+		//If the tape was preloaded in, we want to reset tape to that value
+		//until they use the edit tape button to actually change the tape
+		if (originalTape.isEmpty()) {
+
+			Character currentTape[] = currentMachine.getTape().getTapeAsArray();
+			for (char c : currentTape) {
+
+				originalTape.add(c);
+			}
+
+			currentMachine.getTape().initTape(originalTape);
+			currentMachine.getTape().refreshTapeDisplay();
+		}
+
+		//If they use the edit tape button, we simply put the
+		//original tape onto the display
+		else {
+
+			currentMachine.getTape().initTape(originalTape);
+			currentMachine.getTape().refreshTapeDisplay();
+		}
 	}
 	//**********************************************/
 

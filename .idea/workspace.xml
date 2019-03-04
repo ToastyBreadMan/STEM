@@ -20,13 +20,32 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/STEM$Jar.ic" NAME="Jar Coverage Results" MODIFIED="1551594109427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf>
+            <file pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="-282">
+                    <caret line="131" column="51" lean-forward="true" selection-start-line="131" selection-start-column="51" selection-end-line="131" selection-end-column="51" />
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Tape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="348">
-              <caret line="164" column="72" selection-start-line="164" selection-start-column="72" selection-end-line="164" selection-end-column="72" />
+            <state relative-caret-position="395">
+              <caret line="314" column="9" lean-forward="true" selection-start-line="314" selection-start-column="9" selection-end-line="314" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#10795#10796#0" expanded="true" />
@@ -37,10 +56,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
+        <entry file="file://$PROJECT_DIR$/src/Editor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="96">
-              <caret line="152" column="52" lean-forward="true" selection-start-line="152" selection-start-column="52" selection-end-line="152" selection-end-column="52" />
+            <state relative-caret-position="497">
+              <caret line="813" lean-forward="true" selection-start-line="813" selection-end-line="813" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#43264#43265#0" expanded="true" />
+                <element signature="e#43302#43303#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -135,7 +159,6 @@
       <find>setFill</find>
       <find>loadMachine</find>
       <find>refresh</find>
-      <find>tapeArea</find>
       <find>tape</find>
       <find>toolbar</find>
       <find>stage</find>
@@ -149,6 +172,7 @@
       <find>Tape</find>
       <find>tapeButton</find>
       <find>editTape</find>
+      <find>tapeArea</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -193,6 +217,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -228,7 +253,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -380,6 +404,7 @@
       <workItem from="1551629998581" duration="1108000" />
       <workItem from="1551632866214" duration="2299000" />
       <workItem from="1551649278360" duration="7365000" />
+      <workItem from="1551721761480" duration="2824000" />
     </task>
     <task id="LOCAL-00001" summary="Merged /feat/scaling into /feat/functionality.&#10;Added Tape class for Tester class.&#10;Added Tester class basic functionality.&#10;&#10;Need to test this later.">
       <created>1532807712221</created>
@@ -532,7 +557,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="220702000" />
+    <option name="totallyTimeSpent" value="223526000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -547,7 +572,7 @@
     <frame x="409" y="30" width="1279" height="950" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22149302" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2247744" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -556,7 +581,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.15973154" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.495702" weight="0.1615667" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.495702" visible="true" weight="0.1615667" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.20496224" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -659,7 +684,8 @@
     <MESSAGE value="New ReadMe!" />
     <MESSAGE value="Disabled Help Button, added if statement to catch if Tape is empty." />
     <MESSAGE value="Havent done anything yet, just a note" />
-    <option name="LAST_COMMIT_MESSAGE" value="Havent done anything yet, just a note" />
+    <MESSAGE value="Reset Tape button is almost working now." />
+    <option name="LAST_COMMIT_MESSAGE" value="Reset Tape button is almost working now." />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/out/production/JFlap-ish/Tape.class" />
@@ -739,28 +765,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Editor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="469" column="48" lean-forward="true" selection-start-line="469" selection-start-column="48" selection-end-line="469" selection-end-column="48" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Tape.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="348">
-          <caret line="164" column="72" selection-start-line="164" selection-start-column="72" selection-end-line="164" selection-end-column="72" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#10795#10796#0" expanded="true" />
-            <element signature="e#10827#10828#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Machine.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1394">
@@ -824,8 +828,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="152" column="52" lean-forward="true" selection-start-line="152" selection-start-column="52" selection-end-line="152" selection-end-column="52" />
+        <state relative-caret-position="-282">
+          <caret line="131" column="51" lean-forward="true" selection-start-line="131" selection-start-column="51" selection-end-line="131" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="395">
+          <caret line="314" column="9" lean-forward="true" selection-start-line="314" selection-start-column="9" selection-end-line="314" selection-end-column="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#10795#10796#0" expanded="true" />
+            <element signature="e#10827#10828#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Editor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="497">
+          <caret line="813" lean-forward="true" selection-start-line="813" selection-end-line="813" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#43264#43265#0" expanded="true" />
+            <element signature="e#43302#43303#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
