@@ -20,32 +20,13 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/STEM$Jar.ic" NAME="Jar Coverage Results" MODIFIED="1551594109427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
-  <component name="DockManager">
-    <window id="1">
-      <content type="file-editors">
-        <state>
-          <leaf>
-            <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="-282">
-                    <caret line="131" column="51" lean-forward="true" selection-start-line="131" selection-start-column="51" selection-end-line="131" selection-end-column="51" />
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Tape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
-              <caret line="314" column="9" lean-forward="true" selection-start-line="314" selection-start-column="9" selection-end-line="314" selection-end-column="9" />
+            <state relative-caret-position="4199">
+              <caret line="286" column="5" selection-start-line="286" selection-start-column="5" selection-end-line="286" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#10795#10796#0" expanded="true" />
@@ -58,12 +39,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Editor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="497">
-              <caret line="813" lean-forward="true" selection-start-line="813" selection-end-line="813" />
+            <state relative-caret-position="1942">
+              <caret line="750" column="11" selection-start-line="750" selection-start-column="11" selection-end-line="750" selection-end-column="11" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#43264#43265#0" expanded="true" />
-                <element signature="e#43302#43303#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -217,8 +196,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -262,7 +241,7 @@
     <property name="GenerateAntBuildDialog.outputFileNameProperty" value="stem" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551631107823" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551728257323" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../git-bash.exe" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -404,7 +383,10 @@
       <workItem from="1551629998581" duration="1108000" />
       <workItem from="1551632866214" duration="2299000" />
       <workItem from="1551649278360" duration="7365000" />
-      <workItem from="1551721761480" duration="2824000" />
+      <workItem from="1551721761480" duration="4469000" />
+      <workItem from="1556053269053" duration="840000" />
+      <workItem from="1556132041875" duration="590000" />
+      <workItem from="1556221451669" duration="359000" />
     </task>
     <task id="LOCAL-00001" summary="Merged /feat/scaling into /feat/functionality.&#10;Added Tape class for Tester class.&#10;Added Tester class basic functionality.&#10;&#10;Need to test this later.">
       <created>1532807712221</created>
@@ -557,7 +539,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="223526000" />
+    <option name="totallyTimeSpent" value="226960000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -572,7 +554,7 @@
     <frame x="409" y="30" width="1279" height="950" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2247744" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23625922" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -581,7 +563,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.15973154" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.495702" visible="true" weight="0.1615667" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.495702" weight="0.1615667" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.20496224" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -765,6 +747,25 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1870">
+          <caret line="159" lean-forward="true" selection-start-line="159" selection-end-line="159" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4199">
+          <caret line="286" column="5" selection-start-line="286" selection-start-column="5" selection-end-line="286" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#10795#10796#0" expanded="true" />
+            <element signature="e#10827#10828#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Machine.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1394">
@@ -826,33 +827,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-282">
-          <caret line="131" column="51" lean-forward="true" selection-start-line="131" selection-start-column="51" selection-end-line="131" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Tape.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="314" column="9" lean-forward="true" selection-start-line="314" selection-start-column="9" selection-end-line="314" selection-end-column="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#10795#10796#0" expanded="true" />
-            <element signature="e#10827#10828#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Editor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="497">
-          <caret line="813" lean-forward="true" selection-start-line="813" selection-end-line="813" />
+        <state relative-caret-position="1942">
+          <caret line="750" column="11" selection-start-line="750" selection-start-column="11" selection-end-line="750" selection-end-column="11" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#43264#43265#0" expanded="true" />
-            <element signature="e#43302#43303#0" expanded="true" />
           </folding>
         </state>
       </provider>

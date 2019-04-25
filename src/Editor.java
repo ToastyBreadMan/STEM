@@ -221,18 +221,6 @@ class Editor {
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
 
-		//My first attempt at making the button a toggle
-		///*********************************************
-		//This button is going to be for the reset tape head button
-		/*
-		ToggleButton resetTape = new ToggleButton("Reset Tape");
-		resetTape.fontProperty().bind(barTextTrack);
-		resetTape.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		resetTape.setUserData("Reset Tape");
-		resetTape.setToggleGroup(toggleGroup);
-		*/
-		//**********************************************/
-
 		// END TOGGLE BUTTONS
 
 		Separator separator = new Separator();
@@ -240,15 +228,11 @@ class Editor {
 
 		// Begin NON-Toggle buttons
 
-
-		//These are my current changes so far, if I decide to make the
-		//button a non-toggle button
-		//**********************************************/
+		//New Reset Button
 		Button resetButton = new Button("Reset Tape");
 		resetButton.fontProperty().bind(barTextTrack);
 		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
 		resetButton.setOnAction(e->resetTape(currentMachine));
-		//**********************************************/
 
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
@@ -748,32 +732,7 @@ class Editor {
 				};
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
-
-			//Code for Reset Tape - Still in progress
-			//**********************************************/
-			/*
-			else if (new_toggle.getUserData() == "Reset Tape"){
-				System.out.println(new_toggle.getUserData());
-				Machine currentMachine = new Machine();
-				editorSpace.addEventFilter(MouseEvent.MOUSE_MOVED, MoveEvent);
-				ArrayList<Character> characters = new ArrayList<>();
-
-
-				// Define our new click handler
-				currentHandler = event -> {
-				TextInputDialog resetTape = new TextInputDialog( currentMachine.getTape().toString());
-
-				currentMachine.getTape().initTape(characters);
-				currentMachine.getTape().centerTapeDisplay();
-				currentMachine.getTape().refreshTapeDisplay();
-
-				};
-			}
-			*/
-			//**********************************************/
-
 		});
-
 	}
 
 
@@ -801,8 +760,7 @@ class Editor {
 		return t.createdTransition;
 	}
 
-	//My current code for reseting the tape, very minimal right now
-	//**********************************************/
+	//Current code for resetting the tape
 	private void resetTape(Machine currentMachine) {
 
 		//If the tape was preloaded in, we want to reset tape to that value
@@ -827,7 +785,6 @@ class Editor {
 			currentMachine.getTape().refreshTapeDisplay();
 		}
 	}
-	//**********************************************/
 
 	private void editTape(Stage window, Machine currentMachine) {
 		TextInputDialog tapeEdit = new TextInputDialog( currentMachine.getTape().toString());
