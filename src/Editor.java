@@ -231,17 +231,17 @@ class Editor {
 		separator.setOrientation(Orientation.VERTICAL);
 
 		// Begin NON-Toggle buttons
+		
+		Button tapeButton = new Button("Edit Tape");
+		tapeButton.fontProperty().bind(barTextTrack);
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(7));
+		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		//New Reset Button
 		Button resetButton = new Button("Reset Tape");
 		resetButton.fontProperty().bind(barTextTrack);
 		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
 		resetButton.setOnAction(e->resetTape(currentMachine));
-
-		Button tapeButton = new Button("Edit Tape");
-		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(7));
-		tapeButton.setOnAction(e->editTape(window, currentMachine));
 
 		// Run Machine with options for speed
 		MenuItem manualControl = new MenuItem("Manual");
@@ -259,7 +259,7 @@ class Editor {
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, resetButton, tapeButton));
+		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton, resetButton));
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
@@ -278,7 +278,7 @@ class Editor {
 		bar.getItems().add(separator);
 
 		// Add non-toggle buttons + Resetting Tape
-		bar.getItems().addAll(resetButton, tapeButton, runMachine, saveButton, backButton);
+		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -484,11 +484,17 @@ class Editor {
 	    return saveLoad.saveMachine(window, m);
 	}
 
-	public void loadMachine(Stage window, Scene prev){
+	//Where I store global tape given to us from the SaveLoad class's current tape
+    ArrayList<Character> originalTape = new ArrayList<>();
+
+    public void loadMachine(Stage window, Scene prev){
 	    SaveLoad saveLoad = new SaveLoad();
 
 	    currentMachine = saveLoad.loadMachine(window);
 	    stateNextVal = saveLoad.getStateNextVal();
+
+	    //When the machine is loaded, we set originalTape
+        originalTape = saveLoad.globalTape;
 
 		//currentMachine = currentMachine;
 		redrawAllStates();
@@ -793,7 +799,7 @@ class Editor {
 	//
 
 
-	ArrayList<Character> originalTape = new ArrayList<>();
+
 	private Transition addTransition(State from, State to) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window ,from, to);
@@ -808,18 +814,17 @@ class Editor {
 		return t.createdTransition;
 	}
 
+	//Need to store the editedTape's value in case they change it
+	//using the editTape function
+	public ArrayList<Character> editedTape = new ArrayList<>();
+
 	//Current code for resetting the tape
 	private void resetTape(Machine currentMachine) {
 
+
 		//If the tape was preloaded in, we want to reset tape to that value
 		//until they use the edit tape button to actually change the tape
-		if (originalTape.isEmpty()) {
-
-			Character currentTape[] = currentMachine.getTape().getTapeAsArray();
-			for (char c : currentTape) {
-
-				originalTape.add(c);
-			}
+		if (editedTape.isEmpty()) {
 
 			currentMachine.getTape().initTape(originalTape);
 			currentMachine.getTape().refreshTapeDisplay();
@@ -829,9 +834,10 @@ class Editor {
 		//original tape onto the display
 		else {
 
-			currentMachine.getTape().initTape(originalTape);
-			currentMachine.getTape().refreshTapeDisplay();
+            currentMachine.getTape().initTape(editedTape);
+            currentMachine.getTape().refreshTapeDisplay();
 		}
+
 	}
 
 	private void editTape(Stage window, Machine currentMachine) {
@@ -864,7 +870,7 @@ class Editor {
 
 			//Need to store this character string for my
 			//Reset tape function
-			originalTape = characters;
+			editedTape = characters;
 			currentMachine.getTape().initTape(characters);
 			currentMachine.getTape().refreshTapeDisplay();
 
