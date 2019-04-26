@@ -6,7 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="241aa757-0a00-438e-bcb0-551146b3aba5" name="Default" comment="Reset Tape button is almost working now.">
+    <list default="true" id="241aa757-0a00-438e-bcb0-551146b3aba5" name="Default" comment="Breakpoint Color Fix&#10;If you abort your debug, now the state goes back to original color.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Editor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Editor.java" afterDir="false" />
     </list>
@@ -25,7 +25,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Tape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4199">
+            <state relative-caret-position="735">
               <caret line="286" column="5" selection-start-line="286" selection-start-column="5" selection-end-line="286" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -39,11 +39,29 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Editor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1942">
-              <caret line="750" column="11" selection-start-line="750" selection-start-column="11" selection-end-line="750" selection-end-column="11" />
+            <state relative-caret-position="130">
+              <caret line="795" column="43" selection-start-line="795" selection-start-column="43" selection-end-line="795" selection-end-column="43" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#2474#2475#0" expanded="true" />
+                <element signature="e#2500#2501#0" expanded="true" />
+                <element signature="e#35665#37659#0" expanded="true" />
+                <element signature="e#37658#37659#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.idea/modules.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="100" selection-start-line="4" selection-start-column="100" selection-end-line="4" selection-end-column="100" />
             </state>
           </provider>
         </entry>
@@ -51,8 +69,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Machine.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1394">
-              <caret line="119" selection-start-line="119" selection-end-line="119" />
+            <state relative-caret-position="735">
+              <caret line="121" selection-start-line="121" selection-end-line="121" />
               <folding>
                 <element signature="e#0#3432#0" expanded="true" />
               </folding>
@@ -91,22 +109,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ConfirmAlert.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-              <folding>
-                <element signature="e#0#1545#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/State.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="527">
-              <caret line="49" column="5" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+            <state relative-caret-position="714">
+              <caret line="55" column="5" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -138,25 +144,24 @@
       <find>setFill</find>
       <find>loadMachine</find>
       <find>refresh</find>
-      <find>tape</find>
+      <find>tapeArea</find>
       <find>toolbar</find>
       <find>stage</find>
       <find>s</find>
       <find>runMach</find>
       <find>Add Transition</find>
       <find>borderPane</find>
-      <find>deleteState</find>
-      <find>addS</find>
-      <find>mouse</find>
-      <find>Tape</find>
-      <find>tapeButton</find>
-      <find>editTape</find>
-      <find>tapeArea</find>
+      <find>set breakpoint</find>
+      <find>tape</find>
+      <find>addstate</find>
+      <find>contextmenu</find>
+      <find>dialog</find>
+      <find>window</find>
+      <find>set colo</find>
+      <find>lightg</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
-    <option name="PATH_TO_GIT" value="C:\Users\Matt Bianchi\Downloads\Git-2.21.0-64-bit.exe" />
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -175,80 +180,43 @@
         <option value="$PROJECT_DIR$/src/Path.java" />
         <option value="$PROJECT_DIR$/src/SaveLoad.java" />
         <option value="$PROJECT_DIR$/src/MachineStep.java" />
+        <option value="$PROJECT_DIR$/src/Tape.java" />
         <option value="$PROJECT_DIR$/src/TransitionEditor.java" />
         <option value="$PROJECT_DIR$/src/Tester.java" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/AlertBox.java" />
         <option value="$PROJECT_DIR$/src/Main.java" />
-        <option value="$PROJECT_DIR$/src/Tape.java" />
         <option value="$PROJECT_DIR$/src/Editor.java" />
+        <option value="$PROJECT_DIR$/.idea/modules.xml" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="409" />
-    <option name="y" value="30" />
-    <option name="width" value="1279" />
-    <option name="height" value="950" />
+    <option name="x" value="-7" />
+    <option name="width" value="974" />
+    <option name="height" value="1087" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="ProjectPane" />
       <pane id="PackagesPane" />
       <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="STEM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="STEM" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="STEM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="STEM" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="STEM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="STEM" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="artifacts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="STEM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="STEM" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="artifacts" type="462c0819:PsiDirectoryNode" />
-              <item name="STEM_jar" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="STEM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="STEM" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
-    <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
-    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
-    <property name="GenerateAntBuildDialog.outputFileNameProperty" value="stem" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551728257323" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../git-bash.exe" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1548347377897" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="project.structure.last.edited" value="Artifacts" />
-    <property name="project.structure.proportion" value="0.15625" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="copyright" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -262,7 +230,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JAR Application.Jar">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="STEM" />
@@ -286,14 +254,9 @@
     </configuration>
     <configuration name="Jar" type="JarApplication" factoryName="JAR Application">
       <option name="JAR_PATH" value="$PROJECT_DIR$/out/artifacts/STEM_jar/STEM.jar" />
-      <option name="WORKING_DIRECTORY" value="C:\Git\STEM2019mbianch2\STEM\out\artifacts\STEM_jar" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\Devon Suarez\IdeaProjects\STEM\out\artifacts\STEM_jar" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <module name="STEM" />
-      <method v="2">
-        <option name="BuildArtifacts" enabled="true">
-          <artifact name="STEM:jar" />
-        </option>
-      </method>
+      <method v="2" />
     </configuration>
     <configuration default="true" type="TestNG">
       <option name="VM_PARAMETERS" />
@@ -319,7 +282,7 @@
     </recent_temporary>
   </component>
   <component name="SvnConfiguration">
-    <configuration>C:\Users\Matt Bianchi\AppData\Roaming\Subversion</configuration>
+    <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -370,23 +333,16 @@
       <workItem from="1539691310437" duration="248000" />
       <workItem from="1539975398349" duration="8000" />
       <workItem from="1539975467598" duration="214000" />
-      <workItem from="1548725901757" duration="1546000" />
-      <workItem from="1549215050341" duration="1299000" />
-      <workItem from="1549265813963" duration="2006000" />
-      <workItem from="1549269447085" duration="999000" />
-      <workItem from="1549337099128" duration="7319000" />
-      <workItem from="1549385753773" duration="1351000" />
-      <workItem from="1549475862213" duration="12261000" />
-      <workItem from="1551033618304" duration="1622000" />
-      <workItem from="1551553176528" duration="9240000" />
-      <workItem from="1551593553019" duration="909000" />
-      <workItem from="1551629998581" duration="1108000" />
-      <workItem from="1551632866214" duration="2299000" />
-      <workItem from="1551649278360" duration="7365000" />
-      <workItem from="1551721761480" duration="4469000" />
-      <workItem from="1556053269053" duration="840000" />
-      <workItem from="1556132041875" duration="590000" />
-      <workItem from="1556221451669" duration="359000" />
+      <workItem from="1547081939213" duration="108000" />
+      <workItem from="1547082065293" duration="2147000" />
+      <workItem from="1547144859540" duration="1321000" />
+      <workItem from="1547483975268" duration="1837000" />
+      <workItem from="1547738122135" duration="2457000" />
+      <workItem from="1547741049241" duration="2180000" />
+      <workItem from="1548181146170" duration="54000" />
+      <workItem from="1548197530065" duration="689000" />
+      <workItem from="1548210498853" duration="16000" />
+      <workItem from="1548341327565" duration="4045000" />
     </task>
     <task id="LOCAL-00001" summary="Merged /feat/scaling into /feat/functionality.&#10;Added Tape class for Tester class.&#10;Added Tester class basic functionality.&#10;&#10;Need to test this later.">
       <created>1532807712221</created>
@@ -535,11 +491,32 @@
       <option name="project" value="LOCAL" />
       <updated>1539294649192</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Breakpoint Implementation with error&#10;Breakpoint works, but requires user input twice. Functional upon error repair.">
+      <created>1547084161303</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1547084161303</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Breakpoints Implemented&#10;Breakpoints are now implemented with a dialog box, code already through minor testing, but could use more.">
+      <created>1547485218636</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1547485218636</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Breakpoint Color Fix&#10;If you abort your debug, now the state goes back to original color.">
+      <created>1547485692407</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1547485692407</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="226960000" />
+    <option name="totallyTimeSpent" value="186968000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -551,28 +528,29 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="409" y="30" width="1279" height="950" extended-state="0" />
+    <frame x="409" y="30" width="1280" height="950" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23625922" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15864332" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
       <window_info id="UI Designer" order="4" />
       <window_info id="Capture Tool" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info id="Learn" order="7" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.15973154" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.495702" weight="0.1615667" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989339" visible="true" weight="0.18482251" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.20496224" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32901832" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32502708" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32502595" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="9" weight="0.3279396" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.504298" side_tool="true" weight="0.18359853" />
-      <window_info anchor="bottom" id="Messages" order="11" weight="0.2631579" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010661" side_tool="true" weight="0.18359853" />
+      <window_info anchor="bottom" id="Messages" order="11" weight="0.2619339" />
       <window_info anchor="bottom" id="Inspection Results" order="12" weight="0.3261745" />
       <window_info anchor="bottom" id="Docker" order="13" show_stripe_button="false" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -585,7 +563,6 @@
       <window_info anchor="right" id="Palette&#9;" order="7" />
       <window_info anchor="right" id="Maven Projects" order="8" />
       <window_info anchor="right" id="Maven" order="9" />
-      <window_info anchor="right" id="Coverage" order="10" side_tool="true" weight="0.32991952" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -665,9 +642,10 @@
     <MESSAGE value="Copyright and NewName" />
     <MESSAGE value="New ReadMe!" />
     <MESSAGE value="Disabled Help Button, added if statement to catch if Tape is empty." />
-    <MESSAGE value="Havent done anything yet, just a note" />
-    <MESSAGE value="Reset Tape button is almost working now." />
-    <option name="LAST_COMMIT_MESSAGE" value="Reset Tape button is almost working now." />
+    <MESSAGE value="Breakpoint Implementation with error&#10;Breakpoint works, but requires user input twice. Functional upon error repair." />
+    <MESSAGE value="Breakpoints Implemented&#10;Breakpoints are now implemented with a dialog box, code already through minor testing, but could use more." />
+    <MESSAGE value="Breakpoint Color Fix&#10;If you abort your debug, now the state goes back to original color." />
+    <option name="LAST_COMMIT_MESSAGE" value="Breakpoint Color Fix&#10;If you abort your debug, now the state goes back to original color." />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/out/production/JFlap-ish/Tape.class" />
@@ -690,43 +668,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Input.java" />
     <entry file="jar://C:/Program Files/Java/jdk-10.0.2/lib/src.zip!/java.base/java/lang/Object.java" />
-    <entry file="file://$PROJECT_DIR$/src/Path.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="455">
-          <caret line="256" column="11" selection-start-line="256" selection-start-column="11" selection-end-line="256" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.idea/META-INF/MANIFEST.MF" />
     <entry file="file://$PROJECT_DIR$/.idea/artifacts/JFlap_ish_jar.xml" />
     <entry file="file://$PROJECT_DIR$/out/production/JFlap-ish/META-INF/MANIFEST.MF" />
     <entry file="file://$PROJECT_DIR$/out/production/JFlap-ish/checkmark.png" />
     <entry file="file://$PROJECT_DIR$/out/production/JFlap-ish/TODO.txt" />
     <entry file="jar:///usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/jfxrt.jar!/com/sun/glass/ui/gtk/GtkApplication.class" />
-    <entry file="file://$PROJECT_DIR$/src/Tester.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/TransitionEditor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="15" column="7" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/AlertBox.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -739,7 +686,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1258">
+        <state relative-caret-position="1411">
           <caret line="98" selection-start-line="98" selection-end-line="98" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -747,56 +694,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1870">
-          <caret line="159" lean-forward="true" selection-start-line="159" selection-end-line="159" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Tape.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4199">
-          <caret line="286" column="5" selection-start-line="286" selection-start-column="5" selection-end-line="286" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#10795#10796#0" expanded="true" />
-            <element signature="e#10827#10828#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Machine.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1394">
-          <caret line="119" selection-start-line="119" selection-end-line="119" />
-          <folding>
-            <element signature="e#0#3432#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/MachineStep.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="22" column="17" selection-start-line="22" selection-start-column="17" selection-end-line="22" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/HelpMenu.java">
+    <entry file="file://$PROJECT_DIR$/src/AlertBox.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
-          <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/CloseButton.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding>
-            <element signature="e#0#994#0" expanded="true" />
-          </folding>
+          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -810,10 +711,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/State.java">
+    <entry file="file://$PROJECT_DIR$/src/HelpMenu.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="49" column="5" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+        <state relative-caret-position="68">
+          <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MachineStep.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="22" column="17" selection-start-line="22" selection-start-column="17" selection-end-line="22" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/SaveLoad.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="28" column="13" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tester.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2159">
+          <caret line="152" column="12" selection-start-line="152" selection-start-column="12" selection-end-line="152" selection-end-column="64" />
         </state>
       </provider>
     </entry>
@@ -827,12 +749,85 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Editor.java">
+    <entry file="file://$PROJECT_DIR$/src/TransitionEditor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1942">
-          <caret line="750" column="11" selection-start-line="750" selection-start-column="11" selection-end-line="750" selection-end-column="11" />
+        <state relative-caret-position="561">
+          <caret line="58" column="74" selection-start-line="58" selection-start-column="74" selection-end-line="58" selection-end-column="74" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/CloseButton.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#994#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Path.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-289">
+          <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/State.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="55" column="5" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Machine.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="735">
+          <caret line="121" selection-start-line="121" selection-end-line="121" />
+          <folding>
+            <element signature="e#0#3432#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="735">
+          <caret line="286" column="5" selection-start-line="286" selection-start-column="5" selection-end-line="286" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#10795#10796#0" expanded="true" />
+            <element signature="e#10827#10828#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/modules.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="100" selection-start-line="4" selection-start-column="100" selection-end-line="4" selection-end-column="100" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Editor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="130">
+          <caret line="795" column="43" selection-start-line="795" selection-start-column="43" selection-end-line="795" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2474#2475#0" expanded="true" />
+            <element signature="e#2500#2501#0" expanded="true" />
+            <element signature="e#35665#37659#0" expanded="true" />
+            <element signature="e#37658#37659#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -928,6 +923,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
+          <last-edited>src</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

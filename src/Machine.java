@@ -92,14 +92,16 @@ class Machine {
 	public String toString(){
 		//System.out.println("I'm in toString");
 		StringBuilder ret = new StringBuilder();
-		ret.append(String.format("// Save File for JFLAP-ISH\n// Version %.2f\n\n", 1.0));
+		ret.append(String.format("// Save File for STEM\n// Version %.2f\n\n", 1.0));
 		ret.append("// State Format: name x y start accept\n");
 		ret.append("STATES:\n");
 
+		// TODO: This needs to be changed to add more information for states when saving a file
 		for (State s : states){
-			ret.append(String.format("\t%s %f %f %s %s\n",
+			ret.append(String.format("\t%s %f %f %s %s %f %f %f %f\n",
 					s.getName(), s.getX(), s.getY(),
-					Boolean.toString((startState == s)), Boolean.toString(s.isAccept())));
+					Boolean.toString((startState == s)), Boolean.toString(s.isAccept()), s.getBaseColor().getRed(),
+					s.getBaseColor().getGreen(), s.getBaseColor().getBlue(), s.getBaseColor().getOpacity()));
 		}
 		ret.append("\n");
 

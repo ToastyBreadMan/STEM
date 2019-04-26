@@ -23,6 +23,17 @@ public class Tester {
     private String failReason;
     private boolean succeeded;
     private int loops;
+    private boolean cont;
+
+    public boolean isCont() {
+        return cont;
+    }
+
+    public void setCont(boolean cont) {
+        this.cont = cont;
+    }
+
+    public void setFailReason(String reason) { failReason = reason; }
 
     public String getFailReason() {
         return failReason;
@@ -60,17 +71,17 @@ public class Tester {
         return curTransition;
     }
 
-    public void runMachine(Machine m) throws Exception{
+    public State runMachine(Machine m, State startState) throws Exception{
         State currentState;
         ArrayList<State> states = m.getStates();
         Tape tape = m.getTape();
 
         // Fail if there is no start state
-        currentState = m.getStartState();
-        if(currentState == null){
+        currentState = startState;
+       if(currentState == null){
             failReason = "Machine has no start state!";
             succeeded = false;
-            return;
+            return null;
         }
 
         int waitTime = m.getSpeed();
@@ -81,6 +92,7 @@ public class Tester {
 
         Transition next = this.nextTransition(currentState, m.getTape());
         while(next != null) {
+
 
             // Set the color of the selected State
             if(currentState.getCircle() != null){
@@ -120,7 +132,8 @@ public class Tester {
 
             // Reset Colors
             if(currentState.getCircle() != null) {
-                currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+                currentState.setColor(currentState.getBaseColor());
+                currentState.getCircle().setFill(currentState.getBaseColor());
             }
 
             currentState = next.getToState();
@@ -129,6 +142,11 @@ public class Tester {
             loops++;
             // TODO: prompt user if loop goes over X iterations
             if(loops % 1000 == 0){
+            }
+
+            //Detect breakpoints
+            if(currentState.isDebug()){
+                return currentState;
             }
         }
 
@@ -142,8 +160,12 @@ public class Tester {
 
         TimeUnit.MILLISECONDS.sleep(waitTime);
         if(currentState.getCircle() != null) {
-            currentState.getCircle().setFill(Color.LIGHTGOLDENRODYELLOW);
+            currentState.setColor(currentState.getBaseColor());
+            currentState.getCircle().setFill(currentState.getBaseColor());
         }
         this.succeeded = currentState.isAccept();
+        return currentState;
     }
+
+
 }
