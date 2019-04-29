@@ -30,8 +30,13 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
 public class SaveLoad {
     private int stateNextVal;
+
+    //This array is needed for Reset Tape
+    public ArrayList<Character> globalTape = new ArrayList<>();
 
     public int getStateNextVal() {
         return stateNextVal;
@@ -146,6 +151,9 @@ public class SaveLoad {
             else
                 tapeChars.add(c);
         }
+
+        //Have to set the globalTape variable here
+        globalTape = tapeChars;
 
         // Tape is loaded here.
         loadMachine.getTape().initTape(tapeChars);
@@ -330,6 +338,10 @@ public class SaveLoad {
         curLine = curLine.substring(1, curLine.length()); // Remove the tab
         ArrayList<Character> newTape = new ArrayList<>();
         for(char c : curLine.toCharArray()) newTape.add(c);
+
+        //Have to set the globalTape variable here
+        globalTape = newTape;
+
         loadMachine.getTape().initTape(newTape);
         loadMachine.getTape().setTapeHead(tapeHead);
 

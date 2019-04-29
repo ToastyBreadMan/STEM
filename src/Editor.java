@@ -205,11 +205,11 @@ class Editor {
 		bar = new ToolBar();
 		toggleGroup = new ToggleGroup();
 		ObjectExpression<Font> barTextTrack = Bindings.createObjectBinding(
-				() -> Font.font(Math.min(bar.getWidth() / 55, 20)), bar.widthProperty());
+				() -> Font.font(Math.min(bar.getWidth() / 55, 18)), bar.widthProperty());
 
 		ToggleButton addState = new ToggleButton("Add State");
 		addState.fontProperty().bind(barTextTrack);
-		addState.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		addState.prefWidthProperty().bind(bar.widthProperty().divide(9));
 		addState.setUserData("Add State");
 		addState.setToggleGroup(toggleGroup);
 		
@@ -221,19 +221,27 @@ class Editor {
 		
 		ToggleButton addTransition = new ToggleButton("Add Transition");
 		addTransition.fontProperty().bind(barTextTrack);
-		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(6));
+		addTransition.prefWidthProperty().bind(bar.widthProperty().divide(7));
 		addTransition.setUserData("Add Transition");
 		addTransition.setToggleGroup(toggleGroup);
+
 		// END TOGGLE BUTTONS
 
 		Separator separator = new Separator();
 		separator.setOrientation(Orientation.VERTICAL);
 
 		// Begin NON-Toggle buttons
+		
 		Button tapeButton = new Button("Edit Tape");
 		tapeButton.fontProperty().bind(barTextTrack);
-		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		tapeButton.prefWidthProperty().bind(bar.widthProperty().divide(7));
 		tapeButton.setOnAction(e->editTape(window, currentMachine));
+
+		//New Reset Button
+		Button resetButton = new Button("Reset Tape");
+		resetButton.fontProperty().bind(barTextTrack);
+		resetButton.prefWidthProperty().bind(bar.widthProperty().divide(8));
+		resetButton.setOnAction(e->resetTape(currentMachine));
 
 		// Run Machine with options for speed
 		MenuItem manualControl = new MenuItem("Manual");
@@ -251,8 +259,7 @@ class Editor {
 		runMachine.setText("Run Machine");
 		runMachine.fontProperty().bind(barTextTrack);
 		runMachine.prefWidthProperty().bind(bar.widthProperty().divide(5));
-		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton));
-
+		runMachine.setOnAction(e-> runMachine(runMachine, addState, deleteState, addTransition, tapeButton, resetButton));
 
 		Button saveButton = new Button("Save");
 		saveButton.fontProperty().bind(barTextTrack);
@@ -270,8 +277,8 @@ class Editor {
 		// Add separator
 		bar.getItems().add(separator);
 
-		// Add non-toggle buttons
-		bar.getItems().addAll(tapeButton, runMachine, saveButton, backButton);
+		// Add non-toggle buttons + Resetting Tape
+		bar.getItems().addAll(tapeButton, resetButton, runMachine, saveButton, backButton);
 
 		bar.setStyle("-fx-background-color: #dae4e3");
 
@@ -477,11 +484,17 @@ class Editor {
 	    return saveLoad.saveMachine(window, m);
 	}
 
-	public void loadMachine(Stage window, Scene prev){
+	//Where I store global tape given to us from the SaveLoad class's current tape
+    ArrayList<Character> originalTape = new ArrayList<>();
+
+    public void loadMachine(Stage window, Scene prev){
 	    SaveLoad saveLoad = new SaveLoad();
 
 	    currentMachine = saveLoad.loadMachine(window);
 	    stateNextVal = saveLoad.getStateNextVal();
+
+	    //When the machine is loaded, we set originalTape
+        originalTape = saveLoad.globalTape;
 
 		//currentMachine = currentMachine;
 		redrawAllStates();
@@ -544,6 +557,7 @@ class Editor {
 			if(new_toggle == null){
 				System.out.println("No toggle selected");
 			}
+
 
 			//      _       _     _   ____  _        _
 			//     / \   __| | __| | / ___|| |_ __ _| |_ ___
@@ -773,15 +787,19 @@ class Editor {
 				editorSpace.addEventHandler(MouseEvent.MOUSE_CLICKED, currentHandler);
 			}
 		});
-
 	}
+
+
 
 	//   __  __            _     _              __  __                               _       _   _
 	//  |  \/  | __ _  ___| |__ (_)_ __   ___  |  \/  | __ _ _ __  _   _ _ __  _   _| | __ _| |_(_) ___  _ __
 	//  | |\/| |/ _` |/ __| '_ \| | '_ \ / _ \ | |\/| |/ _` | '_ \| | | | '_ \| | | | |/ _` | __| |/ _ \| '_ \
 	//  | |  | | (_| | (__| | | | | | | |  __/ | |  | | (_| | | | | |_| | |_) | |_| | | (_| | |_| | (_) | | | |
 	//  |_|  |_|\__,_|\___|_| |_|_|_| |_|\___| |_|  |_|\__,_|_| |_|\__,_| .__/ \__,_|_|\__,_|\__|_|\___/|_| |_|
-	//                                                                  |_|
+	//
+
+
+
 	private Transition addTransition(State from, State to) {
 		// This window suspends until Transition editor is done.
 		TransitionEditor t = new TransitionEditor(window ,from, to);
@@ -794,6 +812,32 @@ class Editor {
 					t.createdTransition.getReadChar(), t.createdTransition.getWriteChar(), t.createdTransition.getMoveDirection().toString());
 
 		return t.createdTransition;
+	}
+
+	//Need to store the editedTape's value in case they change it
+	//using the editTape function
+	public ArrayList<Character> editedTape = new ArrayList<>();
+
+	//Current code for resetting the tape
+	private void resetTape(Machine currentMachine) {
+
+
+		//If the tape was preloaded in, we want to reset tape to that value
+		//until they use the edit tape button to actually change the tape
+		if (editedTape.isEmpty()) {
+
+			currentMachine.getTape().initTape(originalTape);
+			currentMachine.getTape().refreshTapeDisplay();
+		}
+
+		//If they use the edit tape button, we simply put the
+		//original tape onto the display
+		else {
+
+            currentMachine.getTape().initTape(editedTape);
+            currentMachine.getTape().refreshTapeDisplay();
+		}
+
 	}
 
 	private void editTape(Stage window, Machine currentMachine) {
@@ -824,6 +868,9 @@ class Editor {
 				}
 			}
 
+			//Need to store this character string for my
+			//Reset tape function
+			editedTape = characters;
 			currentMachine.getTape().initTape(characters);
 			currentMachine.getTape().refreshTapeDisplay();
 
