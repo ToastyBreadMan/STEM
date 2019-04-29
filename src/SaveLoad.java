@@ -352,7 +352,12 @@ public class SaveLoad {
             int cur = Integer.parseInt(pair.getKey());
             if (cur > highestState) highestState = cur;
         }
-        stateNextVal = highestState + 1;
+        if(highestState >= 0) {
+            stateNextVal = highestState + 1;
+        }
+        else{
+            stateNextVal = 0;
+        }
         return loadMachine;
     }
 }
